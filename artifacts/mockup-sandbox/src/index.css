@@ -1,164 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-  --color-sidebar: hsl(var(--sidebar));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-background: hsl(40 33% 98%);
+  --color-foreground: hsl(130 32% 12%);
+  --color-primary: hsl(120 100% 20.4%);
+  --color-primary-foreground: hsl(40 33% 98%);
+  
+  --font-sans: 'Outfit', sans-serif;
+  --font-serif: 'Fraunces', serif;
 
-  --text-xs: 0.75rem;
-  --text-xs--line-height: calc(1 / 0.75);
-  --text-sm: 0.875rem;
-  --text-sm--line-height: calc(1.25 / 0.875);
-  --text-base: 1rem;
-  --text-base--line-height: calc(1.5 / 1);
-  --text-lg: 1.125rem;
-  --text-lg--line-height: calc(1.75 / 1.125);
-  --text-xl: 1.25rem;
-  --text-xl--line-height: calc(1.75 / 1.25);
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: calc(2 / 1.5);
-  --text-3xl: 1.875rem;
-  --text-3xl--line-height: calc(2.25 / 1.875);
-  --text-4xl: 2.25rem;
-  --text-4xl--line-height: calc(2.5 / 2.25);
-  --text-5xl: 3rem;
-  --text-5xl--line-height: 1;
-  --text-6xl: 3.75rem;
-  --text-6xl--line-height: 1;
-  --text-7xl: 4.5rem;
-  --text-7xl--line-height: 1;
-  --text-8xl: 6rem;
-  --text-8xl--line-height: 1;
-  --text-9xl: 8rem;
-  --text-9xl--line-height: 1;
+  --animate-fade-in: fade-in 0.8s ease-out forwards;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
-/* LIGHT MODE - Default theme with placeholder values */
 :root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
-  --opaque-button-border-intensity: -8;
+  --background: 40 33% 98%; 
+  --foreground: 130 32% 12%; 
 
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 130 32% 12%;
+
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  --popover-foreground: 130 32% 12%;
+
+  --primary: 120 100% 20.4%;
+  --primary-foreground: 40 33% 98%;
+
+  --secondary: 40 25% 90%;
+  --secondary-foreground: 130 32% 12%;
+
+  --muted: 40 25% 93%;
+  --muted-foreground: 130 10% 40%;
+
+  --accent: 40 33% 90%;
+  --accent-foreground: 130 32% 12%;
+
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
-  --sidebar: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 240 5.9% 10%;
 
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-  --radius: .5rem;
-  --spacing: 0.25rem;
-}
+  --border: 40 25% 85%;
+  --input: 40 25% 85%;
+  --ring: 120 100% 20.4%;
 
-/* DARK MODE */
-.dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
-  --opaque-button-border-intensity: 9;
-
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
-
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
-  --sidebar: 240 5.9% 10%;
-  --sidebar-foreground: 240 4.8% 95.9%;
-  --sidebar-primary: 224.3 76.3% 48%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 3.7% 15.9%;
-  --sidebar-accent-foreground: 240 4.8% 95.9%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 240 4.9% 83.9%;
+  --radius: 2rem;
 }
 
 @layer base {
@@ -166,20 +65,20 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
   }
 }
 
-@layer utilities {
-  /* Hide ugly search cancel button in Chrome */
-  input[type="search"]::-webkit-search-cancel-button {
-    @apply hidden;
-  }
-
-  /* Placeholder styling for contentEditable div */
-  [contenteditable][data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: hsl(var(--muted-foreground));
-    pointer-events: none;
-  }
+/* Islamic Geometric Pattern utility */
+.bg-islamic-pattern {
+  background-color: var(--color-primary);
+  background-image: radial-gradient(circle at 100% 150%, var(--color-primary) 24%, hsl(var(--primary) / 0.8) 24%, hsl(var(--primary) / 0.8) 28%, var(--color-primary) 28%, var(--color-primary) 36%, hsl(var(--primary) / 0.8) 36%, hsl(var(--primary) / 0.8) 40%, transparent 40%, transparent),
+  radial-gradient(circle at 0    150%, var(--color-primary) 24%, hsl(var(--primary) / 0.8) 24%, hsl(var(--primary) / 0.8) 28%, var(--color-primary) 28%, var(--color-primary) 36%, hsl(var(--primary) / 0.8) 36%, hsl(var(--primary) / 0.8) 40%, transparent 40%, transparent),
+  radial-gradient(circle at 50%  100%, hsl(var(--primary) / 0.6) 10%, var(--color-primary) 10%, var(--color-primary) 23%, hsl(var(--primary) / 0.8) 23%, hsl(var(--primary) / 0.8) 30%, var(--color-primary) 30%, var(--color-primary) 43%, hsl(var(--primary) / 0.8) 43%, hsl(var(--primary) / 0.8) 50%, var(--color-primary) 50%, var(--color-primary) 63%, hsl(var(--primary) / 0.8) 63%, hsl(var(--primary) / 0.8) 71%, transparent 71%, transparent),
+  radial-gradient(circle at 100% 50%, hsl(var(--primary) / 0.6) 5%, var(--color-primary) 5%, var(--color-primary) 15%, hsl(var(--primary) / 0.8) 15%, hsl(var(--primary) / 0.8) 20%, var(--color-primary) 20%, var(--color-primary) 29%, hsl(var(--primary) / 0.8) 29%, hsl(var(--primary) / 0.8) 34%, var(--color-primary) 34%, var(--color-primary) 44%, hsl(var(--primary) / 0.8) 44%, hsl(var(--primary) / 0.8) 49%, transparent 49%, transparent),
+  radial-gradient(circle at 0    50%, hsl(var(--primary) / 0.6) 5%, var(--color-primary) 5%, var(--color-primary) 15%, hsl(var(--primary) / 0.8) 15%, hsl(var(--primary) / 0.8) 20%, var(--color-primary) 20%, var(--color-primary) 29%, hsl(var(--primary) / 0.8) 29%, hsl(var(--primary) / 0.8) 34%, var(--color-primary) 34%, var(--color-primary) 44%, hsl(var(--primary) / 0.8) 44%, hsl(var(--primary) / 0.8) 49%, transparent 49%, transparent);
+  background-size: 100px 50px;
 }

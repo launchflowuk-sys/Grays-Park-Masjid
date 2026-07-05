@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "AjEZiaQ3Jb53Jd_VA9SyP"
+uri = "file://artifacts/mockup-sandbox/src/assets/hero-mosque.png"
+type = "image"
+title = "Mosque interior golden hour"
+
+[[generated]]
+id = "wOWT3Ex6BX8p2BXv1oM--"
+uri = "file://artifacts/mockup-sandbox/src/assets/rebuild-render.png"
+type = "image"
+title = "Mosque architectural render"
+
+[[generated]]
+id = "BQGPnUSxf3_5A9KySJprv"
+uri = "file://artifacts/mockup-sandbox/src/assets/community.png"
+type = "image"
+title = "Community gathering warmth"
