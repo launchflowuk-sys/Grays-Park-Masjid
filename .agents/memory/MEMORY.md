@@ -9,3 +9,4 @@
 - [nginx reverse proxy in Docker Compose needs lazy DNS resolution](nginx-compose-lazy-dns-proxy.md) — static `proxy_pass` to a Compose service name resolves once at nginx startup and can fail to boot; use a variable + `resolver 127.0.0.11`.
 - [drizzle-kit push schema sync in Docker Compose deploys](drizzle-push-based-schema-sync.md) — no migration files here; forgetting to re-run `drizzle-kit push` against prod after a schema change causes widespread unrelated-looking 500s.
 - [Express 5 route-param typing quirk](express5-route-param-typing.md) — literal route path strings can type `req.params.id` as `string|string[]`, breaking drizzle `eq()`; extract to a `const id: string` first.
+- [Public settings endpoint uses an allowlist](public-settings-allowlist.md) — new site_settings keys need adding to PUBLIC_SETTING_KEYS server-side or the public GET returns 404 even with a valid row.

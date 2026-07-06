@@ -17,6 +17,11 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
   { key: "site_phone", label: "Phone Number", description: "Displayed on the contact page." },
   { key: "site_email", label: "Contact Email", description: "Displayed on the contact page." },
   { key: "site_address", label: "Address", description: "Full postal address of the masjid." },
+  { key: "site_hours", label: "Opening Hours", description: "Displayed in the site footer, e.g. \"Open 7 Days a Week, 5:00 AM – 10:00 PM\"." },
+  { key: "site_facebook_url", label: "Facebook URL", description: "Link shown as a social icon in the footer. Leave blank to hide." },
+  { key: "site_instagram_url", label: "Instagram URL", description: "Link shown as a social icon in the footer. Leave blank to hide." },
+  { key: "site_youtube_url", label: "YouTube URL", description: "Link shown as a social icon in the footer. Leave blank to hide." },
+  { key: "site_whatsapp_url", label: "WhatsApp URL", description: "Link shown as a social icon in the footer. Leave blank to hide." },
   {
     key: "site_announcement",
     label: "Site-wide Announcement",
