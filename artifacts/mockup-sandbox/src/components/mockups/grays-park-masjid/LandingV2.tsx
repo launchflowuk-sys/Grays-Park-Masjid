@@ -1,18 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MapPin, Clock, ArrowRight, BookOpen, Users, Phone, Mail } from 'lucide-react';
+import {
+  Heart,
+  MapPin,
+  Clock,
+  ArrowRight,
+  BookOpen,
+  Users,
+  Phone,
+  Mail,
+  Search,
+  ChevronDown,
+  Menu,
+  Landmark,
+  HeartHandshake,
+  HandCoins,
+  Calendar,
+} from 'lucide-react';
 
-import heroImage from '../../../assets/hero-mosque.png';
+import heroImage from '../../../assets/home-hero.png';
 import rebuildImage from '../../../assets/rebuild-render.png';
 import communityImage from '../../../assets/community.png';
 import logoImage from '../../../../../../attached_assets/branding/grayspark_logo.png';
 
-const PRAYERS = [
-  { name: 'Fajr', time: '05:12' },
-  { name: 'Zuhr', time: '13:05' },
-  { name: 'Asr', time: '16:30' },
-  { name: 'Maghrib', time: '19:15' },
-  { name: 'Isha', time: '20:45' },
+const TODAY_PRAYERS = [
+  { name: 'Fajr', time: '4:35 AM' },
+  { name: 'Dhuhr', time: '1:15 PM', active: true },
+  { name: 'Asr', time: '4:45 PM' },
+  { name: 'Maghrib', time: '8:39 PM' },
+  { name: 'Isha', time: '10:15 PM' },
+  { name: "Jumu'ah", time: '1:30 PM', time2: '2:15 PM' },
+];
+
+const STATS = [
+  { icon: Users, title: 'WELCOMING EVERYONE', desc: 'All are welcome' },
+  { icon: BookOpen, title: 'ISLAMIC EDUCATION', desc: 'Classes for all ages' },
+  { icon: HeartHandshake, title: 'COMMUNITY SERVICE', desc: 'Serving the community' },
+  { icon: HandCoins, title: 'DONATE & SUPPORT', desc: 'Help build our future' },
+  { icon: Calendar, title: 'EVENTS & ACTIVITIES', desc: 'Bringing people together' },
 ];
 
 export default function GraysParkMasjidLandingV2() {
@@ -26,103 +51,164 @@ export default function GraysParkMasjidLandingV2() {
 
   return (
     <div className="min-h-screen bg-[#faf8f2] flex flex-col font-sans text-[#1c2a1e] selection:bg-[#4a7856]/20">
-      {/* Navigation */}
-      <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? 'bg-[#faf8f2]/95 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'
-        }`}
-      >
+      {/* Navigation — exact recreation of provided mock */}
+      <nav className="fixed top-0 w-full z-50 bg-white shadow-sm py-3">
         <div className="mx-auto px-6 max-w-[1320px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoImage} alt="Grays Park Masjid logo" className="h-11 w-auto object-contain" />
-            <span className={`hidden md:block font-semibold tracking-tight ${scrolled ? 'text-[#1c2a1e]' : 'text-white'}`}>
-              Grays Park Masjid
-            </span>
+            <img src={logoImage} alt="Grays Park Masjid logo" className="h-10 w-auto object-contain" />
+            <div className="leading-tight">
+              <p className="font-semibold tracking-tight text-[#1c3a24] text-[15px]">GRAYS PARK</p>
+              <p className="font-semibold tracking-tight text-[#d4a24c] text-[15px] -mt-1">MASJID</p>
+            </div>
           </div>
 
-          <div className={`hidden md:flex items-center gap-8 text-[15px] font-medium ${scrolled ? 'text-[#1c2a1e]/75' : 'text-white/90'}`}>
-            <a href="#rebuild" className="hover:opacity-70 transition-opacity">The Rebuild</a>
-            <a href="#prayer-times" className="hover:opacity-70 transition-opacity">Prayer Times</a>
-            <a href="#programs" className="hover:opacity-70 transition-opacity">Programs</a>
-            <a href="#contact" className="hover:opacity-70 transition-opacity">Contact</a>
+          <div className="hidden lg:flex items-center gap-7 text-[13px] font-semibold tracking-wide text-[#1c3a24]/80">
+            <a href="#prayer-times" className="hover:text-[#1c3a24] transition-colors">PRAYER TIMES</a>
+            <a href="#" className="flex items-center gap-1 hover:text-[#1c3a24] transition-colors">
+              SERVICES <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+            </a>
+            <a href="#" className="flex items-center gap-1 hover:text-[#1c3a24] transition-colors">
+              EDUCATION <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+            </a>
+            <a href="#" className="hover:text-[#1c3a24] transition-colors">EVENTS</a>
+            <a href="#" className="hover:text-[#1c3a24] transition-colors">NEWS</a>
+            <a href="#" className="flex items-center gap-1 hover:text-[#1c3a24] transition-colors">
+              ABOUT <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+            </a>
+            <a href="#contact" className="hover:text-[#1c3a24] transition-colors">CONTACT</a>
           </div>
 
-          <button
-            aria-label="Donate to Grays Park Masjid"
-            className="min-h-[44px] bg-[#4a7856] text-white px-6 rounded-full font-medium text-sm hover:bg-[#3e6549] active:scale-[0.97] transition-all shadow-sm shadow-[#4a7856]/20 flex items-center gap-2"
-          >
-            <Heart className="w-4 h-4" aria-hidden="true" />
-            Donate
-          </button>
+          <div className="flex items-center gap-3">
+            <button aria-label="Search" className="hidden md:flex w-9 h-9 items-center justify-center text-[#1c3a24]/70 hover:text-[#1c3a24] transition-colors">
+              <Search className="w-[18px] h-[18px]" aria-hidden="true" />
+            </button>
+            <button
+              aria-label="Donate to Grays Park Masjid"
+              className="min-h-[40px] bg-[#d4a24c] text-white px-5 rounded-full font-semibold text-[13px] tracking-wide hover:bg-[#c3923d] active:scale-[0.97] transition-all flex items-center gap-2"
+            >
+              DONATE NOW <Heart className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+            <button aria-label="Open menu" className="w-9 h-9 rounded-full border border-[#1c3a24]/20 flex items-center justify-center text-[#1c3a24] hover:bg-[#1c3a24]/5 transition-colors">
+              <Menu className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* Hero — organic curved mask, warm earth palette, calm motion */}
-      <section className="relative min-h-[100dvh] flex items-center overflow-hidden pt-24">
-        <div className="absolute inset-0">
-          <img src={heroImage} alt="Interior of Grays Park Masjid prayer hall" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1c2a1e]/85 via-[#1c2a1e]/35 to-[#1c2a1e]/10" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-[1320px] px-6 w-full">
-          <div
-            className="max-w-xl bg-white/10 backdrop-blur-md border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] p-9 md:p-12"
-            style={{ borderRadius: '2.5rem 2.5rem 2.5rem 0.75rem' }}
-          >
-            <motion.h1
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.12] text-white"
-            >
-              Growing a home for faith, rooted in Thurrock.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-              className="mt-5 text-base md:text-lg text-white/80 leading-relaxed max-w-md"
-            >
-              Grays Park Masjid nurtures worship, learning, and care for our neighbours — and is rebuilding to welcome even more of our community home.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-              className="mt-8 flex flex-wrap items-center gap-4"
-            >
-              <button className="min-h-[44px] bg-[#e8b34d] text-[#1c2a1e] px-7 rounded-full font-semibold hover:bg-[#dba53c] active:scale-[0.97] transition-all flex items-center gap-2">
-                <Heart className="w-4 h-4" aria-hidden="true" />
-                Support the Rebuild
-              </button>
-              <a href="#prayer-times" className="min-h-[44px] flex items-center text-white font-medium text-sm underline decoration-white/40 underline-offset-4 hover:decoration-white transition-colors">
-                See today's prayer times
-              </a>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Prayer Times — organic soft card, tabular numbers, generous touch spacing */}
-      <section id="prayer-times" className="relative z-20 -mt-10 mx-auto max-w-[1200px] px-6">
-        <div className="bg-white rounded-[2rem] shadow-xl shadow-black/5 border border-black/5 p-7 md:p-9 flex flex-col md:flex-row items-center gap-7 md:gap-10">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-11 h-11 rounded-full bg-[#4a7856]/10 flex items-center justify-center text-[#4a7856]">
-              <Clock className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Today's Prayers</p>
-              <p className="text-xs text-[#1c2a1e]/55 flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3 h-3" aria-hidden="true" /> Grays, Essex
-              </p>
-            </div>
+      {/* Hero — exact recreation of provided mock, full-bleed background photo */}
+      <section className="relative overflow-visible pt-[76px]">
+        <div className="relative min-h-[620px] md:min-h-[680px] flex items-center overflow-hidden">
+          <div className="absolute inset-0">
+            <img src={heroImage} alt="Grays Park Masjid building and grounds" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f12]/80 via-[#0d1f12]/25 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f12]/60 via-transparent to-transparent" />
           </div>
 
-          <div className="flex-1 w-full grid grid-cols-5 gap-2">
-            {PRAYERS.map((p) => (
-              <div key={p.name} className="text-center rounded-2xl py-2.5 hover:bg-[#4a7856]/5 transition-colors">
-                <p className="text-xs text-[#1c2a1e]/55 font-medium">{p.name}</p>
-                <p className="text-base md:text-lg font-semibold tabular-nums mt-0.5">{p.time}</p>
+          <div className="relative z-10 mx-auto max-w-[1320px] px-6 w-full">
+            <div className="max-w-xl">
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="text-[#e0b562] text-xs md:text-sm font-semibold tracking-[0.15em] uppercase mb-4"
+              >
+                In the name of Allah, the Most Gracious, the Most Merciful
+              </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.05, ease: 'easeOut' }}
+                className="text-4xl md:text-5xl lg:text-[3.25rem] font-semibold tracking-tight leading-[1.1] text-white"
+              >
+                A Place of Worship,
+                <br />
+                Learning &amp; Community
+              </motion.h1>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="w-14 h-[3px] bg-[#e0b562] my-6"
+              />
+              <motion.p
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+                className="text-base md:text-lg text-white/85 leading-relaxed max-w-md"
+              >
+                Grays Park Masjid is a welcoming center for worship, education and community service. All are welcome.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
+                className="mt-8 flex flex-wrap items-center gap-3"
+              >
+                <button className="min-h-[46px] bg-[#1c3a24] text-white px-6 rounded-full font-semibold text-[13px] tracking-wide hover:bg-[#254a2e] active:scale-[0.97] transition-all flex items-center gap-2">
+                  VIEW PRAYER TIMES <Clock className="w-4 h-4" aria-hidden="true" />
+                </button>
+                <button className="min-h-[46px] bg-[#d4a24c] text-white px-6 rounded-full font-semibold text-[13px] tracking-wide hover:bg-[#c3923d] active:scale-[0.97] transition-all flex items-center gap-2">
+                  DONATE NOW <Heart className="w-4 h-4" aria-hidden="true" />
+                </button>
+                <button className="min-h-[46px] border border-white/70 text-white px-6 rounded-full font-semibold text-[13px] tracking-wide hover:bg-white/10 active:scale-[0.97] transition-all flex items-center gap-2">
+                  VISIT US <MapPin className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Next Prayer card — bottom-left, overlaps hero/section boundary */}
+        <div className="absolute left-6 md:left-[calc((100vw-1320px)/2+24px)] -bottom-28 md:-bottom-32 z-20 w-[calc(100%-3rem)] max-w-[420px]">
+          <div className="bg-white rounded-2xl shadow-2xl shadow-black/20 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[#d4a24c] text-xs font-semibold tracking-wide uppercase">Next Prayer</p>
+                <p className="text-2xl font-bold text-[#1c3a24] mt-1">Dhuhr</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold tabular-nums text-[#1c3a24]">01:15:45</p>
+                <p className="text-xs text-[#1c3a24]/55 mt-0.5">starts at 1:15 PM</p>
+              </div>
+              <div className="w-11 h-11 rounded-full bg-[#1c3a24] flex items-center justify-center text-white shrink-0 ml-3">
+                <Landmark className="w-5 h-5" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-6 gap-1.5 mt-5">
+              {TODAY_PRAYERS.map((p) => (
+                <div
+                  key={p.name}
+                  className={`text-center rounded-lg py-2 px-1 ${p.active ? 'bg-[#eef0e6]' : ''}`}
+                >
+                  <p className="text-[10px] text-[#1c3a24]/55 font-semibold truncate">{p.name}</p>
+                  <p className="text-[11px] font-semibold text-[#1c3a24] mt-1 leading-tight">{p.time}</p>
+                  {p.time2 && <p className="text-[11px] font-semibold text-[#1c3a24] leading-tight">{p.time2}</p>}
+                </div>
+              ))}
+            </div>
+
+            <a
+              href="#prayer-times"
+              className="mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-[#1c3a24]/70 hover:text-[#1c3a24] transition-colors"
+            >
+              View full timetable <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+
+        {/* Stats bar — dark green, five columns, sits directly beneath hero */}
+        <div className="bg-[#1c3a24] pt-20 pb-8 md:pt-24 md:pb-9">
+          <div className="mx-auto max-w-[1320px] px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
+            {STATS.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-[#e0b562] shrink-0">
+                  <Icon className="w-5 h-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-white text-[13px] font-semibold tracking-wide">{title}</p>
+                  <p className="text-white/60 text-xs mt-0.5">{desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -130,7 +216,7 @@ export default function GraysParkMasjidLandingV2() {
       </section>
 
       {/* The Rebuild Appeal */}
-      <section id="rebuild" className="py-24 md:py-28">
+      <section id="rebuild" className="pt-40 pb-24 md:pt-48 md:pb-28">
         <div className="mx-auto max-w-[1200px] px-6 grid lg:grid-cols-2 gap-14 items-center">
           <div className="relative">
             <div
