@@ -20,12 +20,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminListDonationTransactionsParams,
   AdminUser,
   Announcement,
+  CheckoutDonation,
   Course,
   CourseRegistration,
   CreateAdminUserInput,
   DonationCampaign,
+  DonationTransaction,
   Enquiry,
   ErrorResponse,
   Event,
@@ -71,6 +74,7 @@ import type {
   ResetPasswordInput,
   Service,
   SiteSetting,
+  SquareConfig,
   StaffMember,
   TimetablePdf,
   UploadUrlRequest,
@@ -3691,6 +3695,237 @@ export const useAdminDeleteDonationCampaign = <TError = ErrorType<ErrorResponse>
       > => {
       return useMutation(getAdminDeleteDonationCampaignMutationOptions(options));
     }
+
+export const getGetSquareConfigUrl = () => {
+
+
+
+
+  return `/api/donations/square-config`
+}
+
+/**
+ * @summary Get public Square Web Payments SDK configuration
+ */
+export const getSquareConfig = async ( options?: RequestInit): Promise<SquareConfig> => {
+
+  return customFetch<SquareConfig>(getGetSquareConfigUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSquareConfigQueryKey = () => {
+    return [
+    `/api/donations/square-config`
+    ] as const;
+    }
+
+
+export const getGetSquareConfigQueryOptions = <TData = Awaited<ReturnType<typeof getSquareConfig>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSquareConfig>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSquareConfigQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSquareConfig>>> = ({ signal }) => getSquareConfig({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSquareConfig>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSquareConfigQueryResult = NonNullable<Awaited<ReturnType<typeof getSquareConfig>>>
+export type GetSquareConfigQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get public Square Web Payments SDK configuration
+ */
+
+export function useGetSquareConfig<TData = Awaited<ReturnType<typeof getSquareConfig>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSquareConfig>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSquareConfigQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCheckoutDonationUrl = () => {
+
+
+
+
+  return `/api/donations/checkout`
+}
+
+/**
+ * @summary Process a donation payment via Square
+ */
+export const checkoutDonation = async (checkoutDonation: CheckoutDonation, options?: RequestInit): Promise<DonationTransaction> => {
+
+  return customFetch<DonationTransaction>(getCheckoutDonationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(checkoutDonation)
+  }
+);}
+
+
+
+
+export const getCheckoutDonationMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkoutDonation>>, TError,{data: BodyType<CheckoutDonation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof checkoutDonation>>, TError,{data: BodyType<CheckoutDonation>}, TContext> => {
+
+const mutationKey = ['checkoutDonation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof checkoutDonation>>, {data: BodyType<CheckoutDonation>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  checkoutDonation(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CheckoutDonationMutationResult = NonNullable<Awaited<ReturnType<typeof checkoutDonation>>>
+    export type CheckoutDonationMutationBody = BodyType<CheckoutDonation>
+    export type CheckoutDonationMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Process a donation payment via Square
+ */
+export const useCheckoutDonation = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkoutDonation>>, TError,{data: BodyType<CheckoutDonation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof checkoutDonation>>,
+        TError,
+        {data: BodyType<CheckoutDonation>},
+        TContext
+      > => {
+      return useMutation(getCheckoutDonationMutationOptions(options));
+    }
+
+export const getAdminListDonationTransactionsUrl = (params?: AdminListDonationTransactionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/donations/transactions?${stringifiedParams}` : `/api/admin/donations/transactions`
+}
+
+/**
+ * @summary List donation transactions (admin)
+ */
+export const adminListDonationTransactions = async (params?: AdminListDonationTransactionsParams, options?: RequestInit): Promise<DonationTransaction[]> => {
+
+  return customFetch<DonationTransaction[]>(getAdminListDonationTransactionsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListDonationTransactionsQueryKey = (params?: AdminListDonationTransactionsParams,) => {
+    return [
+    `/api/admin/donations/transactions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListDonationTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof adminListDonationTransactions>>, TError = ErrorType<ErrorResponse>>(params?: AdminListDonationTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListDonationTransactions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListDonationTransactionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDonationTransactions>>> = ({ signal }) => adminListDonationTransactions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListDonationTransactions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListDonationTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListDonationTransactions>>>
+export type AdminListDonationTransactionsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List donation transactions (admin)
+ */
+
+export function useAdminListDonationTransactions<TData = Awaited<ReturnType<typeof adminListDonationTransactions>>, TError = ErrorType<ErrorResponse>>(
+ params?: AdminListDonationTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListDonationTransactions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListDonationTransactionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListGalleryAlbumsPublicUrl = () => {
 

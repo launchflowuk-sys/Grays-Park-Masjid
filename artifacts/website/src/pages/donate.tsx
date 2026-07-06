@@ -1,14 +1,179 @@
+import { useState } from "react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useListDonationCampaignsPublic } from "@workspace/api-client-react";
-import { HandHeart } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { SquarePaymentForm } from "@/components/donations/square-payment-form";
+import {
+  useListDonationCampaignsPublic,
+  useCheckoutDonation,
+  getListDonationCampaignsPublicQueryKey,
+  type DonationCampaign,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { HandHeart, CheckCircle2 } from "lucide-react";
 
 function formatCurrency(value: string | null | undefined) {
   const num = Number(value ?? 0);
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(num);
+}
+
+const PRESET_AMOUNTS = ["10", "25", "50", "100"];
+
+function DonationDialog({
+  campaign,
+  open,
+  onOpenChange,
+}: {
+  campaign: DonationCampaign | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [amount, setAmount] = useState("25");
+  const [customAmount, setCustomAmount] = useState("");
+  const [donorName, setDonorName] = useState("");
+  const [donorEmail, setDonorEmail] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const effectiveAmount = customAmount.trim() !== "" ? customAmount.trim() : amount;
+  const parsedAmount = Number(effectiveAmount);
+  const isValidAmount = Number.isFinite(parsedAmount) && parsedAmount > 0;
+
+  const checkoutMutation = useCheckoutDonation({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListDonationCampaignsPublicQueryKey() });
+        setSuccess(true);
+      },
+      onError: (error: unknown) =>
+        toast({
+          title: "Payment failed",
+          description: error instanceof Error ? error.message : "Please check your card details and try again.",
+          variant: "destructive",
+        }),
+    },
+  });
+
+  function resetAndClose() {
+    onOpenChange(false);
+    setTimeout(() => {
+      setAmount("25");
+      setCustomAmount("");
+      setDonorName("");
+      setDonorEmail("");
+      setSuccess(false);
+    }, 200);
+  }
+
+  async function handleTokenize(sourceId: string) {
+    if (!campaign || !isValidAmount) return;
+    await checkoutMutation.mutateAsync({
+      data: {
+        campaignId: campaign.id,
+        amount: parsedAmount.toFixed(2),
+        sourceId,
+        donorName: donorName.trim() || undefined,
+        donorEmail: donorEmail.trim() || undefined,
+      },
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : resetAndClose())}>
+      <DialogContent className="max-w-md">
+        {success ? (
+          <div className="py-6 text-center space-y-3" data-testid="donation-success">
+            <CheckCircle2 className="h-10 w-10 text-primary mx-auto" />
+            <DialogTitle>Jazak Allahu Khairan!</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Your donation of {formatCurrency(effectiveAmount)} to {campaign?.title} has been received.
+            </p>
+            <Button onClick={resetAndClose} className="mt-2" data-testid="button-close-success">
+              Close
+            </Button>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Donate to {campaign?.title}</DialogTitle>
+              <DialogDescription>Enter an amount and complete your donation securely via Square.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label className="mb-2 block">Amount (£)</Label>
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {PRESET_AMOUNTS.map((preset) => (
+                    <Button
+                      key={preset}
+                      type="button"
+                      variant={amount === preset && !customAmount ? "default" : "outline"}
+                      onClick={() => {
+                        setAmount(preset);
+                        setCustomAmount("");
+                      }}
+                      data-testid={`button-amount-${preset}`}
+                    >
+                      £{preset}
+                    </Button>
+                  ))}
+                </div>
+                <Input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  placeholder="Custom amount"
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  data-testid="input-custom-amount"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1 block">Name (optional)</Label>
+                  <Input
+                    value={donorName}
+                    onChange={(e) => setDonorName(e.target.value)}
+                    data-testid="input-donor-name"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-1 block">Email (optional)</Label>
+                  <Input
+                    type="email"
+                    value={donorEmail}
+                    onChange={(e) => setDonorEmail(e.target.value)}
+                    data-testid="input-donor-email"
+                  />
+                </div>
+              </div>
+              {!isValidAmount && (
+                <p className="text-sm text-destructive">Please enter a valid amount.</p>
+              )}
+              <SquarePaymentForm
+                onTokenize={handleTokenize}
+                disabled={!isValidAmount}
+                submitting={checkoutMutation.isPending}
+                submitLabel={isValidAmount ? `Pay ${formatCurrency(effectiveAmount)}` : "Pay Now"}
+              />
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export default function DonatePage() {
@@ -16,6 +181,8 @@ export default function DonatePage() {
   const active = (data ?? []).filter((c) => c.active);
   const featured = active.filter((c) => c.featured);
   const others = active.filter((c) => !c.featured);
+  const [selectedCampaign, setSelectedCampaign] = useState<DonationCampaign | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -75,17 +242,16 @@ export default function DonatePage() {
                             </div>
                           </div>
                         )}
-                        {campaign.externalDonationUrl ? (
-                          <a href={campaign.externalDonationUrl} target="_blank" rel="noopener noreferrer">
-                            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid={`button-donate-${campaign.id}`}>
-                              Donate to this campaign
-                            </Button>
-                          </a>
-                        ) : (
-                          <Button disabled variant="outline">
-                            Donations coming soon
-                          </Button>
-                        )}
+                        <Button
+                          className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                          onClick={() => {
+                            setSelectedCampaign(campaign);
+                            setDialogOpen(true);
+                          }}
+                          data-testid={`button-donate-${campaign.id}`}
+                        >
+                          Donate to this campaign
+                        </Button>
                       </CardContent>
                     </div>
                   </Card>
@@ -96,6 +262,8 @@ export default function DonatePage() {
         </section>
       </main>
       <SiteFooter />
+
+      <DonationDialog campaign={selectedCampaign} open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

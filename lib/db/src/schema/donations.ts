@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, boolean, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, numeric, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -23,3 +23,24 @@ export const insertDonationCampaignSchema = createInsertSchema(donationCampaigns
 });
 export type InsertDonationCampaign = z.infer<typeof insertDonationCampaignSchema>;
 export type DonationCampaign = typeof donationCampaignsTable.$inferSelect;
+
+export const donationTransactionStatusEnum = pgEnum("donation_transaction_status", [
+  "succeeded",
+  "failed",
+]);
+
+export const donationTransactionsTable = pgTable("donation_transactions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  campaignId: uuid("campaign_id")
+    .notNull()
+    .references(() => donationCampaignsTable.id, { onDelete: "cascade" }),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  donorName: text("donor_name"),
+  donorEmail: text("donor_email"),
+  squarePaymentId: text("square_payment_id").notNull().unique(),
+  status: donationTransactionStatusEnum("status").notNull().default("succeeded"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type InsertDonationTransaction = typeof donationTransactionsTable.$inferInsert;
+export type DonationTransaction = typeof donationTransactionsTable.$inferSelect;

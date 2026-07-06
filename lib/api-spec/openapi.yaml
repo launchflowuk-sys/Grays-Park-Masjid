@@ -1022,6 +1022,80 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /donations/square-config:
+    get:
+      operationId: getSquareConfig
+      tags: [donations]
+      summary: Get public Square Web Payments SDK configuration
+      responses:
+        "200":
+          description: Square client configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SquareConfig"
+  /donations/checkout:
+    post:
+      operationId: checkoutDonation
+      tags: [donations]
+      summary: Process a donation payment via Square
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutDonation"
+      responses:
+        "201":
+          description: Payment processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationTransaction"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "402":
+          description: Payment failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/donations/transactions:
+    get:
+      operationId: adminListDonationTransactions
+      tags: [donations]
+      summary: List donation transactions (admin)
+      parameters:
+        - name: campaignId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of donation transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DonationTransaction"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /gallery-albums:
     get:
       operationId: listGalleryAlbumsPublic
@@ -2755,6 +2829,64 @@ components:
           type: boolean
         featured:
           type: boolean
+    SquareConfig:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        locationId:
+          type: string
+        environment:
+          type: string
+          enum: [sandbox, production]
+      required:
+        - applicationId
+        - locationId
+        - environment
+    CheckoutDonation:
+      type: object
+      properties:
+        campaignId:
+          type: string
+        amount:
+          type: string
+        sourceId:
+          type: string
+        donorName:
+          type: ["string", "null"]
+        donorEmail:
+          type: ["string", "null"]
+      required:
+        - campaignId
+        - amount
+        - sourceId
+    DonationTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        campaignId:
+          type: string
+        amount:
+          type: string
+        donorName:
+          type: ["string", "null"]
+        donorEmail:
+          type: ["string", "null"]
+        squarePaymentId:
+          type: string
+        status:
+          type: string
+          enum: [succeeded, failed]
+        createdAt:
+          type: string
+      required:
+        - id
+        - campaignId
+        - amount
+        - squarePaymentId
+        - status
+        - createdAt
     GalleryAlbum:
       type: object
       properties:

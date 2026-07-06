@@ -1001,6 +1001,59 @@ export const AdminDeleteDonationCampaignResponse = zod.void()
 
 
 /**
+ * @summary Get public Square Web Payments SDK configuration
+ */
+export const GetSquareConfigResponse = zod.object({
+  "applicationId": zod.string(),
+  "locationId": zod.string(),
+  "environment": zod.enum(['sandbox', 'production'])
+})
+
+
+/**
+ * @summary Process a donation payment via Square
+ */
+export const CheckoutDonationBody = zod.object({
+  "campaignId": zod.string(),
+  "amount": zod.string(),
+  "sourceId": zod.string(),
+  "donorName": zod.string().nullish(),
+  "donorEmail": zod.string().nullish()
+})
+
+export const CheckoutDonationResponse = zod.object({
+  "id": zod.string(),
+  "campaignId": zod.string(),
+  "amount": zod.string(),
+  "donorName": zod.string().nullish(),
+  "donorEmail": zod.string().nullish(),
+  "squarePaymentId": zod.string(),
+  "status": zod.enum(['succeeded', 'failed']),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List donation transactions (admin)
+ */
+export const AdminListDonationTransactionsQueryParams = zod.object({
+  "campaignId": zod.coerce.string().optional()
+})
+
+export const AdminListDonationTransactionsResponseItem = zod.object({
+  "id": zod.string(),
+  "campaignId": zod.string(),
+  "amount": zod.string(),
+  "donorName": zod.string().nullish(),
+  "donorEmail": zod.string().nullish(),
+  "squarePaymentId": zod.string(),
+  "status": zod.enum(['succeeded', 'failed']),
+  "createdAt": zod.string()
+})
+export const AdminListDonationTransactionsResponse = zod.array(AdminListDonationTransactionsResponseItem)
+
+
+/**
  * @summary List published gallery albums
  */
 export const ListGalleryAlbumsPublicResponseItem = zod.object({

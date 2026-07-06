@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +43,7 @@ import {
   useAdminUpdateDonationCampaign,
   useAdminDeleteDonationCampaign,
   getAdminListDonationCampaignsQueryKey,
+  useAdminListDonationTransactions,
   type DonationCampaign,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -263,7 +266,7 @@ function CampaignDialog({
   );
 }
 
-export default function AdminDonationsPage() {
+function CampaignsTab() {
   const { data, isLoading } = useAdminListDonationCampaigns();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -283,12 +286,8 @@ export default function AdminDonationsPage() {
   });
 
   return (
-    <AdminLayout>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-serif text-3xl mb-2">Donation Campaigns</h1>
-          <p className="text-muted-foreground">Manage fundraising campaigns shown on the Donate page.</p>
-        </div>
+    <div>
+      <div className="flex items-center justify-end mb-4">
         {canWrite && (
           <Button
             onClick={() => {
@@ -390,6 +389,99 @@ export default function AdminDonationsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+function TransactionsTab() {
+  const { data: campaigns } = useAdminListDonationCampaigns();
+  const { data, isLoading } = useAdminListDonationTransactions();
+
+  const campaignTitle = (id: string) => campaigns?.find((c) => c.id === id)?.title ?? "Unknown campaign";
+
+  const sorted = [...(data ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+
+  return (
+    <Card className="border-card-border">
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Campaign</TableHead>
+                <TableHead>Donor</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Square Payment ID</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : sorted.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    No donations yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sorted.map((row) => (
+                  <TableRow key={row.id} data-testid={`row-transaction-${row.id}`}>
+                    <TableCell>{new Date(row.createdAt).toLocaleString("en-GB")}</TableCell>
+                    <TableCell>{campaignTitle(row.campaignId)}</TableCell>
+                    <TableCell>
+                      {row.donorName ? (
+                        <>
+                          <p className="text-sm">{row.donorName}</p>
+                          {row.donorEmail && <p className="text-xs text-muted-foreground">{row.donorEmail}</p>}
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground">Anonymous</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">£{row.amount}</TableCell>
+                    <TableCell>
+                      <Badge variant={row.status === "succeeded" ? "default" : "destructive"}>{row.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{row.squarePaymentId}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function AdminDonationsPage() {
+  return (
+    <AdminLayout>
+      <div className="mb-6">
+        <h1 className="font-serif text-3xl mb-2">Donations</h1>
+        <p className="text-muted-foreground">Manage fundraising campaigns and review donation transactions.</p>
+      </div>
+
+      <Tabs defaultValue="campaigns">
+        <TabsList className="mb-4">
+          <TabsTrigger value="campaigns" data-testid="tab-campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
+        </TabsList>
+        <TabsContent value="campaigns">
+          <CampaignsTab />
+        </TabsContent>
+        <TabsContent value="transactions">
+          <TransactionsTab />
+        </TabsContent>
+      </Tabs>
     </AdminLayout>
   );
 }

@@ -394,6 +394,51 @@ export interface PatchDonationCampaign {
   featured?: boolean;
 }
 
+export type SquareConfigEnvironment = typeof SquareConfigEnvironment[keyof typeof SquareConfigEnvironment];
+
+
+export const SquareConfigEnvironment = {
+  sandbox: 'sandbox',
+  production: 'production',
+} as const;
+
+export interface SquareConfig {
+  applicationId: string;
+  locationId: string;
+  environment: SquareConfigEnvironment;
+}
+
+export interface CheckoutDonation {
+  campaignId: string;
+  amount: string;
+  sourceId: string;
+  /** @nullable */
+  donorName?: string | null;
+  /** @nullable */
+  donorEmail?: string | null;
+}
+
+export type DonationTransactionStatus = typeof DonationTransactionStatus[keyof typeof DonationTransactionStatus];
+
+
+export const DonationTransactionStatus = {
+  succeeded: 'succeeded',
+  failed: 'failed',
+} as const;
+
+export interface DonationTransaction {
+  id: string;
+  campaignId: string;
+  amount: string;
+  /** @nullable */
+  donorName?: string | null;
+  /** @nullable */
+  donorEmail?: string | null;
+  squarePaymentId: string;
+  status: DonationTransactionStatus;
+  createdAt: string;
+}
+
 export interface GalleryAlbum {
   id: string;
   title: string;
@@ -662,6 +707,10 @@ export interface SiteSetting {
 export interface UpsertSiteSetting {
   value: string;
 }
+
+export type AdminListDonationTransactionsParams = {
+campaignId?: string;
+};
 
 export type ListGalleryMediaPublicParams = {
 albumId?: string;
