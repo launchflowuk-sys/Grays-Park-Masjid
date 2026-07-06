@@ -250,7 +250,7 @@ export default function GraysParkMasjidPolished() {
           </div>
         </div>
 
-        <div className="absolute left-6 md:left-[calc((100vw-1320px)/2+24px)] -bottom-28 md:-bottom-32 z-20 w-[calc(100%-3rem)] max-w-[420px]">
+        <div className="absolute right-6 md:right-[calc((100vw-1320px)/2+24px)] -bottom-28 md:-bottom-32 z-20 w-[calc(100%-3rem)] max-w-[420px]">
           <div className="bg-white rounded-2xl shadow-2xl shadow-black/20 p-6">
             <div className="flex items-center justify-between">
               <div>
