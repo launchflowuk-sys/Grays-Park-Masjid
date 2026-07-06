@@ -18,6 +18,7 @@ import {
 import { useLogin, getGetCurrentAdminQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
+import gpmLogo from "@assets/GPM_Logo_1783358587809.png";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -67,9 +68,12 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/40 px-6">
       <Card className="w-full max-w-md border-card-border">
         <CardHeader className="text-center">
-          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-xl mx-auto mb-2">
-            G
-          </div>
+          <img
+            src={gpmLogo}
+            alt="Grays Park Masjid"
+            className="h-12 w-auto mx-auto mb-2"
+            data-testid="img-admin-login-logo"
+          />
           <CardTitle className="font-serif text-2xl">Admin Login</CardTitle>
           <CardDescription>Grays Park Masjid content management</CardDescription>
         </CardHeader>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Menu } from "lucide-react";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
+import gpmLogo from "@assets/GPM_Logo_1783358587809.png";
 
 const NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
@@ -61,14 +62,13 @@ export function SiteHeader() {
         </div>
       </div>
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-lg">
-            G
-          </div>
-          <div>
-            <p className="font-serif text-lg leading-tight">Grays Park Masjid</p>
-            <p className="text-xs text-muted-foreground">Grays, Essex</p>
-          </div>
+        <Link href="/" className="flex items-center">
+          <img
+            src={gpmLogo}
+            alt="Grays Park Masjid"
+            className="h-12 md:h-14 w-auto"
+            data-testid="img-site-logo"
+          />
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
           {NAV_LINKS.map((link) => (

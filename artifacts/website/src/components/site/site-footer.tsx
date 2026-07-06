@@ -1,17 +1,18 @@
 import { Link } from "wouter";
 import { MapPin, Mail, Phone } from "lucide-react";
+import gpmLogoWhite from "@assets/GPM_Logo_white_1783358587808.png";
 
 export function SiteFooter() {
   return (
     <footer className="bg-primary text-primary-foreground mt-auto">
       <div className="mx-auto max-w-6xl px-6 py-14 grid gap-10 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-serif text-lg">
-              G
-            </div>
-            <p className="font-serif text-lg">Grays Park Masjid</p>
-          </div>
+          <img
+            src={gpmLogoWhite}
+            alt="Grays Park Masjid"
+            className="h-12 w-auto mb-4"
+            data-testid="img-footer-logo"
+          />
           <p className="text-sm text-primary-foreground/70 leading-relaxed">
             Serving the Muslim community of Grays and Thurrock with prayer, education, and
             care for over two decades.
