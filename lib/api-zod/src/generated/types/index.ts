@@ -44,6 +44,7 @@ export * from './insertVolunteerOpportunity';
 export * from './listGalleryMediaPublicParams';
 export * from './loginInput';
 export * from './member';
+export * from './memberStatusLookup';
 export * from './newsPost';
 export * from './notificationModule';
 export * from './notificationRecipient';

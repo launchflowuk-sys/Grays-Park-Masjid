@@ -38,6 +38,7 @@ router.post("/members", async (req: Request, res: Response) => {
 
   const appBaseUrl = process.env.APP_BASE_URL ?? "";
   const adminUrl = `${appBaseUrl}/admin/members`;
+  const statusUrl = `${appBaseUrl}/membership-status/${row.statusToken}`;
 
   void notifyModule("members", {
     subject: `New membership application: ${row.fullName}`,
@@ -49,16 +50,40 @@ router.post("/members", async (req: Request, res: Response) => {
   void sendUserConfirmationEmail({
     to: row.email,
     subject: "We've received your membership application - Grays Park Masjid",
-    text: `Assalamu Alaikum ${row.fullName},\n\nJazakAllah Khair for applying to join the Grays Park Masjid community. We have received your application and our team will review it shortly. We will be in touch with an update soon.`,
+    text: `Assalamu Alaikum ${row.fullName},\n\nJazakAllah Khair for applying to join the Grays Park Masjid community. We have received your application and our team will review it shortly. We will be in touch with an update soon.\n\nYou can check your application status here: ${statusUrl}`,
     html: renderEmailTemplate({
       preheader: "Your membership application has been received.",
       heading: "Application received",
       bodyHtml: emailParagraphs([
         `Assalamu Alaikum ${escapeHtml(row.fullName)},`,
         "JazakAllah Khair for applying to join the Grays Park Masjid community. We have received your application and our team will review it shortly.",
-        "We will be in touch with an update as soon as the review is complete. In the meantime, if anything changes with your details, feel free to reply to this email.",
+        "We will be in touch with an update as soon as the review is complete. You can also check your application status at any time using the link below.",
       ]) + emailInfoBox([{ label: "Membership type", value: escapeHtml(row.membershipType) }]),
+      ctaLabel: "Check application status",
+      ctaUrl: statusUrl,
     }),
+  });
+});
+
+router.get("/members/status/:token", async (req: Request, res: Response) => {
+  const [row] = await db
+    .select()
+    .from(membersTable)
+    .where(eq(membersTable.statusToken, req.params.token as string))
+    .limit(1);
+
+  if (!row) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  res.json({
+    fullName: row.fullName,
+    membershipType: row.membershipType,
+    status: row.status,
+    adminNotes: row.status === "info_requested" ? row.adminNotes : null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   });
 });
 

@@ -56,6 +56,7 @@ import type {
   ListGalleryMediaPublicParams,
   LoginInput,
   Member,
+  MemberStatusLookup,
   NewsPost,
   NotificationRecipient,
   PatchAdminUserInput,
@@ -6718,6 +6719,83 @@ export const useCreateMemberPublic = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getCreateMemberPublicMutationOptions(options));
     }
+
+export const getGetMemberStatusByTokenUrl = (token: string,) => {
+
+
+
+
+  return `/api/members/status/${token}`
+}
+
+/**
+ * @summary Look up a membership application's status using the token from the confirmation email
+ */
+export const getMemberStatusByToken = async (token: string, options?: RequestInit): Promise<MemberStatusLookup> => {
+
+  return customFetch<MemberStatusLookup>(getGetMemberStatusByTokenUrl(token),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMemberStatusByTokenQueryKey = (token: string,) => {
+    return [
+    `/api/members/status/${token}`
+    ] as const;
+    }
+
+
+export const getGetMemberStatusByTokenQueryOptions = <TData = Awaited<ReturnType<typeof getMemberStatusByToken>>, TError = ErrorType<ErrorResponse>>(token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMemberStatusByToken>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMemberStatusByTokenQueryKey(token);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMemberStatusByToken>>> = ({ signal }) => getMemberStatusByToken(token, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: token !== null && token !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMemberStatusByToken>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMemberStatusByTokenQueryResult = NonNullable<Awaited<ReturnType<typeof getMemberStatusByToken>>>
+export type GetMemberStatusByTokenQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Look up a membership application's status using the token from the confirmation email
+ */
+
+export function useGetMemberStatusByToken<TData = Awaited<ReturnType<typeof getMemberStatusByToken>>, TError = ErrorType<ErrorResponse>>(
+ token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMemberStatusByToken>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMemberStatusByTokenQueryOptions(token,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getAdminListMembersUrl = () => {
 

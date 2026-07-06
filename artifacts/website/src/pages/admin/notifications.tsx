@@ -31,6 +31,7 @@ const MODULES = [
   { value: NotificationModule.enquiries, label: "Enquiries" },
   { value: NotificationModule.courses, label: "Course Registrations" },
   { value: NotificationModule.volunteers, label: "Volunteer Applications" },
+  { value: NotificationModule.members, label: "Membership Applications" },
 ];
 
 export default function AdminNotificationsPage() {

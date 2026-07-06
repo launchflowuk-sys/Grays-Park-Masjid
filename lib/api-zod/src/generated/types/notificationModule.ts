@@ -14,4 +14,5 @@ export const NotificationModule = {
   enquiries: 'enquiries',
   courses: 'courses',
   volunteers: 'volunteers',
+  members: 'members',
 } as const;

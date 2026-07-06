@@ -59,6 +59,7 @@ export const NotificationModule = {
   enquiries: 'enquiries',
   courses: 'courses',
   volunteers: 'volunteers',
+  members: 'members',
 } as const;
 
 export interface NotificationRecipient {
@@ -703,6 +704,16 @@ export interface PatchMember {
   status?: string;
   /** @nullable */
   adminNotes?: string | null;
+}
+
+export interface MemberStatusLookup {
+  fullName: string;
+  membershipType: string;
+  status: string;
+  /** @nullable */
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StaffMember {

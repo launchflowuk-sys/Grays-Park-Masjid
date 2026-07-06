@@ -15,6 +15,7 @@ import EventsPage from "@/pages/events";
 import EducationPage from "@/pages/education";
 import VolunteerPage from "@/pages/volunteer";
 import JoinPage from "@/pages/join";
+import MembershipStatusPage from "@/pages/membership-status";
 import GalleryPage from "@/pages/gallery";
 import MadrassahPage from "@/pages/madrassah";
 import SistersFacilitiesPage from "@/pages/sisters-facilities";
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/education" component={EducationPage} />
       <Route path="/volunteer" component={VolunteerPage} />
       <Route path="/join" component={JoinPage} />
+      <Route path="/membership-status/:token" component={MembershipStatusPage} />
       <Route path="/gallery" component={GalleryPage} />
       <Route path="/madrassah" component={MadrassahPage} />
       <Route path="/sisters-facilities" component={SistersFacilitiesPage} />

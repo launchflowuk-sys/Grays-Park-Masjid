@@ -168,7 +168,7 @@ export const AdminDeleteUserResponse = zod.void()
 export const AdminListNotificationRecipientsResponseItem = zod.object({
   "id": zod.string(),
   "adminUserId": zod.string(),
-  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers', 'members']),
   "emailEnabled": zod.boolean(),
   "smsEnabled": zod.boolean(),
   "createdAt": zod.string(),
@@ -182,7 +182,7 @@ export const AdminListNotificationRecipientsResponse = zod.array(AdminListNotifi
  */
 export const AdminCreateNotificationRecipientBody = zod.object({
   "adminUserId": zod.string(),
-  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers', 'members']),
   "emailEnabled": zod.boolean().optional(),
   "smsEnabled": zod.boolean().optional()
 })
@@ -190,7 +190,7 @@ export const AdminCreateNotificationRecipientBody = zod.object({
 export const AdminCreateNotificationRecipientResponse = zod.object({
   "id": zod.string(),
   "adminUserId": zod.string(),
-  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers', 'members']),
   "emailEnabled": zod.boolean(),
   "smsEnabled": zod.boolean(),
   "createdAt": zod.string(),
@@ -208,7 +208,7 @@ export const AdminGetNotificationRecipientParams = zod.object({
 export const AdminGetNotificationRecipientResponse = zod.object({
   "id": zod.string(),
   "adminUserId": zod.string(),
-  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers', 'members']),
   "emailEnabled": zod.boolean(),
   "smsEnabled": zod.boolean(),
   "createdAt": zod.string(),
@@ -231,7 +231,7 @@ export const AdminUpdateNotificationRecipientBody = zod.object({
 export const AdminUpdateNotificationRecipientResponse = zod.object({
   "id": zod.string(),
   "adminUserId": zod.string(),
-  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers', 'members']),
   "emailEnabled": zod.boolean(),
   "smsEnabled": zod.boolean(),
   "createdAt": zod.string(),
@@ -1737,6 +1737,23 @@ export const CreateMemberPublicResponse = zod.object({
   "address": zod.string().nullish(),
   "membershipType": zod.string(),
   "message": zod.string().nullish(),
+  "status": zod.string(),
+  "adminNotes": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Look up a membership application's status using the token from the confirmation email
+ */
+export const GetMemberStatusByTokenParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const GetMemberStatusByTokenResponse = zod.object({
+  "fullName": zod.string(),
+  "membershipType": zod.string(),
   "status": zod.string(),
   "adminNotes": zod.string().nullish(),
   "createdAt": zod.string(),

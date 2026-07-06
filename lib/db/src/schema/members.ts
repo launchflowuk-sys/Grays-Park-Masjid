@@ -19,17 +19,18 @@ export const membersTable = pgTable("members", {
   message: text("message"),
   status: memberStatusEnum("status").notNull().default("pending"),
   adminNotes: text("admin_notes"),
+  statusToken: uuid("status_token").notNull().defaultRandom().unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const insertMemberSchema = createInsertSchema(membersTable)
-  .omit({ id: true, status: true, adminNotes: true, createdAt: true, updatedAt: true })
+  .omit({ id: true, status: true, adminNotes: true, statusToken: true, createdAt: true, updatedAt: true })
   .extend({ email: z.string().email() });
 export type InsertMember = z.infer<typeof insertMemberSchema>;
 
 export const patchMemberSchema = createInsertSchema(membersTable)
-  .omit({ id: true, createdAt: true, updatedAt: true })
+  .omit({ id: true, statusToken: true, createdAt: true, updatedAt: true })
   .extend({ email: z.string().email() })
   .partial();
 export type PatchMember = z.infer<typeof patchMemberSchema>;
