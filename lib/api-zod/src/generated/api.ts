@@ -76,6 +76,86 @@ export const ResetPasswordResponse = zod.void()
 
 
 /**
+ * @summary List all admin users (super admin only)
+ */
+export const AdminListUsersResponseItem = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "active": zod.boolean(),
+  "lastLoginAt": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const AdminListUsersResponse = zod.array(AdminListUsersResponseItem)
+
+
+/**
+ * @summary Create a new admin user (super admin only)
+ */
+export const adminCreateUserBodyPasswordMin = 8;
+
+
+
+export const AdminCreateUserBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(adminCreateUserBodyPasswordMin),
+  "name": zod.string(),
+  "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "active": zod.boolean().optional()
+})
+
+export const AdminCreateUserResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "active": zod.boolean(),
+  "lastLoginAt": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update an admin user (super admin only)
+ */
+export const AdminUpdateUserParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const adminUpdateUserBodyPasswordMin = 8;
+
+
+
+export const AdminUpdateUserBody = zod.object({
+  "name": zod.string().optional(),
+  "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']).optional(),
+  "active": zod.boolean().optional(),
+  "password": zod.string().min(adminUpdateUserBodyPasswordMin).optional()
+})
+
+export const AdminUpdateUserResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "active": zod.boolean(),
+  "lastLoginAt": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Deactivate (soft-delete) an admin user (super admin only)
+ */
+export const AdminDeleteUserParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteUserResponse = zod.void()
+
+
+/**
  * @summary List published prayer times
  */
 export const ListPrayerTimesPublicResponseItem = zod.object({

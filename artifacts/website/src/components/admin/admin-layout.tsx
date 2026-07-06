@@ -11,6 +11,7 @@ import {
   Wrench,
   Inbox,
   Settings,
+  Users,
   LogOut,
 } from "lucide-react";
 
@@ -21,6 +22,10 @@ const NAV_ITEMS = [
   { href: "/admin/services", label: "Services", icon: Wrench },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/admin/settings", label: "Site Settings", icon: Settings },
+];
+
+const SUPER_ADMIN_NAV_ITEMS = [
+  { href: "/admin/users", label: "Admin Users", icon: Users },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -82,6 +87,26 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          {admin?.role === "super_admin" &&
+            SUPER_ADMIN_NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const active = location === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-primary-foreground/15 text-primary-foreground"
+                      : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  }`}
+                  data-testid={`link-admin-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
         </nav>
         <div className="px-3 py-4 border-t border-primary-foreground/10">
           <div className="px-3 mb-3">

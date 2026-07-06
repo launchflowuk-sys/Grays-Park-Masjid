@@ -18,6 +18,7 @@ import AdminDonationsPage from "@/pages/admin/donations";
 import AdminServicesPage from "@/pages/admin/services";
 import AdminEnquiriesPage from "@/pages/admin/enquiries";
 import AdminSettingsPage from "@/pages/admin/settings";
+import AdminUsersPage from "@/pages/admin/users";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/admin/services" component={AdminServicesPage} />
       <Route path="/admin/enquiries" component={AdminEnquiriesPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
+      <Route path="/admin/users" component={AdminUsersPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>

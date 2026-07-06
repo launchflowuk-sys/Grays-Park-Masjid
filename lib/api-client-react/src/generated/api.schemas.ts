@@ -42,6 +42,23 @@ export interface LoginInput {
   password: string;
 }
 
+export interface CreateAdminUserInput {
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  name: string;
+  role: AdminRole;
+  active?: boolean;
+}
+
+export interface PatchAdminUserInput {
+  name?: string;
+  role?: AdminRole;
+  active?: boolean;
+  /** @minLength 8 */
+  password?: string;
+}
+
 export interface ForgotPasswordInput {
   email: string;
 }
