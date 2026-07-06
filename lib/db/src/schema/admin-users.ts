@@ -17,6 +17,7 @@ export const adminUsersTable = pgTable("admin_users", {
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
   role: adminRoleEnum("role").notNull().default("read_only"),
+  phone: text("phone"),
   active: boolean("active").notNull().default(true),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

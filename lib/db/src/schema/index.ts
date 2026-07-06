@@ -12,3 +12,4 @@ export * from "./volunteers";
 export * from "./staff";
 export * from "./news";
 export * from "./settings";
+export * from "./notifications";

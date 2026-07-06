@@ -17,6 +17,25 @@ const transporter =
       })
     : null;
 
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<void> {
+  const { to, subject, text, html } = options;
+
+  if (!transporter) {
+    logger.warn(
+      { to, subject },
+      "SMTP is not configured (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS). Skipping email send.",
+    );
+    return;
+  }
+
+  await transporter.sendMail({ from: mailFrom, to, subject, text, html });
+}
+
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
   if (!transporter) {
     logger.warn(
@@ -26,8 +45,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     return;
   }
 
-  await transporter.sendMail({
-    from: mailFrom,
+  await sendEmail({
     to,
     subject: "Reset your Grays Park Masjid admin password",
     text: `You requested a password reset. Click the link below to set a new password. This link expires in 1 hour.\n\n${resetUrl}\n\nIf you did not request this, you can safely ignore this email.`,
