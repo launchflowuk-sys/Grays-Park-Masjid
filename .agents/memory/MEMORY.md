@@ -5,3 +5,4 @@
 - [Square sandbox credential mismatch debugging](square-sandbox-credential-mismatch.md) — sanity-check `applicationId` prefix and echo resolved config after rotating SQUARE_* secrets before retrying payments.
 - [SMTP sender address must match authenticated mailbox](smtp-sender-address-match.md) — providers like Hostinger reject mail if From ≠ authenticated SMTP_USER; default MAIL_FROM to SMTP_USER.
 - [Admin-managed secrets vs env vars](admin-managed-secrets-vs-env-vars.md) — third-party API credentials an admin must rotate themselves belong in an authenticated admin settings DB row, not deployment env vars; allowlist public settings endpoints.
+- [Uppy upload completion & objectPath timing](object-storage-uppy-objectpath-timing.md) — don't read server-issued metadata from the PUT response body of a signed upload; capture it from the initial request-url response instead.
