@@ -10,6 +10,8 @@ import type { AdminRole } from './adminRole';
 export interface PatchAdminUserInput {
   name?: string;
   role?: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active?: boolean;
   /** @minLength 8 */
   password?: string;

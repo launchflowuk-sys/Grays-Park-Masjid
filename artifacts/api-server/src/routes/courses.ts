@@ -1,6 +1,7 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import {
+  db,
   coursesTable,
   courseRegistrationsTable,
   insertCourseSchema,
@@ -11,10 +12,10 @@ import {
   registerAdminExportCsv,
   registerAdminItemRoutes,
   registerAdminList,
-  registerPublicCreate,
   registerPublicList,
 } from "../lib/crud";
 import { ALL_ROLES, EDUCATION_WRITE } from "../lib/roles";
+import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -30,7 +31,53 @@ registerAdminItemRoutes(
   EDUCATION_WRITE,
 );
 
-registerPublicCreate(router, "/course-registrations", courseRegistrationsTable, insertCourseRegistrationSchema);
+function serializeRegistration(row: typeof courseRegistrationsTable.$inferSelect) {
+  return {
+    id: row.id,
+    courseId: row.courseId,
+    studentName: row.studentName,
+    guardianName: row.guardianName,
+    email: row.email,
+    phone: row.phone,
+    status: row.status,
+    notes: row.notes,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+router.post("/course-registrations", async (req: Request, res: Response) => {
+  const parsed = insertCourseRegistrationSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const [course] = await db.select().from(coursesTable).where(eq(coursesTable.id, parsed.data.courseId)).limit(1);
+
+  if (!course) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const [row] = await db.insert(courseRegistrationsTable).values(parsed.data).returning();
+  res.status(201).json(serializeRegistration(row));
+
+  void notifyModule("courses", {
+    subject: `New course registration: ${course.title}`,
+    text: `A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).`,
+    html: `<p>A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).</p>`,
+    smsBody: `New course registration for "${course.title}" from ${row.studentName}`,
+  });
+
+  void sendUserConfirmationEmail({
+    to: row.email,
+    subject: `Registration received - ${course.title}`,
+    text: `Assalamu Alaikum,\n\nThank you for registering ${row.studentName} for "${course.title}". We have received your registration and will be in touch soon.`,
+    html: `<p>Assalamu Alaikum,</p><p>Thank you for registering ${row.studentName} for "${course.title}". We have received your registration and will be in touch soon.</p>`,
+  });
+});
+
 registerAdminList(router, "/admin/course-registrations", courseRegistrationsTable, ALL_ROLES);
 registerAdminExportCsv(
   router,

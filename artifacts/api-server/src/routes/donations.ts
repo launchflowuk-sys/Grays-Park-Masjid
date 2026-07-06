@@ -17,6 +17,7 @@ import { ALL_ROLES, DONATION_WRITE } from "../lib/roles";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { createSquarePayment, squareConfig, SquarePaymentError } from "../lib/square";
 import { logger } from "../lib/logger";
+import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -97,6 +98,22 @@ router.post("/donations/checkout", async (req: Request, res: Response) => {
       .where(eq(donationCampaignsTable.id, campaignId));
 
     res.status(201).json(serializeTransaction(transaction));
+
+    void notifyModule("donations", {
+      subject: `New donation received: ${campaign.title}`,
+      text: `A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.`,
+      html: `<p>A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.</p>`,
+      smsBody: `New donation of £${amount} for "${campaign.title}"`,
+    });
+
+    if (donorEmail) {
+      void sendUserConfirmationEmail({
+        to: donorEmail,
+        subject: `Thank you for your donation - Grays Park Masjid`,
+        text: `Assalamu Alaikum${donorName ? ` ${donorName}` : ""},\n\nJazakAllah Khair for your donation of £${amount} to "${campaign.title}". May Allah reward you for your generosity.`,
+        html: `<p>Assalamu Alaikum${donorName ? ` ${donorName}` : ""},</p><p>JazakAllah Khair for your donation of £${amount} to "${campaign.title}". May Allah reward you for your generosity.</p>`,
+      });
+    }
   } catch (err) {
     if (err instanceof SquarePaymentError) {
       logger.warn({ err, campaignId }, "Donation payment failed");

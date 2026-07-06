@@ -1,6 +1,7 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import {
+  db,
   volunteerOpportunitiesTable,
   volunteerApplicationsTable,
   insertVolunteerOpportunitySchema,
@@ -11,10 +12,10 @@ import {
   registerAdminExportCsv,
   registerAdminItemRoutes,
   registerAdminList,
-  registerPublicCreate,
   registerPublicList,
 } from "../lib/crud";
 import { ALL_ROLES, MASJID_WRITE } from "../lib/roles";
+import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -41,7 +42,56 @@ registerAdminItemRoutes(
   MASJID_WRITE,
 );
 
-registerPublicCreate(router, "/volunteer-applications", volunteerApplicationsTable, insertVolunteerApplicationSchema);
+function serializeApplication(row: typeof volunteerApplicationsTable.$inferSelect) {
+  return {
+    id: row.id,
+    opportunityId: row.opportunityId,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    message: row.message,
+    status: row.status,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+router.post("/volunteer-applications", async (req: Request, res: Response) => {
+  const parsed = insertVolunteerApplicationSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const [opportunity] = await db
+    .select()
+    .from(volunteerOpportunitiesTable)
+    .where(eq(volunteerOpportunitiesTable.id, parsed.data.opportunityId))
+    .limit(1);
+
+  if (!opportunity) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const [row] = await db.insert(volunteerApplicationsTable).values(parsed.data).returning();
+  res.status(201).json(serializeApplication(row));
+
+  void notifyModule("volunteers", {
+    subject: `New volunteer application: ${opportunity.title}`,
+    text: `A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).`,
+    html: `<p>A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).</p>`,
+    smsBody: `New volunteer application for "${opportunity.title}" from ${row.name}`,
+  });
+
+  void sendUserConfirmationEmail({
+    to: row.email,
+    subject: `Application received - ${opportunity.title}`,
+    text: `Assalamu Alaikum ${row.name},\n\nThank you for applying to volunteer for "${opportunity.title}". We have received your application and will be in touch soon.`,
+    html: `<p>Assalamu Alaikum ${row.name},</p><p>Thank you for applying to volunteer for "${opportunity.title}". We have received your application and will be in touch soon.</p>`,
+  });
+});
+
 registerAdminList(router, "/admin/volunteer-applications", volunteerApplicationsTable, ALL_ROLES);
 registerAdminExportCsv(
   router,

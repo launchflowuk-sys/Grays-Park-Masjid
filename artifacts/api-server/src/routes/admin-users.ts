@@ -14,6 +14,7 @@ function toPublicAdminUser(admin: typeof adminUsersTable.$inferSelect) {
     email: admin.email,
     name: admin.name,
     role: admin.role,
+    phone: admin.phone,
     active: admin.active,
     lastLoginAt: admin.lastLoginAt ? admin.lastLoginAt.toISOString() : null,
     createdAt: admin.createdAt.toISOString(),
@@ -50,7 +51,7 @@ router.post("/admin/users", requireAuth, requireRole(...SUPER_ADMIN_ONLY), async
     return;
   }
 
-  const { email, password, name, role, active } = parsed.data;
+  const { email, password, name, role, active, phone } = parsed.data;
   const normalizedEmail = email.toLowerCase();
 
   const [existing] = await db
@@ -74,6 +75,7 @@ router.post("/admin/users", requireAuth, requireRole(...SUPER_ADMIN_ONLY), async
       name,
       role,
       active: active ?? true,
+      phone: phone ?? null,
     })
     .returning();
 
@@ -101,7 +103,7 @@ router.put("/admin/users/:id", requireAuth, requireRole(...SUPER_ADMIN_ONLY), as
     return;
   }
 
-  const { name, role, active, password } = parsed.data;
+  const { name, role, active, password, phone } = parsed.data;
 
   const demotingFromSuperAdmin = existing.role === "super_admin" && role && role !== "super_admin";
   const deactivatingSuperAdmin = existing.role === "super_admin" && active === false;
@@ -116,6 +118,7 @@ router.put("/admin/users/:id", requireAuth, requireRole(...SUPER_ADMIN_ONLY), as
   if (name !== undefined) updates.name = name;
   if (role !== undefined) updates.role = role;
   if (active !== undefined) updates.active = active;
+  if (phone !== undefined) updates.phone = phone;
   if (password) updates.passwordHash = await hashPassword(password);
 
   const [updated] = await db

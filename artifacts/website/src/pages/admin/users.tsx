@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,7 @@ function formatRole(role: string) {
 const createSchema = z.object({
   email: z.string().email("Enter a valid email"),
   name: z.string().min(1, "Name is required"),
+  phone: z.string().optional(),
   role: z.enum(ROLES),
   password: z.string().min(8, "Password must be at least 8 characters"),
   active: z.boolean(),
@@ -78,6 +79,7 @@ type CreateForm = z.infer<typeof createSchema>;
 
 const editSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  phone: z.string().optional(),
   role: z.enum(ROLES),
   active: z.boolean(),
   password: z.union([z.string().min(8, "Password must be at least 8 characters"), z.literal("")]),
@@ -99,14 +101,32 @@ function UserDialog({
 
   const createForm = useForm<CreateForm>({
     resolver: zodResolver(createSchema),
-    defaultValues: { email: "", name: "", role: "read_only", password: "", active: true },
+    defaultValues: { email: "", name: "", phone: "", role: "read_only", password: "", active: true },
   });
   const editForm = useForm<EditForm>({
     resolver: zodResolver(editSchema),
     defaultValues: editing
-      ? { name: editing.name, role: editing.role as (typeof ROLES)[number], active: editing.active, password: "" }
-      : { name: "", role: "read_only", active: true, password: "" },
+      ? {
+          name: editing.name,
+          phone: editing.phone ?? "",
+          role: editing.role as (typeof ROLES)[number],
+          active: editing.active,
+          password: "",
+        }
+      : { name: "", phone: "", role: "read_only", active: true, password: "" },
   });
+
+  useEffect(() => {
+    if (editing) {
+      editForm.reset({
+        name: editing.name,
+        phone: editing.phone ?? "",
+        role: editing.role as (typeof ROLES)[number],
+        active: editing.active,
+        password: "",
+      });
+    }
+  }, [editing]);
 
   const createMutation = useAdminCreateUser({
     mutation: {
@@ -138,8 +158,15 @@ function UserDialog({
 
   function onSubmitEdit(values: EditForm) {
     if (!editing) return;
-    const payload: { name: string; role: (typeof ROLES)[number]; active: boolean; password?: string } = {
+    const payload: {
+      name: string;
+      phone?: string;
+      role: (typeof ROLES)[number];
+      active: boolean;
+      password?: string;
+    } = {
       name: values.name,
+      phone: values.phone || undefined,
       role: values.role,
       active: values.active,
     };
@@ -197,6 +224,19 @@ function UserDialog({
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone (optional)</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="For SMS notifications" data-testid="input-user-phone" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -293,6 +333,19 @@ function UserDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={createForm.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone (optional)</FormLabel>
+                  <FormControl>
+                    <Input type="tel" placeholder="For SMS notifications" data-testid="input-user-phone" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

@@ -12,6 +12,8 @@ export interface AdminUser {
   email: string;
   name: string;
   role: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active: boolean;
   /** @nullable */
   lastLoginAt?: string | null;

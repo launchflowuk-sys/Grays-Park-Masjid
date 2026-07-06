@@ -36,6 +36,7 @@ import AdminServicesPage from "@/pages/admin/services";
 import AdminEnquiriesPage from "@/pages/admin/enquiries";
 import AdminSettingsPage from "@/pages/admin/settings";
 import AdminUsersPage from "@/pages/admin/users";
+import AdminNotificationsPage from "@/pages/admin/notifications";
 import AdminAnnouncementsPage from "@/pages/admin/announcements";
 import AdminEventsPage from "@/pages/admin/events";
 import AdminCoursesPage from "@/pages/admin/courses";
@@ -80,6 +81,7 @@ function Router() {
       <Route path="/admin/enquiries" component={AdminEnquiriesPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/users" component={AdminUsersPage} />
+      <Route path="/admin/notifications" component={AdminNotificationsPage} />
       <Route path="/admin/announcements" component={AdminAnnouncementsPage} />
       <Route path="/admin/events" component={AdminEventsPage} />
       <Route path="/admin/courses" component={AdminCoursesPage} />

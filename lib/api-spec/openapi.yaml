@@ -233,6 +233,121 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /admin/notification-recipients:
+    get:
+      operationId: adminListNotificationRecipients
+      tags: [auth]
+      summary: List all notification recipient assignments (super admin only)
+      responses:
+        "200":
+          description: List of notification recipient assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationRecipient"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateNotificationRecipient
+      tags: [auth]
+      summary: Assign an admin user to a notification module (super admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationRecipientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationRecipient"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Already assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/notification-recipients/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetNotificationRecipient
+      tags: [auth]
+      summary: Get a single notification recipient assignment (super admin only)
+      responses:
+        "200":
+          description: The notification recipient assignment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationRecipient"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateNotificationRecipient
+      tags: [auth]
+      summary: Update notification channels for an assignment (super admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchNotificationRecipientInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationRecipient"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteNotificationRecipient
+      tags: [auth]
+      summary: Unassign an admin user from a notification module (super admin only)
+      responses:
+        "204":
+          description: Unassigned
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /prayer-times:
     get:
       operationId: listPrayerTimesPublic
@@ -2222,6 +2337,59 @@ components:
         - donation_admin
         - content_editor
         - read_only
+    NotificationModule:
+      type: string
+      enum:
+        - donations
+        - enquiries
+        - courses
+        - volunteers
+    NotificationRecipient:
+      type: object
+      properties:
+        id:
+          type: string
+        adminUserId:
+          type: string
+        module:
+          $ref: "#/components/schemas/NotificationModule"
+        emailEnabled:
+          type: boolean
+        smsEnabled:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - adminUserId
+        - module
+        - emailEnabled
+        - smsEnabled
+        - createdAt
+        - updatedAt
+    CreateNotificationRecipientInput:
+      type: object
+      properties:
+        adminUserId:
+          type: string
+        module:
+          $ref: "#/components/schemas/NotificationModule"
+        emailEnabled:
+          type: boolean
+        smsEnabled:
+          type: boolean
+      required:
+        - adminUserId
+        - module
+    PatchNotificationRecipientInput:
+      type: object
+      properties:
+        emailEnabled:
+          type: boolean
+        smsEnabled:
+          type: boolean
     AdminUser:
       type: object
       properties:
@@ -2233,6 +2401,8 @@ components:
           type: string
         role:
           $ref: "#/components/schemas/AdminRole"
+        phone:
+          type: ["string", "null"]
         active:
           type: boolean
         lastLoginAt:
@@ -2271,6 +2441,8 @@ components:
           type: string
         role:
           $ref: "#/components/schemas/AdminRole"
+        phone:
+          type: ["string", "null"]
         active:
           type: boolean
       required:
@@ -2285,6 +2457,8 @@ components:
           type: string
         role:
           $ref: "#/components/schemas/AdminRole"
+        phone:
+          type: ["string", "null"]
         active:
           type: boolean
         password:

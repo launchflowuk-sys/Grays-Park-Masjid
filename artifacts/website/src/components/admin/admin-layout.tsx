@@ -20,6 +20,7 @@ import {
   Menu,
   Images,
   Newspaper,
+  Bell,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -40,6 +41,7 @@ const NAV_ITEMS = [
 
 const SUPER_ADMIN_NAV_ITEMS = [
   { href: "/admin/users", label: "Admin Users", icon: Users },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
 ];
 
 function SidebarNav({

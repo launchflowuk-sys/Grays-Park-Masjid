@@ -15,6 +15,7 @@ import staffRouter from "./staff";
 import newsRouter from "./news";
 import settingsRouter from "./settings";
 import storageRouter from "./storage";
+import notificationRecipientsRouter from "./notification-recipients";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(staffRouter);
 router.use(newsRouter);
 router.use(settingsRouter);
 router.use(storageRouter);
+router.use(notificationRecipientsRouter);
 
 export default router;

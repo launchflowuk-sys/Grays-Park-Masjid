@@ -51,11 +51,45 @@ export const AdminRole = {
   read_only: 'read_only',
 } as const;
 
+export type NotificationModule = typeof NotificationModule[keyof typeof NotificationModule];
+
+
+export const NotificationModule = {
+  donations: 'donations',
+  enquiries: 'enquiries',
+  courses: 'courses',
+  volunteers: 'volunteers',
+} as const;
+
+export interface NotificationRecipient {
+  id: string;
+  adminUserId: string;
+  module: NotificationModule;
+  emailEnabled: boolean;
+  smsEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNotificationRecipientInput {
+  adminUserId: string;
+  module: NotificationModule;
+  emailEnabled?: boolean;
+  smsEnabled?: boolean;
+}
+
+export interface PatchNotificationRecipientInput {
+  emailEnabled?: boolean;
+  smsEnabled?: boolean;
+}
+
 export interface AdminUser {
   id: string;
   email: string;
   name: string;
   role: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active: boolean;
   /** @nullable */
   lastLoginAt?: string | null;
@@ -74,12 +108,16 @@ export interface CreateAdminUserInput {
   password: string;
   name: string;
   role: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active?: boolean;
 }
 
 export interface PatchAdminUserInput {
   name?: string;
   role?: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active?: boolean;
   /** @minLength 8 */
   password?: string;

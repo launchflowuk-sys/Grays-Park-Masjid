@@ -24,6 +24,7 @@ export const LoginResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean(),
   "lastLoginAt": zod.string().nullish(),
   "createdAt": zod.string()
@@ -44,6 +45,7 @@ export const GetCurrentAdminResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean(),
   "lastLoginAt": zod.string().nullish(),
   "createdAt": zod.string()
@@ -83,6 +85,7 @@ export const AdminListUsersResponseItem = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean(),
   "lastLoginAt": zod.string().nullish(),
   "createdAt": zod.string()
@@ -102,6 +105,7 @@ export const AdminCreateUserBody = zod.object({
   "password": zod.string().min(adminCreateUserBodyPasswordMin),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean().optional()
 })
 
@@ -110,6 +114,7 @@ export const AdminCreateUserResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean(),
   "lastLoginAt": zod.string().nullish(),
   "createdAt": zod.string()
@@ -130,6 +135,7 @@ export const adminUpdateUserBodyPasswordMin = 8;
 export const AdminUpdateUserBody = zod.object({
   "name": zod.string().optional(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']).optional(),
+  "phone": zod.string().nullish(),
   "active": zod.boolean().optional(),
   "password": zod.string().min(adminUpdateUserBodyPasswordMin).optional()
 })
@@ -139,6 +145,7 @@ export const AdminUpdateUserResponse = zod.object({
   "email": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['super_admin', 'masjid_admin', 'education_admin', 'donation_admin', 'content_editor', 'read_only']),
+  "phone": zod.string().nullish(),
   "active": zod.boolean(),
   "lastLoginAt": zod.string().nullish(),
   "createdAt": zod.string()
@@ -153,6 +160,93 @@ export const AdminDeleteUserParams = zod.object({
 })
 
 export const AdminDeleteUserResponse = zod.void()
+
+
+/**
+ * @summary List all notification recipient assignments (super admin only)
+ */
+export const AdminListNotificationRecipientsResponseItem = zod.object({
+  "id": zod.string(),
+  "adminUserId": zod.string(),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "emailEnabled": zod.boolean(),
+  "smsEnabled": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const AdminListNotificationRecipientsResponse = zod.array(AdminListNotificationRecipientsResponseItem)
+
+
+/**
+ * @summary Assign an admin user to a notification module (super admin only)
+ */
+export const AdminCreateNotificationRecipientBody = zod.object({
+  "adminUserId": zod.string(),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "emailEnabled": zod.boolean().optional(),
+  "smsEnabled": zod.boolean().optional()
+})
+
+export const AdminCreateNotificationRecipientResponse = zod.object({
+  "id": zod.string(),
+  "adminUserId": zod.string(),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "emailEnabled": zod.boolean(),
+  "smsEnabled": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Get a single notification recipient assignment (super admin only)
+ */
+export const AdminGetNotificationRecipientParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminGetNotificationRecipientResponse = zod.object({
+  "id": zod.string(),
+  "adminUserId": zod.string(),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "emailEnabled": zod.boolean(),
+  "smsEnabled": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update notification channels for an assignment (super admin only)
+ */
+export const AdminUpdateNotificationRecipientParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminUpdateNotificationRecipientBody = zod.object({
+  "emailEnabled": zod.boolean().optional(),
+  "smsEnabled": zod.boolean().optional()
+})
+
+export const AdminUpdateNotificationRecipientResponse = zod.object({
+  "id": zod.string(),
+  "adminUserId": zod.string(),
+  "module": zod.enum(['donations', 'enquiries', 'courses', 'volunteers']),
+  "emailEnabled": zod.boolean(),
+  "smsEnabled": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Unassign an admin user from a notification module (super admin only)
+ */
+export const AdminDeleteNotificationRecipientParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteNotificationRecipientResponse = zod.void()
 
 
 /**

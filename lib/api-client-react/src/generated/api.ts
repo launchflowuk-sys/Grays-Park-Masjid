@@ -27,6 +27,7 @@ import type {
   Course,
   CourseRegistration,
   CreateAdminUserInput,
+  CreateNotificationRecipientInput,
   DonationCampaign,
   DonationTransaction,
   Enquiry,
@@ -54,6 +55,7 @@ import type {
   ListGalleryMediaPublicParams,
   LoginInput,
   NewsPost,
+  NotificationRecipient,
   PatchAdminUserInput,
   PatchAnnouncement,
   PatchCourse,
@@ -64,6 +66,7 @@ import type {
   PatchGalleryAlbum,
   PatchGalleryMedia,
   PatchNewsPost,
+  PatchNotificationRecipientInput,
   PatchPrayerTime,
   PatchService,
   PatchStaffMember,
@@ -754,6 +757,371 @@ export const useAdminDeleteUser = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getAdminDeleteUserMutationOptions(options));
+    }
+
+export const getAdminListNotificationRecipientsUrl = () => {
+
+
+
+
+  return `/api/admin/notification-recipients`
+}
+
+/**
+ * @summary List all notification recipient assignments (super admin only)
+ */
+export const adminListNotificationRecipients = async ( options?: RequestInit): Promise<NotificationRecipient[]> => {
+
+  return customFetch<NotificationRecipient[]>(getAdminListNotificationRecipientsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListNotificationRecipientsQueryKey = () => {
+    return [
+    `/api/admin/notification-recipients`
+    ] as const;
+    }
+
+
+export const getAdminListNotificationRecipientsQueryOptions = <TData = Awaited<ReturnType<typeof adminListNotificationRecipients>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListNotificationRecipients>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListNotificationRecipientsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListNotificationRecipients>>> = ({ signal }) => adminListNotificationRecipients({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListNotificationRecipients>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListNotificationRecipientsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListNotificationRecipients>>>
+export type AdminListNotificationRecipientsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all notification recipient assignments (super admin only)
+ */
+
+export function useAdminListNotificationRecipients<TData = Awaited<ReturnType<typeof adminListNotificationRecipients>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListNotificationRecipients>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListNotificationRecipientsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminCreateNotificationRecipientUrl = () => {
+
+
+
+
+  return `/api/admin/notification-recipients`
+}
+
+/**
+ * @summary Assign an admin user to a notification module (super admin only)
+ */
+export const adminCreateNotificationRecipient = async (createNotificationRecipientInput: CreateNotificationRecipientInput, options?: RequestInit): Promise<NotificationRecipient> => {
+
+  return customFetch<NotificationRecipient>(getAdminCreateNotificationRecipientUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createNotificationRecipientInput)
+  }
+);}
+
+
+
+
+export const getAdminCreateNotificationRecipientMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateNotificationRecipient>>, TError,{data: BodyType<CreateNotificationRecipientInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminCreateNotificationRecipient>>, TError,{data: BodyType<CreateNotificationRecipientInput>}, TContext> => {
+
+const mutationKey = ['adminCreateNotificationRecipient'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminCreateNotificationRecipient>>, {data: BodyType<CreateNotificationRecipientInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminCreateNotificationRecipient(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminCreateNotificationRecipientMutationResult = NonNullable<Awaited<ReturnType<typeof adminCreateNotificationRecipient>>>
+    export type AdminCreateNotificationRecipientMutationBody = BodyType<CreateNotificationRecipientInput>
+    export type AdminCreateNotificationRecipientMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Assign an admin user to a notification module (super admin only)
+ */
+export const useAdminCreateNotificationRecipient = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateNotificationRecipient>>, TError,{data: BodyType<CreateNotificationRecipientInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminCreateNotificationRecipient>>,
+        TError,
+        {data: BodyType<CreateNotificationRecipientInput>},
+        TContext
+      > => {
+      return useMutation(getAdminCreateNotificationRecipientMutationOptions(options));
+    }
+
+export const getAdminGetNotificationRecipientUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/notification-recipients/${id}`
+}
+
+/**
+ * @summary Get a single notification recipient assignment (super admin only)
+ */
+export const adminGetNotificationRecipient = async (id: string, options?: RequestInit): Promise<NotificationRecipient> => {
+
+  return customFetch<NotificationRecipient>(getAdminGetNotificationRecipientUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetNotificationRecipientQueryKey = (id: string,) => {
+    return [
+    `/api/admin/notification-recipients/${id}`
+    ] as const;
+    }
+
+
+export const getAdminGetNotificationRecipientQueryOptions = <TData = Awaited<ReturnType<typeof adminGetNotificationRecipient>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetNotificationRecipient>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetNotificationRecipientQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetNotificationRecipient>>> = ({ signal }) => adminGetNotificationRecipient(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetNotificationRecipient>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetNotificationRecipientQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetNotificationRecipient>>>
+export type AdminGetNotificationRecipientQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single notification recipient assignment (super admin only)
+ */
+
+export function useAdminGetNotificationRecipient<TData = Awaited<ReturnType<typeof adminGetNotificationRecipient>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetNotificationRecipient>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetNotificationRecipientQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdateNotificationRecipientUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/notification-recipients/${id}`
+}
+
+/**
+ * @summary Update notification channels for an assignment (super admin only)
+ */
+export const adminUpdateNotificationRecipient = async (id: string,
+    patchNotificationRecipientInput: PatchNotificationRecipientInput, options?: RequestInit): Promise<NotificationRecipient> => {
+
+  return customFetch<NotificationRecipient>(getAdminUpdateNotificationRecipientUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchNotificationRecipientInput)
+  }
+);}
+
+
+
+
+export const getAdminUpdateNotificationRecipientMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>, TError,{id: string;data: BodyType<PatchNotificationRecipientInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>, TError,{id: string;data: BodyType<PatchNotificationRecipientInput>}, TContext> => {
+
+const mutationKey = ['adminUpdateNotificationRecipient'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>, {id: string;data: BodyType<PatchNotificationRecipientInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminUpdateNotificationRecipient(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateNotificationRecipientMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>>
+    export type AdminUpdateNotificationRecipientMutationBody = BodyType<PatchNotificationRecipientInput>
+    export type AdminUpdateNotificationRecipientMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update notification channels for an assignment (super admin only)
+ */
+export const useAdminUpdateNotificationRecipient = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>, TError,{id: string;data: BodyType<PatchNotificationRecipientInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateNotificationRecipient>>,
+        TError,
+        {id: string;data: BodyType<PatchNotificationRecipientInput>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateNotificationRecipientMutationOptions(options));
+    }
+
+export const getAdminDeleteNotificationRecipientUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/notification-recipients/${id}`
+}
+
+/**
+ * @summary Unassign an admin user from a notification module (super admin only)
+ */
+export const adminDeleteNotificationRecipient = async (id: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getAdminDeleteNotificationRecipientUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getAdminDeleteNotificationRecipientMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminDeleteNotificationRecipient'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminDeleteNotificationRecipient(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteNotificationRecipientMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>>
+
+    export type AdminDeleteNotificationRecipientMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Unassign an admin user from a notification module (super admin only)
+ */
+export const useAdminDeleteNotificationRecipient = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteNotificationRecipient>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminDeleteNotificationRecipientMutationOptions(options));
     }
 
 export const getListPrayerTimesPublicUrl = () => {

@@ -13,5 +13,7 @@ export interface CreateAdminUserInput {
   password: string;
   name: string;
   role: AdminRole;
+  /** @nullable */
+  phone?: string | null;
   active?: boolean;
 }
