@@ -4,6 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile.api-server
     restart: unless-stopped
+    depends_on:
+      db-push:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
       PORT: "8080"
@@ -26,6 +29,17 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+
+  db-push:
+    build:
+      context: .
+      dockerfile: Dockerfile.api-server
+      target: builder
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
+    working_dir: /app
+    command: ["pnpm", "--filter", "@workspace/db", "run", "push-force"]
 
   website:
     build:
