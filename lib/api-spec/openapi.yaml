@@ -24,6 +24,8 @@ tags:
     description: Engagement operations
   - name: settings
     description: Settings operations
+  - name: quran
+    description: Qur'an reader operations
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
@@ -2482,6 +2484,451 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /quran/settings:
+    get:
+      operationId: getQuranSettingsPublic
+      tags: [quran]
+      summary: Get public Qur'an reader settings
+      responses:
+        "200":
+          description: Qur'an settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranSettings"
+  /quran/reciters:
+    get:
+      operationId: listQuranReciters
+      tags: [quran]
+      summary: List available reciters
+      responses:
+        "200":
+          description: List of reciters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranReciter"
+  /quran/translations:
+    get:
+      operationId: listQuranTranslations
+      tags: [quran]
+      summary: List available translations
+      responses:
+        "200":
+          description: List of translations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranTranslation"
+  /quran/chapters:
+    get:
+      operationId: listQuranChapters
+      tags: [quran]
+      summary: List all 114 chapters (surahs)
+      responses:
+        "200":
+          description: List of chapters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranChapter"
+  /quran/chapters/{number}:
+    parameters:
+      - name: number
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getQuranChapter
+      tags: [quran]
+      summary: Get a single chapter by number
+      responses:
+        "200":
+          description: The chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranChapter"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /quran/chapters/{number}/verses:
+    parameters:
+      - name: number
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: translation
+        in: query
+        schema:
+          type: string
+      - name: reciter
+        in: query
+        schema:
+          type: string
+    get:
+      operationId: getQuranChapterVerses
+      tags: [quran]
+      summary: Get verses for a chapter with translation and audio
+      responses:
+        "200":
+          description: List of verses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranVerse"
+        "502":
+          description: Provider error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /quran/ayah/{surah}/{ayah}:
+    parameters:
+      - name: surah
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: ayah
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: translation
+        in: query
+        schema:
+          type: string
+      - name: reciter
+        in: query
+        schema:
+          type: string
+    get:
+      operationId: getQuranAyah
+      tags: [quran]
+      summary: Get a single ayah
+      responses:
+        "200":
+          description: The ayah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranVerse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /quran/search:
+    parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: translation
+        in: query
+        schema:
+          type: string
+    get:
+      operationId: searchQuran
+      tags: [quran]
+      summary: Search the Qur'an by keyword
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranSearchResult"
+  /quran/featured-ayah:
+    get:
+      operationId: getFeaturedAyahPublic
+      tags: [quran]
+      summary: Get the currently active featured ayah
+      responses:
+        "200":
+          description: Featured ayah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedAyah"
+        "404":
+          description: No featured ayah configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /quran/reflections/{surah}/{ayah}:
+    parameters:
+      - name: surah
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: ayah
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listQuranReflectionsPublic
+      tags: [quran]
+      summary: List published reflections for an ayah
+      responses:
+        "200":
+          description: List of reflections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranReflection"
+  /admin/quran/settings:
+    put:
+      operationId: adminUpdateQuranSettings
+      tags: [quran]
+      summary: Update Qur'an reader settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchQuranSettings"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranSettings"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/quran/featured-ayah:
+    get:
+      operationId: adminListFeaturedAyah
+      tags: [quran]
+      summary: List all featured ayah entries (admin)
+      responses:
+        "200":
+          description: List of featured ayah entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeaturedAyah"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateFeaturedAyah
+      tags: [quran]
+      summary: Create a featured ayah entry (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertFeaturedAyah"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedAyah"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/quran/featured-ayah/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetFeaturedAyah
+      tags: [quran]
+      summary: Get a single featured ayah entry (admin)
+      responses:
+        "200":
+          description: The featured ayah entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedAyah"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateFeaturedAyah
+      tags: [quran]
+      summary: Update a featured ayah entry (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchFeaturedAyah"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedAyah"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteFeaturedAyah
+      tags: [quran]
+      summary: Delete a featured ayah entry (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/quran/reflections:
+    get:
+      operationId: adminListQuranReflections
+      tags: [quran]
+      summary: List all reflections (admin)
+      responses:
+        "200":
+          description: List of reflections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuranReflection"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateQuranReflection
+      tags: [quran]
+      summary: Create a reflection (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertQuranReflection"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranReflection"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/quran/reflections/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetQuranReflection
+      tags: [quran]
+      summary: Get a single reflection (admin)
+      responses:
+        "200":
+          description: The reflection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranReflection"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateQuranReflection
+      tags: [quran]
+      summary: Update a reflection (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchQuranReflection"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuranReflection"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteQuranReflection
+      tags: [quran]
+      summary: Delete a reflection (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     UploadUrlRequest:
@@ -3991,4 +4438,329 @@ components:
           type: string
       required:
         - value
+    QuranSettings:
+      type: object
+      properties:
+        id:
+          type: string
+        isQuranPageEnabled:
+          type: boolean
+        showInNavigation:
+          type: boolean
+        showOnHomepage:
+          type: boolean
+        defaultTranslation:
+          type: string
+        defaultReciter:
+          type: string
+        defaultDisplayMode:
+          type: string
+        defaultFontSize:
+          type: string
+        defaultTheme:
+          type: string
+        primaryApiProvider:
+          type: string
+        fallbackApiProvider:
+          type: string
+        cacheDurationMinutes:
+          type: integer
+        attributionText:
+          type: string
+        homepageTitle:
+          type: string
+        homepageIntro:
+          type: string
+        homepageButtonText:
+          type: string
+        homepageButtonLink:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - isQuranPageEnabled
+        - showInNavigation
+        - showOnHomepage
+        - defaultTranslation
+        - defaultReciter
+        - defaultDisplayMode
+        - defaultFontSize
+        - defaultTheme
+        - primaryApiProvider
+        - fallbackApiProvider
+        - cacheDurationMinutes
+        - attributionText
+        - homepageTitle
+        - homepageIntro
+        - homepageButtonText
+        - homepageButtonLink
+        - createdAt
+        - updatedAt
+    PatchQuranSettings:
+      type: object
+      properties:
+        isQuranPageEnabled:
+          type: boolean
+        showInNavigation:
+          type: boolean
+        showOnHomepage:
+          type: boolean
+        defaultTranslation:
+          type: string
+        defaultReciter:
+          type: string
+        defaultDisplayMode:
+          type: string
+        defaultFontSize:
+          type: string
+        defaultTheme:
+          type: string
+        primaryApiProvider:
+          type: string
+        fallbackApiProvider:
+          type: string
+        cacheDurationMinutes:
+          type: integer
+        attributionText:
+          type: string
+        homepageTitle:
+          type: string
+        homepageIntro:
+          type: string
+        homepageButtonText:
+          type: string
+        homepageButtonLink:
+          type: string
+    QuranReciter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
+    QuranTranslation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        language:
+          type: string
+      required:
+        - id
+        - name
+        - language
+    QuranChapter:
+      type: object
+      properties:
+        number:
+          type: integer
+        name:
+          type: string
+        englishName:
+          type: string
+        englishNameTranslation:
+          type: string
+        numberOfAyahs:
+          type: integer
+        revelationType:
+          type: string
+      required:
+        - number
+        - name
+        - englishName
+        - englishNameTranslation
+        - numberOfAyahs
+        - revelationType
+    QuranVerse:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        numberInSurah:
+          type: integer
+        arabic:
+          type: string
+        translation:
+          type: string
+        translationSource:
+          type: string
+        audioUrl:
+          type: ["string", "null"]
+      required:
+        - surahNumber
+        - ayahNumber
+        - numberInSurah
+        - arabic
+        - translation
+        - translationSource
+        - audioUrl
+    QuranSearchResult:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        surahName:
+          type: string
+        ayahNumber:
+          type: integer
+        arabic:
+          type: string
+        translation:
+          type: string
+      required:
+        - surahNumber
+        - surahName
+        - ayahNumber
+        - arabic
+        - translation
+    FeaturedAyah:
+      type: object
+      properties:
+        id:
+          type: string
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        reflectionTitle:
+          type: ["string", "null"]
+        reflectionText:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+        showOnHomepage:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - surahNumber
+        - ayahNumber
+        - isPublished
+        - showOnHomepage
+        - createdAt
+    InsertFeaturedAyah:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        reflectionTitle:
+          type: ["string", "null"]
+        reflectionText:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+        showOnHomepage:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+      required:
+        - surahNumber
+        - ayahNumber
+    PatchFeaturedAyah:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        reflectionTitle:
+          type: ["string", "null"]
+        reflectionText:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+        showOnHomepage:
+          type: boolean
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+    QuranReflection:
+      type: object
+      properties:
+        id:
+          type: string
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: ["string", "null"]
+        status:
+          type: string
+        showPublicly:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - surahNumber
+        - ayahNumber
+        - title
+        - content
+        - status
+        - showPublicly
+        - createdAt
+    InsertQuranReflection:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: ["string", "null"]
+        status:
+          type: string
+        showPublicly:
+          type: boolean
+      required:
+        - surahNumber
+        - ayahNumber
+        - title
+        - content
+    PatchQuranReflection:
+      type: object
+      properties:
+        surahNumber:
+          type: integer
+        ayahNumber:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: ["string", "null"]
+        status:
+          type: string
+        showPublicly:
+          type: boolean
 

@@ -42,9 +42,10 @@ import {
 } from "lucide-react";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { useGetQuranSettingsPublic } from "@workspace/api-client-react";
 import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
   { href: "/timetable", label: "Timetable" },
   { href: "/about", label: "About" },
@@ -145,6 +146,11 @@ function MegaPanel({
 export function SiteHeader() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const { data: quranSettings } = useGetQuranSettingsPublic();
+  const showQuranNav = quranSettings ? quranSettings.showInNavigation : true;
+  const NAV_LINKS = showQuranNav
+    ? [...BASE_NAV_LINKS.slice(0, 2), { href: "/quran", label: "Qur'an" }, ...BASE_NAV_LINKS.slice(2)]
+    : BASE_NAV_LINKS;
   const communityActive = COMMUNITY_LINKS.some((link) => link.href === location);
   const servicesActive = SERVICES_LINKS.some((link) => link.href === location);
   const infoActive = INFO_LINKS.some((link) => link.href === location);

@@ -49,6 +49,13 @@ import AdminMembersPage from "@/pages/admin/members";
 import AdminGalleryPage from "@/pages/admin/gallery";
 import AdminNewsPage from "@/pages/admin/news";
 import AdminStaffPage from "@/pages/admin/staff";
+import QuranPage from "@/pages/quran";
+import QuranSurahPage from "@/pages/quran-surah";
+import AdminQuranSettingsPage from "@/pages/admin/quran-settings";
+import AdminQuranFeaturedAyahPage from "@/pages/admin/quran-featured-ayah";
+import AdminQuranReflectionsPage from "@/pages/admin/quran-reflections";
+import { QuranAudioProvider } from "@/lib/quran-audio-player";
+import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +89,8 @@ function Router() {
       <Route path="/safeguarding" component={SafeguardingPage} />
       <Route path="/policies" component={PoliciesPage} />
       <Route path="/faqs" component={FaqsPage} />
+      <Route path="/quran" component={QuranPage} />
+      <Route path="/quran/:number" component={QuranSurahPage} />
       <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin/prayer-times" component={AdminPrayerTimesPage} />
       <Route path="/admin/donations" component={AdminDonationsPage} />
@@ -98,6 +107,9 @@ function Router() {
       <Route path="/admin/gallery" component={AdminGalleryPage} />
       <Route path="/admin/news" component={AdminNewsPage} />
       <Route path="/admin/staff" component={AdminStaffPage} />
+      <Route path="/admin/quran-settings" component={AdminQuranSettingsPage} />
+      <Route path="/admin/quran-featured-ayah" component={AdminQuranFeaturedAyahPage} />
+      <Route path="/admin/quran-reflections" component={AdminQuranReflectionsPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>
@@ -118,8 +130,11 @@ function App() {
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <AuthProvider>
-            <ScrollToTop />
-            <Router />
+            <QuranAudioProvider>
+              <ScrollToTop />
+              <Router />
+              <MiniAudioPlayer />
+            </QuranAudioProvider>
           </AuthProvider>
         </WouterRouter>
         <Toaster />

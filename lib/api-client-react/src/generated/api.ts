@@ -33,11 +33,14 @@ import type {
   Enquiry,
   ErrorResponse,
   Event,
+  FeaturedAyah,
   ForgotPasswordInput,
   GalleryAlbum,
   GalleryMedia,
   GeneratePrayerTimesRequest,
   GeneratePrayerTimesResponse,
+  GetQuranAyahParams,
+  GetQuranChapterVersesParams,
   HealthStatus,
   InsertAnnouncement,
   InsertCourse,
@@ -45,11 +48,13 @@ import type {
   InsertDonationCampaign,
   InsertEnquiry,
   InsertEvent,
+  InsertFeaturedAyah,
   InsertGalleryAlbum,
   InsertGalleryMedia,
   InsertMember,
   InsertNewsPost,
   InsertPrayerTime,
+  InsertQuranReflection,
   InsertService,
   InsertStaffMember,
   InsertTimetablePdf,
@@ -68,6 +73,7 @@ import type {
   PatchDonationCampaign,
   PatchEnquiry,
   PatchEvent,
+  PatchFeaturedAyah,
   PatchGalleryAlbum,
   PatchGalleryMedia,
   PatchMember,
@@ -75,6 +81,8 @@ import type {
   PatchNotificationRecipientInput,
   PatchPrayerCalculationSettings,
   PatchPrayerTime,
+  PatchQuranReflection,
+  PatchQuranSettings,
   PatchService,
   PatchStaffMember,
   PatchTimetablePdf,
@@ -82,7 +90,15 @@ import type {
   PatchVolunteerOpportunity,
   PrayerCalculationSettings,
   PrayerTime,
+  QuranChapter,
+  QuranReciter,
+  QuranReflection,
+  QuranSearchResult,
+  QuranSettings,
+  QuranTranslation,
+  QuranVerse,
   ResetPasswordInput,
+  SearchQuranParams,
   Service,
   SiteSetting,
   SquareConfig,
@@ -8729,4 +8745,1609 @@ export function useGetStorageObject<TData = Awaited<ReturnType<typeof getStorage
 
 
 
+
+export const getGetQuranSettingsPublicUrl = () => {
+
+
+
+
+  return `/api/quran/settings`
+}
+
+/**
+ * @summary Get public Qur'an reader settings
+ */
+export const getQuranSettingsPublic = async ( options?: RequestInit): Promise<QuranSettings> => {
+
+  return customFetch<QuranSettings>(getGetQuranSettingsPublicUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQuranSettingsPublicQueryKey = () => {
+    return [
+    `/api/quran/settings`
+    ] as const;
+    }
+
+
+export const getGetQuranSettingsPublicQueryOptions = <TData = Awaited<ReturnType<typeof getQuranSettingsPublic>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranSettingsPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQuranSettingsPublicQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQuranSettingsPublic>>> = ({ signal }) => getQuranSettingsPublic({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQuranSettingsPublic>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetQuranSettingsPublicQueryResult = NonNullable<Awaited<ReturnType<typeof getQuranSettingsPublic>>>
+export type GetQuranSettingsPublicQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get public Qur'an reader settings
+ */
+
+export function useGetQuranSettingsPublic<TData = Awaited<ReturnType<typeof getQuranSettingsPublic>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranSettingsPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetQuranSettingsPublicQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListQuranRecitersUrl = () => {
+
+
+
+
+  return `/api/quran/reciters`
+}
+
+/**
+ * @summary List available reciters
+ */
+export const listQuranReciters = async ( options?: RequestInit): Promise<QuranReciter[]> => {
+
+  return customFetch<QuranReciter[]>(getListQuranRecitersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListQuranRecitersQueryKey = () => {
+    return [
+    `/api/quran/reciters`
+    ] as const;
+    }
+
+
+export const getListQuranRecitersQueryOptions = <TData = Awaited<ReturnType<typeof listQuranReciters>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranReciters>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListQuranRecitersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listQuranReciters>>> = ({ signal }) => listQuranReciters({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listQuranReciters>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListQuranRecitersQueryResult = NonNullable<Awaited<ReturnType<typeof listQuranReciters>>>
+export type ListQuranRecitersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List available reciters
+ */
+
+export function useListQuranReciters<TData = Awaited<ReturnType<typeof listQuranReciters>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranReciters>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListQuranRecitersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListQuranTranslationsUrl = () => {
+
+
+
+
+  return `/api/quran/translations`
+}
+
+/**
+ * @summary List available translations
+ */
+export const listQuranTranslations = async ( options?: RequestInit): Promise<QuranTranslation[]> => {
+
+  return customFetch<QuranTranslation[]>(getListQuranTranslationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListQuranTranslationsQueryKey = () => {
+    return [
+    `/api/quran/translations`
+    ] as const;
+    }
+
+
+export const getListQuranTranslationsQueryOptions = <TData = Awaited<ReturnType<typeof listQuranTranslations>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranTranslations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListQuranTranslationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listQuranTranslations>>> = ({ signal }) => listQuranTranslations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listQuranTranslations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListQuranTranslationsQueryResult = NonNullable<Awaited<ReturnType<typeof listQuranTranslations>>>
+export type ListQuranTranslationsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List available translations
+ */
+
+export function useListQuranTranslations<TData = Awaited<ReturnType<typeof listQuranTranslations>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranTranslations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListQuranTranslationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListQuranChaptersUrl = () => {
+
+
+
+
+  return `/api/quran/chapters`
+}
+
+/**
+ * @summary List all 114 chapters (surahs)
+ */
+export const listQuranChapters = async ( options?: RequestInit): Promise<QuranChapter[]> => {
+
+  return customFetch<QuranChapter[]>(getListQuranChaptersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListQuranChaptersQueryKey = () => {
+    return [
+    `/api/quran/chapters`
+    ] as const;
+    }
+
+
+export const getListQuranChaptersQueryOptions = <TData = Awaited<ReturnType<typeof listQuranChapters>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranChapters>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListQuranChaptersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listQuranChapters>>> = ({ signal }) => listQuranChapters({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listQuranChapters>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListQuranChaptersQueryResult = NonNullable<Awaited<ReturnType<typeof listQuranChapters>>>
+export type ListQuranChaptersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all 114 chapters (surahs)
+ */
+
+export function useListQuranChapters<TData = Awaited<ReturnType<typeof listQuranChapters>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranChapters>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListQuranChaptersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetQuranChapterUrl = (number: number,) => {
+
+
+
+
+  return `/api/quran/chapters/${number}`
+}
+
+/**
+ * @summary Get a single chapter by number
+ */
+export const getQuranChapter = async (number: number, options?: RequestInit): Promise<QuranChapter> => {
+
+  return customFetch<QuranChapter>(getGetQuranChapterUrl(number),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQuranChapterQueryKey = (number: number,) => {
+    return [
+    `/api/quran/chapters/${number}`
+    ] as const;
+    }
+
+
+export const getGetQuranChapterQueryOptions = <TData = Awaited<ReturnType<typeof getQuranChapter>>, TError = ErrorType<ErrorResponse>>(number: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranChapter>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQuranChapterQueryKey(number);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQuranChapter>>> = ({ signal }) => getQuranChapter(number, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: number !== null && number !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQuranChapter>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetQuranChapterQueryResult = NonNullable<Awaited<ReturnType<typeof getQuranChapter>>>
+export type GetQuranChapterQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single chapter by number
+ */
+
+export function useGetQuranChapter<TData = Awaited<ReturnType<typeof getQuranChapter>>, TError = ErrorType<ErrorResponse>>(
+ number: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranChapter>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetQuranChapterQueryOptions(number,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetQuranChapterVersesUrl = (number: number,
+    params?: GetQuranChapterVersesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/quran/chapters/${number}/verses?${stringifiedParams}` : `/api/quran/chapters/${number}/verses`
+}
+
+/**
+ * @summary Get verses for a chapter with translation and audio
+ */
+export const getQuranChapterVerses = async (number: number,
+    params?: GetQuranChapterVersesParams, options?: RequestInit): Promise<QuranVerse[]> => {
+
+  return customFetch<QuranVerse[]>(getGetQuranChapterVersesUrl(number,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQuranChapterVersesQueryKey = (number: number,
+    params?: GetQuranChapterVersesParams,) => {
+    return [
+    `/api/quran/chapters/${number}/verses`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetQuranChapterVersesQueryOptions = <TData = Awaited<ReturnType<typeof getQuranChapterVerses>>, TError = ErrorType<ErrorResponse>>(number: number,
+    params?: GetQuranChapterVersesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranChapterVerses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQuranChapterVersesQueryKey(number,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQuranChapterVerses>>> = ({ signal }) => getQuranChapterVerses(number,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: number !== null && number !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQuranChapterVerses>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetQuranChapterVersesQueryResult = NonNullable<Awaited<ReturnType<typeof getQuranChapterVerses>>>
+export type GetQuranChapterVersesQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get verses for a chapter with translation and audio
+ */
+
+export function useGetQuranChapterVerses<TData = Awaited<ReturnType<typeof getQuranChapterVerses>>, TError = ErrorType<ErrorResponse>>(
+ number: number,
+    params?: GetQuranChapterVersesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranChapterVerses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetQuranChapterVersesQueryOptions(number,params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetQuranAyahUrl = (surah: number,
+    ayah: number,
+    params?: GetQuranAyahParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/quran/ayah/${surah}/${ayah}?${stringifiedParams}` : `/api/quran/ayah/${surah}/${ayah}`
+}
+
+/**
+ * @summary Get a single ayah
+ */
+export const getQuranAyah = async (surah: number,
+    ayah: number,
+    params?: GetQuranAyahParams, options?: RequestInit): Promise<QuranVerse> => {
+
+  return customFetch<QuranVerse>(getGetQuranAyahUrl(surah,ayah,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQuranAyahQueryKey = (surah: number,
+    ayah: number,
+    params?: GetQuranAyahParams,) => {
+    return [
+    `/api/quran/ayah/${surah}/${ayah}`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetQuranAyahQueryOptions = <TData = Awaited<ReturnType<typeof getQuranAyah>>, TError = ErrorType<ErrorResponse>>(surah: number,
+    ayah: number,
+    params?: GetQuranAyahParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQuranAyahQueryKey(surah,ayah,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQuranAyah>>> = ({ signal }) => getQuranAyah(surah,ayah,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: surah !== null && surah !== undefined && ayah !== null && ayah !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQuranAyah>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetQuranAyahQueryResult = NonNullable<Awaited<ReturnType<typeof getQuranAyah>>>
+export type GetQuranAyahQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single ayah
+ */
+
+export function useGetQuranAyah<TData = Awaited<ReturnType<typeof getQuranAyah>>, TError = ErrorType<ErrorResponse>>(
+ surah: number,
+    ayah: number,
+    params?: GetQuranAyahParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQuranAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetQuranAyahQueryOptions(surah,ayah,params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSearchQuranUrl = (params?: SearchQuranParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/quran/search?${stringifiedParams}` : `/api/quran/search`
+}
+
+/**
+ * @summary Search the Qur'an by keyword
+ */
+export const searchQuran = async (params?: SearchQuranParams, options?: RequestInit): Promise<QuranSearchResult[]> => {
+
+  return customFetch<QuranSearchResult[]>(getSearchQuranUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchQuranQueryKey = (params?: SearchQuranParams,) => {
+    return [
+    `/api/quran/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchQuranQueryOptions = <TData = Awaited<ReturnType<typeof searchQuran>>, TError = ErrorType<unknown>>(params?: SearchQuranParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchQuran>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchQuranQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchQuran>>> = ({ signal }) => searchQuran(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchQuran>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchQuranQueryResult = NonNullable<Awaited<ReturnType<typeof searchQuran>>>
+export type SearchQuranQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Search the Qur'an by keyword
+ */
+
+export function useSearchQuran<TData = Awaited<ReturnType<typeof searchQuran>>, TError = ErrorType<unknown>>(
+ params?: SearchQuranParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchQuran>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchQuranQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetFeaturedAyahPublicUrl = () => {
+
+
+
+
+  return `/api/quran/featured-ayah`
+}
+
+/**
+ * @summary Get the currently active featured ayah
+ */
+export const getFeaturedAyahPublic = async ( options?: RequestInit): Promise<FeaturedAyah> => {
+
+  return customFetch<FeaturedAyah>(getGetFeaturedAyahPublicUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetFeaturedAyahPublicQueryKey = () => {
+    return [
+    `/api/quran/featured-ayah`
+    ] as const;
+    }
+
+
+export const getGetFeaturedAyahPublicQueryOptions = <TData = Awaited<ReturnType<typeof getFeaturedAyahPublic>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeaturedAyahPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetFeaturedAyahPublicQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFeaturedAyahPublic>>> = ({ signal }) => getFeaturedAyahPublic({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFeaturedAyahPublic>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetFeaturedAyahPublicQueryResult = NonNullable<Awaited<ReturnType<typeof getFeaturedAyahPublic>>>
+export type GetFeaturedAyahPublicQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the currently active featured ayah
+ */
+
+export function useGetFeaturedAyahPublic<TData = Awaited<ReturnType<typeof getFeaturedAyahPublic>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeaturedAyahPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetFeaturedAyahPublicQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListQuranReflectionsPublicUrl = (surah: number,
+    ayah: number,) => {
+
+
+
+
+  return `/api/quran/reflections/${surah}/${ayah}`
+}
+
+/**
+ * @summary List published reflections for an ayah
+ */
+export const listQuranReflectionsPublic = async (surah: number,
+    ayah: number, options?: RequestInit): Promise<QuranReflection[]> => {
+
+  return customFetch<QuranReflection[]>(getListQuranReflectionsPublicUrl(surah,ayah),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListQuranReflectionsPublicQueryKey = (surah: number,
+    ayah: number,) => {
+    return [
+    `/api/quran/reflections/${surah}/${ayah}`
+    ] as const;
+    }
+
+
+export const getListQuranReflectionsPublicQueryOptions = <TData = Awaited<ReturnType<typeof listQuranReflectionsPublic>>, TError = ErrorType<unknown>>(surah: number,
+    ayah: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranReflectionsPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListQuranReflectionsPublicQueryKey(surah,ayah);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listQuranReflectionsPublic>>> = ({ signal }) => listQuranReflectionsPublic(surah,ayah, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: surah !== null && surah !== undefined && ayah !== null && ayah !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listQuranReflectionsPublic>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListQuranReflectionsPublicQueryResult = NonNullable<Awaited<ReturnType<typeof listQuranReflectionsPublic>>>
+export type ListQuranReflectionsPublicQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List published reflections for an ayah
+ */
+
+export function useListQuranReflectionsPublic<TData = Awaited<ReturnType<typeof listQuranReflectionsPublic>>, TError = ErrorType<unknown>>(
+ surah: number,
+    ayah: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listQuranReflectionsPublic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListQuranReflectionsPublicQueryOptions(surah,ayah,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdateQuranSettingsUrl = () => {
+
+
+
+
+  return `/api/admin/quran/settings`
+}
+
+/**
+ * @summary Update Qur'an reader settings (admin)
+ */
+export const adminUpdateQuranSettings = async (patchQuranSettings: PatchQuranSettings, options?: RequestInit): Promise<QuranSettings> => {
+
+  return customFetch<QuranSettings>(getAdminUpdateQuranSettingsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchQuranSettings)
+  }
+);}
+
+
+
+
+export const getAdminUpdateQuranSettingsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranSettings>>, TError,{data: BodyType<PatchQuranSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranSettings>>, TError,{data: BodyType<PatchQuranSettings>}, TContext> => {
+
+const mutationKey = ['adminUpdateQuranSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateQuranSettings>>, {data: BodyType<PatchQuranSettings>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminUpdateQuranSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateQuranSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateQuranSettings>>>
+    export type AdminUpdateQuranSettingsMutationBody = BodyType<PatchQuranSettings>
+    export type AdminUpdateQuranSettingsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update Qur'an reader settings (admin)
+ */
+export const useAdminUpdateQuranSettings = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranSettings>>, TError,{data: BodyType<PatchQuranSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateQuranSettings>>,
+        TError,
+        {data: BodyType<PatchQuranSettings>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateQuranSettingsMutationOptions(options));
+    }
+
+export const getAdminListFeaturedAyahUrl = () => {
+
+
+
+
+  return `/api/admin/quran/featured-ayah`
+}
+
+/**
+ * @summary List all featured ayah entries (admin)
+ */
+export const adminListFeaturedAyah = async ( options?: RequestInit): Promise<FeaturedAyah[]> => {
+
+  return customFetch<FeaturedAyah[]>(getAdminListFeaturedAyahUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListFeaturedAyahQueryKey = () => {
+    return [
+    `/api/admin/quran/featured-ayah`
+    ] as const;
+    }
+
+
+export const getAdminListFeaturedAyahQueryOptions = <TData = Awaited<ReturnType<typeof adminListFeaturedAyah>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListFeaturedAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListFeaturedAyahQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListFeaturedAyah>>> = ({ signal }) => adminListFeaturedAyah({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListFeaturedAyah>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListFeaturedAyahQueryResult = NonNullable<Awaited<ReturnType<typeof adminListFeaturedAyah>>>
+export type AdminListFeaturedAyahQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all featured ayah entries (admin)
+ */
+
+export function useAdminListFeaturedAyah<TData = Awaited<ReturnType<typeof adminListFeaturedAyah>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListFeaturedAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListFeaturedAyahQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminCreateFeaturedAyahUrl = () => {
+
+
+
+
+  return `/api/admin/quran/featured-ayah`
+}
+
+/**
+ * @summary Create a featured ayah entry (admin)
+ */
+export const adminCreateFeaturedAyah = async (insertFeaturedAyah: InsertFeaturedAyah, options?: RequestInit): Promise<FeaturedAyah> => {
+
+  return customFetch<FeaturedAyah>(getAdminCreateFeaturedAyahUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(insertFeaturedAyah)
+  }
+);}
+
+
+
+
+export const getAdminCreateFeaturedAyahMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateFeaturedAyah>>, TError,{data: BodyType<InsertFeaturedAyah>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminCreateFeaturedAyah>>, TError,{data: BodyType<InsertFeaturedAyah>}, TContext> => {
+
+const mutationKey = ['adminCreateFeaturedAyah'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminCreateFeaturedAyah>>, {data: BodyType<InsertFeaturedAyah>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminCreateFeaturedAyah(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminCreateFeaturedAyahMutationResult = NonNullable<Awaited<ReturnType<typeof adminCreateFeaturedAyah>>>
+    export type AdminCreateFeaturedAyahMutationBody = BodyType<InsertFeaturedAyah>
+    export type AdminCreateFeaturedAyahMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Create a featured ayah entry (admin)
+ */
+export const useAdminCreateFeaturedAyah = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateFeaturedAyah>>, TError,{data: BodyType<InsertFeaturedAyah>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminCreateFeaturedAyah>>,
+        TError,
+        {data: BodyType<InsertFeaturedAyah>},
+        TContext
+      > => {
+      return useMutation(getAdminCreateFeaturedAyahMutationOptions(options));
+    }
+
+export const getAdminGetFeaturedAyahUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/featured-ayah/${id}`
+}
+
+/**
+ * @summary Get a single featured ayah entry (admin)
+ */
+export const adminGetFeaturedAyah = async (id: string, options?: RequestInit): Promise<FeaturedAyah> => {
+
+  return customFetch<FeaturedAyah>(getAdminGetFeaturedAyahUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetFeaturedAyahQueryKey = (id: string,) => {
+    return [
+    `/api/admin/quran/featured-ayah/${id}`
+    ] as const;
+    }
+
+
+export const getAdminGetFeaturedAyahQueryOptions = <TData = Awaited<ReturnType<typeof adminGetFeaturedAyah>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetFeaturedAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetFeaturedAyahQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetFeaturedAyah>>> = ({ signal }) => adminGetFeaturedAyah(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetFeaturedAyah>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetFeaturedAyahQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetFeaturedAyah>>>
+export type AdminGetFeaturedAyahQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single featured ayah entry (admin)
+ */
+
+export function useAdminGetFeaturedAyah<TData = Awaited<ReturnType<typeof adminGetFeaturedAyah>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetFeaturedAyah>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetFeaturedAyahQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdateFeaturedAyahUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/featured-ayah/${id}`
+}
+
+/**
+ * @summary Update a featured ayah entry (admin)
+ */
+export const adminUpdateFeaturedAyah = async (id: string,
+    patchFeaturedAyah: PatchFeaturedAyah, options?: RequestInit): Promise<FeaturedAyah> => {
+
+  return customFetch<FeaturedAyah>(getAdminUpdateFeaturedAyahUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchFeaturedAyah)
+  }
+);}
+
+
+
+
+export const getAdminUpdateFeaturedAyahMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>, TError,{id: string;data: BodyType<PatchFeaturedAyah>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>, TError,{id: string;data: BodyType<PatchFeaturedAyah>}, TContext> => {
+
+const mutationKey = ['adminUpdateFeaturedAyah'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>, {id: string;data: BodyType<PatchFeaturedAyah>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminUpdateFeaturedAyah(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateFeaturedAyahMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>>
+    export type AdminUpdateFeaturedAyahMutationBody = BodyType<PatchFeaturedAyah>
+    export type AdminUpdateFeaturedAyahMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update a featured ayah entry (admin)
+ */
+export const useAdminUpdateFeaturedAyah = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>, TError,{id: string;data: BodyType<PatchFeaturedAyah>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateFeaturedAyah>>,
+        TError,
+        {id: string;data: BodyType<PatchFeaturedAyah>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateFeaturedAyahMutationOptions(options));
+    }
+
+export const getAdminDeleteFeaturedAyahUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/featured-ayah/${id}`
+}
+
+/**
+ * @summary Delete a featured ayah entry (admin)
+ */
+export const adminDeleteFeaturedAyah = async (id: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getAdminDeleteFeaturedAyahUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getAdminDeleteFeaturedAyahMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminDeleteFeaturedAyah'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminDeleteFeaturedAyah(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteFeaturedAyahMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>>
+
+    export type AdminDeleteFeaturedAyahMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a featured ayah entry (admin)
+ */
+export const useAdminDeleteFeaturedAyah = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteFeaturedAyah>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminDeleteFeaturedAyahMutationOptions(options));
+    }
+
+export const getAdminListQuranReflectionsUrl = () => {
+
+
+
+
+  return `/api/admin/quran/reflections`
+}
+
+/**
+ * @summary List all reflections (admin)
+ */
+export const adminListQuranReflections = async ( options?: RequestInit): Promise<QuranReflection[]> => {
+
+  return customFetch<QuranReflection[]>(getAdminListQuranReflectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListQuranReflectionsQueryKey = () => {
+    return [
+    `/api/admin/quran/reflections`
+    ] as const;
+    }
+
+
+export const getAdminListQuranReflectionsQueryOptions = <TData = Awaited<ReturnType<typeof adminListQuranReflections>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListQuranReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListQuranReflectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListQuranReflections>>> = ({ signal }) => adminListQuranReflections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListQuranReflections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListQuranReflectionsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListQuranReflections>>>
+export type AdminListQuranReflectionsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all reflections (admin)
+ */
+
+export function useAdminListQuranReflections<TData = Awaited<ReturnType<typeof adminListQuranReflections>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListQuranReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListQuranReflectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminCreateQuranReflectionUrl = () => {
+
+
+
+
+  return `/api/admin/quran/reflections`
+}
+
+/**
+ * @summary Create a reflection (admin)
+ */
+export const adminCreateQuranReflection = async (insertQuranReflection: InsertQuranReflection, options?: RequestInit): Promise<QuranReflection> => {
+
+  return customFetch<QuranReflection>(getAdminCreateQuranReflectionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(insertQuranReflection)
+  }
+);}
+
+
+
+
+export const getAdminCreateQuranReflectionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateQuranReflection>>, TError,{data: BodyType<InsertQuranReflection>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminCreateQuranReflection>>, TError,{data: BodyType<InsertQuranReflection>}, TContext> => {
+
+const mutationKey = ['adminCreateQuranReflection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminCreateQuranReflection>>, {data: BodyType<InsertQuranReflection>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminCreateQuranReflection(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminCreateQuranReflectionMutationResult = NonNullable<Awaited<ReturnType<typeof adminCreateQuranReflection>>>
+    export type AdminCreateQuranReflectionMutationBody = BodyType<InsertQuranReflection>
+    export type AdminCreateQuranReflectionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Create a reflection (admin)
+ */
+export const useAdminCreateQuranReflection = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateQuranReflection>>, TError,{data: BodyType<InsertQuranReflection>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminCreateQuranReflection>>,
+        TError,
+        {data: BodyType<InsertQuranReflection>},
+        TContext
+      > => {
+      return useMutation(getAdminCreateQuranReflectionMutationOptions(options));
+    }
+
+export const getAdminGetQuranReflectionUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/reflections/${id}`
+}
+
+/**
+ * @summary Get a single reflection (admin)
+ */
+export const adminGetQuranReflection = async (id: string, options?: RequestInit): Promise<QuranReflection> => {
+
+  return customFetch<QuranReflection>(getAdminGetQuranReflectionUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetQuranReflectionQueryKey = (id: string,) => {
+    return [
+    `/api/admin/quran/reflections/${id}`
+    ] as const;
+    }
+
+
+export const getAdminGetQuranReflectionQueryOptions = <TData = Awaited<ReturnType<typeof adminGetQuranReflection>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetQuranReflection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetQuranReflectionQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetQuranReflection>>> = ({ signal }) => adminGetQuranReflection(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetQuranReflection>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetQuranReflectionQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetQuranReflection>>>
+export type AdminGetQuranReflectionQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single reflection (admin)
+ */
+
+export function useAdminGetQuranReflection<TData = Awaited<ReturnType<typeof adminGetQuranReflection>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetQuranReflection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetQuranReflectionQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdateQuranReflectionUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/reflections/${id}`
+}
+
+/**
+ * @summary Update a reflection (admin)
+ */
+export const adminUpdateQuranReflection = async (id: string,
+    patchQuranReflection: PatchQuranReflection, options?: RequestInit): Promise<QuranReflection> => {
+
+  return customFetch<QuranReflection>(getAdminUpdateQuranReflectionUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchQuranReflection)
+  }
+);}
+
+
+
+
+export const getAdminUpdateQuranReflectionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranReflection>>, TError,{id: string;data: BodyType<PatchQuranReflection>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranReflection>>, TError,{id: string;data: BodyType<PatchQuranReflection>}, TContext> => {
+
+const mutationKey = ['adminUpdateQuranReflection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateQuranReflection>>, {id: string;data: BodyType<PatchQuranReflection>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminUpdateQuranReflection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateQuranReflectionMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateQuranReflection>>>
+    export type AdminUpdateQuranReflectionMutationBody = BodyType<PatchQuranReflection>
+    export type AdminUpdateQuranReflectionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update a reflection (admin)
+ */
+export const useAdminUpdateQuranReflection = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateQuranReflection>>, TError,{id: string;data: BodyType<PatchQuranReflection>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateQuranReflection>>,
+        TError,
+        {id: string;data: BodyType<PatchQuranReflection>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateQuranReflectionMutationOptions(options));
+    }
+
+export const getAdminDeleteQuranReflectionUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/quran/reflections/${id}`
+}
+
+/**
+ * @summary Delete a reflection (admin)
+ */
+export const adminDeleteQuranReflection = async (id: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getAdminDeleteQuranReflectionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getAdminDeleteQuranReflectionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteQuranReflection>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteQuranReflection>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminDeleteQuranReflection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteQuranReflection>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminDeleteQuranReflection(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteQuranReflectionMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteQuranReflection>>>
+
+    export type AdminDeleteQuranReflectionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a reflection (admin)
+ */
+export const useAdminDeleteQuranReflection = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteQuranReflection>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteQuranReflection>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminDeleteQuranReflectionMutationOptions(options));
+    }
 

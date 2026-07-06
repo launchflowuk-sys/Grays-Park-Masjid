@@ -2283,3 +2283,443 @@ export const GetStorageObjectParams = zod.object({
 export const GetStorageObjectResponse = zod.unknown()
 
 
+/**
+ * @summary Get public Qur'an reader settings
+ */
+export const GetQuranSettingsPublicResponse = zod.object({
+  "id": zod.string(),
+  "isQuranPageEnabled": zod.boolean(),
+  "showInNavigation": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "defaultTranslation": zod.string(),
+  "defaultReciter": zod.string(),
+  "defaultDisplayMode": zod.string(),
+  "defaultFontSize": zod.string(),
+  "defaultTheme": zod.string(),
+  "primaryApiProvider": zod.string(),
+  "fallbackApiProvider": zod.string(),
+  "cacheDurationMinutes": zod.number(),
+  "attributionText": zod.string(),
+  "homepageTitle": zod.string(),
+  "homepageIntro": zod.string(),
+  "homepageButtonText": zod.string(),
+  "homepageButtonLink": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary List available reciters
+ */
+export const ListQuranRecitersResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+})
+export const ListQuranRecitersResponse = zod.array(ListQuranRecitersResponseItem)
+
+
+/**
+ * @summary List available translations
+ */
+export const ListQuranTranslationsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "language": zod.string()
+})
+export const ListQuranTranslationsResponse = zod.array(ListQuranTranslationsResponseItem)
+
+
+/**
+ * @summary List all 114 chapters (surahs)
+ */
+export const ListQuranChaptersResponseItem = zod.object({
+  "number": zod.number(),
+  "name": zod.string(),
+  "englishName": zod.string(),
+  "englishNameTranslation": zod.string(),
+  "numberOfAyahs": zod.number(),
+  "revelationType": zod.string()
+})
+export const ListQuranChaptersResponse = zod.array(ListQuranChaptersResponseItem)
+
+
+/**
+ * @summary Get a single chapter by number
+ */
+export const GetQuranChapterParams = zod.object({
+  "number": zod.coerce.number()
+})
+
+export const GetQuranChapterResponse = zod.object({
+  "number": zod.number(),
+  "name": zod.string(),
+  "englishName": zod.string(),
+  "englishNameTranslation": zod.string(),
+  "numberOfAyahs": zod.number(),
+  "revelationType": zod.string()
+})
+
+
+/**
+ * @summary Get verses for a chapter with translation and audio
+ */
+export const GetQuranChapterVersesParams = zod.object({
+  "number": zod.coerce.number()
+})
+
+export const GetQuranChapterVersesQueryParams = zod.object({
+  "translation": zod.coerce.string().optional(),
+  "reciter": zod.coerce.string().optional()
+})
+
+export const GetQuranChapterVersesResponseItem = zod.object({
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "numberInSurah": zod.number(),
+  "arabic": zod.string(),
+  "translation": zod.string(),
+  "translationSource": zod.string(),
+  "audioUrl": zod.string().nullable()
+})
+export const GetQuranChapterVersesResponse = zod.array(GetQuranChapterVersesResponseItem)
+
+
+/**
+ * @summary Get a single ayah
+ */
+export const GetQuranAyahParams = zod.object({
+  "surah": zod.coerce.number(),
+  "ayah": zod.coerce.number()
+})
+
+export const GetQuranAyahQueryParams = zod.object({
+  "translation": zod.coerce.string().optional(),
+  "reciter": zod.coerce.string().optional()
+})
+
+export const GetQuranAyahResponse = zod.object({
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "numberInSurah": zod.number(),
+  "arabic": zod.string(),
+  "translation": zod.string(),
+  "translationSource": zod.string(),
+  "audioUrl": zod.string().nullable()
+})
+
+
+/**
+ * @summary Search the Qur'an by keyword
+ */
+export const SearchQuranQueryParams = zod.object({
+  "q": zod.coerce.string().optional(),
+  "translation": zod.coerce.string().optional()
+})
+
+export const SearchQuranResponseItem = zod.object({
+  "surahNumber": zod.number(),
+  "surahName": zod.string(),
+  "ayahNumber": zod.number(),
+  "arabic": zod.string(),
+  "translation": zod.string()
+})
+export const SearchQuranResponse = zod.array(SearchQuranResponseItem)
+
+
+/**
+ * @summary Get the currently active featured ayah
+ */
+export const GetFeaturedAyahPublicResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List published reflections for an ayah
+ */
+export const ListQuranReflectionsPublicParams = zod.object({
+  "surah": zod.coerce.number(),
+  "ayah": zod.coerce.number()
+})
+
+export const ListQuranReflectionsPublicResponseItem = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string(),
+  "showPublicly": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListQuranReflectionsPublicResponse = zod.array(ListQuranReflectionsPublicResponseItem)
+
+
+/**
+ * @summary Update Qur'an reader settings (admin)
+ */
+export const AdminUpdateQuranSettingsBody = zod.object({
+  "isQuranPageEnabled": zod.boolean().optional(),
+  "showInNavigation": zod.boolean().optional(),
+  "showOnHomepage": zod.boolean().optional(),
+  "defaultTranslation": zod.string().optional(),
+  "defaultReciter": zod.string().optional(),
+  "defaultDisplayMode": zod.string().optional(),
+  "defaultFontSize": zod.string().optional(),
+  "defaultTheme": zod.string().optional(),
+  "primaryApiProvider": zod.string().optional(),
+  "fallbackApiProvider": zod.string().optional(),
+  "cacheDurationMinutes": zod.number().optional(),
+  "attributionText": zod.string().optional(),
+  "homepageTitle": zod.string().optional(),
+  "homepageIntro": zod.string().optional(),
+  "homepageButtonText": zod.string().optional(),
+  "homepageButtonLink": zod.string().optional()
+})
+
+export const AdminUpdateQuranSettingsResponse = zod.object({
+  "id": zod.string(),
+  "isQuranPageEnabled": zod.boolean(),
+  "showInNavigation": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "defaultTranslation": zod.string(),
+  "defaultReciter": zod.string(),
+  "defaultDisplayMode": zod.string(),
+  "defaultFontSize": zod.string(),
+  "defaultTheme": zod.string(),
+  "primaryApiProvider": zod.string(),
+  "fallbackApiProvider": zod.string(),
+  "cacheDurationMinutes": zod.number(),
+  "attributionText": zod.string(),
+  "homepageTitle": zod.string(),
+  "homepageIntro": zod.string(),
+  "homepageButtonText": zod.string(),
+  "homepageButtonLink": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary List all featured ayah entries (admin)
+ */
+export const AdminListFeaturedAyahResponseItem = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const AdminListFeaturedAyahResponse = zod.array(AdminListFeaturedAyahResponseItem)
+
+
+/**
+ * @summary Create a featured ayah entry (admin)
+ */
+export const AdminCreateFeaturedAyahBody = zod.object({
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean().optional(),
+  "showOnHomepage": zod.boolean().optional(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish()
+})
+
+export const AdminCreateFeaturedAyahResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a single featured ayah entry (admin)
+ */
+export const AdminGetFeaturedAyahParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminGetFeaturedAyahResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a featured ayah entry (admin)
+ */
+export const AdminUpdateFeaturedAyahParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminUpdateFeaturedAyahBody = zod.object({
+  "surahNumber": zod.number().optional(),
+  "ayahNumber": zod.number().optional(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean().optional(),
+  "showOnHomepage": zod.boolean().optional(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish()
+})
+
+export const AdminUpdateFeaturedAyahResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "reflectionTitle": zod.string().nullish(),
+  "reflectionText": zod.string().nullish(),
+  "isPublished": zod.boolean(),
+  "showOnHomepage": zod.boolean(),
+  "startDate": zod.string().nullish(),
+  "endDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a featured ayah entry (admin)
+ */
+export const AdminDeleteFeaturedAyahParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteFeaturedAyahResponse = zod.void()
+
+
+/**
+ * @summary List all reflections (admin)
+ */
+export const AdminListQuranReflectionsResponseItem = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string(),
+  "showPublicly": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const AdminListQuranReflectionsResponse = zod.array(AdminListQuranReflectionsResponseItem)
+
+
+/**
+ * @summary Create a reflection (admin)
+ */
+export const AdminCreateQuranReflectionBody = zod.object({
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string().optional(),
+  "showPublicly": zod.boolean().optional()
+})
+
+export const AdminCreateQuranReflectionResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string(),
+  "showPublicly": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a single reflection (admin)
+ */
+export const AdminGetQuranReflectionParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminGetQuranReflectionResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string(),
+  "showPublicly": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a reflection (admin)
+ */
+export const AdminUpdateQuranReflectionParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminUpdateQuranReflectionBody = zod.object({
+  "surahNumber": zod.number().optional(),
+  "ayahNumber": zod.number().optional(),
+  "title": zod.string().optional(),
+  "content": zod.string().optional(),
+  "author": zod.string().nullish(),
+  "status": zod.string().optional(),
+  "showPublicly": zod.boolean().optional()
+})
+
+export const AdminUpdateQuranReflectionResponse = zod.object({
+  "id": zod.string(),
+  "surahNumber": zod.number(),
+  "ayahNumber": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "author": zod.string().nullish(),
+  "status": zod.string(),
+  "showPublicly": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a reflection (admin)
+ */
+export const AdminDeleteQuranReflectionParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteQuranReflectionResponse = zod.void()
+
+

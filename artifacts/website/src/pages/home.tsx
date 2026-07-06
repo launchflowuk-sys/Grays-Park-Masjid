@@ -38,6 +38,11 @@ import {
   useListAnnouncementsPublic,
   useListCoursesPublic,
   useListGalleryAlbumsPublic,
+  useGetFeaturedAyahPublic,
+  useGetQuranSettingsPublic,
+  useGetQuranAyah,
+  getGetQuranAyahQueryKey,
+  useListQuranChapters,
 } from "@workspace/api-client-react";
 import heroImage from "@/assets/Home_Hero_1783357048983.png";
 import masjidBuildingImage from "@/assets/generated_images/masjid_building.webp";
@@ -187,6 +192,8 @@ export default function Home() {
       <ThisWeekSection />
 
       <IslamicEducationSection />
+
+      <FeaturedAyahSection />
 
       <GallerySection />
 
@@ -721,6 +728,70 @@ function IslamicEducationSection() {
             </Button>
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedAyahSection() {
+  const { data: settings } = useGetQuranSettingsPublic();
+  const { data: featured, isLoading } = useGetFeaturedAyahPublic();
+  const { data: chapters } = useListQuranChapters();
+  const { data: verse, isLoading: verseLoading } = useGetQuranAyah(
+    featured?.surahNumber ?? 0,
+    featured?.ayahNumber ?? 0,
+    { translation: settings?.defaultTranslation },
+    {
+      query: {
+        enabled: !!featured,
+        queryKey: getGetQuranAyahQueryKey(featured?.surahNumber ?? 0, featured?.ayahNumber ?? 0, {
+          translation: settings?.defaultTranslation,
+        }),
+      },
+    },
+  );
+  const loading = isLoading || (!!featured && verseLoading);
+  const chapter = chapters?.find((c) => c.number === featured?.surahNumber);
+
+  if (settings && !settings.showOnHomepage) return null;
+  if (!loading && (!featured || !verse)) return null;
+
+  return (
+    <section className="relative overflow-hidden bg-card">
+      <IslamicPattern className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 text-primary/[0.04]" />
+      <div className="mx-auto max-w-4xl px-6 py-16 md:py-20 text-center relative">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <span className="h-px w-10 md:w-14 bg-primary/40" />
+          <IslamicStar className="h-4 w-4 text-primary" />
+          <span className="h-px w-10 md:w-14 bg-primary/40" />
+        </div>
+        <span className="block uppercase tracking-[0.15em] text-xs font-semibold text-primary mb-1">
+          {settings?.homepageTitle ?? "Ayah of the Day"}
+        </span>
+        <p className="text-muted-foreground max-w-lg mx-auto mb-8">
+          {settings?.homepageIntro ?? "Reflect on a verse from the Qur'an, refreshed daily."}
+        </p>
+
+        {loading ? (
+          <div className="h-32 animate-pulse rounded-xl bg-muted" />
+        ) : featured && verse ? (
+          <>
+            <p dir="rtl" className="font-serif text-2xl md:text-3xl leading-relaxed mb-4 text-foreground">
+              {verse.arabic}
+            </p>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-2">
+              {verse.translation}
+            </p>
+            <p className="text-sm text-primary font-medium mb-8">
+              {chapter?.englishName ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber}
+            </p>
+            <Link href={settings?.homepageButtonLink || "/quran"}>
+              <Button className="rounded-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-home-quran-cta">
+                {settings?.homepageButtonText || "Read the Qur'an"} <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </>
+        ) : null}
       </div>
     </section>
   );

@@ -932,11 +932,188 @@ export interface UpsertSiteSetting {
   value: string;
 }
 
+export interface QuranSettings {
+  id: string;
+  isQuranPageEnabled: boolean;
+  showInNavigation: boolean;
+  showOnHomepage: boolean;
+  defaultTranslation: string;
+  defaultReciter: string;
+  defaultDisplayMode: string;
+  defaultFontSize: string;
+  defaultTheme: string;
+  primaryApiProvider: string;
+  fallbackApiProvider: string;
+  cacheDurationMinutes: number;
+  attributionText: string;
+  homepageTitle: string;
+  homepageIntro: string;
+  homepageButtonText: string;
+  homepageButtonLink: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatchQuranSettings {
+  isQuranPageEnabled?: boolean;
+  showInNavigation?: boolean;
+  showOnHomepage?: boolean;
+  defaultTranslation?: string;
+  defaultReciter?: string;
+  defaultDisplayMode?: string;
+  defaultFontSize?: string;
+  defaultTheme?: string;
+  primaryApiProvider?: string;
+  fallbackApiProvider?: string;
+  cacheDurationMinutes?: number;
+  attributionText?: string;
+  homepageTitle?: string;
+  homepageIntro?: string;
+  homepageButtonText?: string;
+  homepageButtonLink?: string;
+}
+
+export interface QuranReciter {
+  id: string;
+  name: string;
+}
+
+export interface QuranTranslation {
+  id: string;
+  name: string;
+  language: string;
+}
+
+export interface QuranChapter {
+  number: number;
+  name: string;
+  englishName: string;
+  englishNameTranslation: string;
+  numberOfAyahs: number;
+  revelationType: string;
+}
+
+export interface QuranVerse {
+  surahNumber: number;
+  ayahNumber: number;
+  numberInSurah: number;
+  arabic: string;
+  translation: string;
+  translationSource: string;
+  /** @nullable */
+  audioUrl: string | null;
+}
+
+export interface QuranSearchResult {
+  surahNumber: number;
+  surahName: string;
+  ayahNumber: number;
+  arabic: string;
+  translation: string;
+}
+
+export interface FeaturedAyah {
+  id: string;
+  surahNumber: number;
+  ayahNumber: number;
+  /** @nullable */
+  reflectionTitle?: string | null;
+  /** @nullable */
+  reflectionText?: string | null;
+  isPublished: boolean;
+  showOnHomepage: boolean;
+  /** @nullable */
+  startDate?: string | null;
+  /** @nullable */
+  endDate?: string | null;
+  createdAt: string;
+}
+
+export interface InsertFeaturedAyah {
+  surahNumber: number;
+  ayahNumber: number;
+  /** @nullable */
+  reflectionTitle?: string | null;
+  /** @nullable */
+  reflectionText?: string | null;
+  isPublished?: boolean;
+  showOnHomepage?: boolean;
+  /** @nullable */
+  startDate?: string | null;
+  /** @nullable */
+  endDate?: string | null;
+}
+
+export interface PatchFeaturedAyah {
+  surahNumber?: number;
+  ayahNumber?: number;
+  /** @nullable */
+  reflectionTitle?: string | null;
+  /** @nullable */
+  reflectionText?: string | null;
+  isPublished?: boolean;
+  showOnHomepage?: boolean;
+  /** @nullable */
+  startDate?: string | null;
+  /** @nullable */
+  endDate?: string | null;
+}
+
+export interface QuranReflection {
+  id: string;
+  surahNumber: number;
+  ayahNumber: number;
+  title: string;
+  content: string;
+  /** @nullable */
+  author?: string | null;
+  status: string;
+  showPublicly: boolean;
+  createdAt: string;
+}
+
+export interface InsertQuranReflection {
+  surahNumber: number;
+  ayahNumber: number;
+  title: string;
+  content: string;
+  /** @nullable */
+  author?: string | null;
+  status?: string;
+  showPublicly?: boolean;
+}
+
+export interface PatchQuranReflection {
+  surahNumber?: number;
+  ayahNumber?: number;
+  title?: string;
+  content?: string;
+  /** @nullable */
+  author?: string | null;
+  status?: string;
+  showPublicly?: boolean;
+}
+
 export type AdminListDonationTransactionsParams = {
 campaignId?: string;
 };
 
 export type ListGalleryMediaPublicParams = {
 albumId?: string;
+};
+
+export type GetQuranChapterVersesParams = {
+translation?: string;
+reciter?: string;
+};
+
+export type GetQuranAyahParams = {
+translation?: string;
+reciter?: string;
+};
+
+export type SearchQuranParams = {
+q?: string;
+translation?: string;
 };
 

@@ -15,3 +15,4 @@ export * from "./news";
 export * from "./settings";
 export * from "./notifications";
 export * from "./members";
+export * from "./quran";
