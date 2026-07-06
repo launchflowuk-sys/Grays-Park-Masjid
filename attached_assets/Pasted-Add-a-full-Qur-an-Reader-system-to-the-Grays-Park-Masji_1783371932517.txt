@@ -1,0 +1,480 @@
+Add a full Qur’an Reader system to the Grays Park Masjid website.
+
+This must be a complete production-ready feature, not a placeholder page.
+
+Website style:
+- Deep green: #1A5C1A
+- Gold: #C9A84C
+- Warm cream: #F8F5EE
+- Charcoal: #2A2A2A
+- White: #FFFFFF
+- Premium Islamic design
+- Mobile-first
+- Clean, respectful, calm reading experience
+- No lorem ipsum
+- No fake Qur’an text
+- No dummy data
+- No placeholder “coming soon” sections
+
+IMPORTANT ACCURACY RULES:
+- Do not manually hard-code Qur’an Arabic text.
+- Do not allow admins to edit Qur’an Arabic text.
+- Qur’an text must come from a verified source only.
+- Preferred source: Quran.com / Quran Foundation API.
+- Fallback source: AlQuran.cloud API.
+- Include source attribution clearly on the Qur’an page.
+- Arabic Qur’an text must never be modified, rewritten, summarised, corrected, or edited by the app.
+
+Create public frontend route:
+
+/quran
+
+Also create dynamic route:
+
+/quran/:surahNumber
+
+Optional ayah deep link:
+
+/quran/:surahNumber/:ayahNumber
+
+PUBLIC QUR’AN PAGE FEATURES
+
+1. Qur’an Landing Page
+Create a beautiful Qur’an page with:
+- Page hero
+- Title: Read the Qur’an
+- Intro text: “Read, listen and reflect with a clean Qur’an reader.”
+- Search bar
+- Surah browser
+- Ayah of the Day card
+- Continue last reading card
+- Recently bookmarked ayahs
+- Reader settings shortcut
+
+2. Surah Browser
+Display all 114 surahs with:
+- Surah number
+- Arabic name
+- English name
+- Translated name
+- Revelation type
+- Number of ayahs
+- Search/filter by name
+- Filter by Makki/Madani
+- Click card to open surah reading page
+
+3. Surah Reading Page
+For each surah display:
+- Surah title
+- Arabic name
+- English name
+- Revelation type
+- Number of ayahs
+- Back to all surahs button
+- Previous surah / next surah buttons
+- Arabic Uthmani text for each ayah
+- English translation under each ayah
+- Ayah number badge
+- Individual ayah action menu
+
+Each ayah must include:
+- Arabic text
+- English translation
+- Ayah reference, e.g. Al-Fatihah 1:1
+- Play audio button
+- Copy ayah button
+- Share ayah button
+- Bookmark button
+- Add note/reflection button if local notes are enabled
+
+4. Reader Controls
+Add controls at top of reading page:
+- Arabic only
+- Arabic + translation
+- Translation only
+- Show/hide transliteration if available
+- Font size: small / medium / large / extra large
+- Arabic font selector if possible
+- Light mode
+- Dark mode
+- Sepia/cream reading mode
+- Jump to ayah
+- Reciter selector
+- Translation selector
+- Auto-scroll toggle if audio is playing
+
+Save user preferences in localStorage.
+
+5. Audio Recitation
+Add recitation support:
+- Play full surah
+- Pause/resume
+- Play individual ayah
+- Next ayah autoplay option
+- Reciter dropdown
+- Default reciter can be controlled from admin settings
+- Show currently playing ayah clearly
+- Highlight ayah while playing
+
+Suggested reciters:
+- Mishary Rashid Alafasy
+- Abdul Basit
+- Sudais
+- Minshawi
+
+Use available reciters from the selected API. Do not fake unavailable audio.
+
+6. Qur’an Search
+Create Qur’an search page/section:
+- Search by keyword
+- Search Arabic and translation if API supports it
+- Results show:
+  - Surah name
+  - Ayah number
+  - Arabic text
+  - English translation
+  - Open ayah button
+- Clicking result opens the ayah in context
+- Highlight matched keyword in translation where possible
+
+7. Bookmarks
+Use localStorage for public bookmarks.
+Features:
+- Bookmark any ayah
+- View bookmarked ayahs on /quran
+- Remove bookmark
+- Continue reading from last opened surah/ayah
+- Store last read position locally
+
+8. Ayah of the Day
+Show an Ayah of the Day card:
+- Arabic text
+- English translation
+- Surah and ayah reference
+- Optional short reflection/reminder from admin
+- Button: Continue Reading
+- Button: Share
+
+If admin has selected a featured ayah, use that.
+If not, generate a rotating daily ayah using safe API data.
+
+9. Share / Copy
+For each ayah:
+- Copy Arabic + translation + reference
+- Share using Web Share API where supported
+- Fallback copy link
+- Deep link format: /quran/:surahNumber/:ayahNumber
+
+10. Mobile Experience
+Mobile must be excellent:
+- Sticky reader controls collapsed into a settings button
+- Large readable Arabic text
+- Comfortable spacing
+- Bottom mini audio player
+- Easy back button
+- No cramped tables
+
+ADMIN BACKEND FEATURES
+
+Add a new admin module:
+
+Admin > Qur’an Settings
+
+Admin can manage:
+
+1. Qur’an Page Visibility
+- Show/hide Qur’an page
+- Show/hide Qur’an link in navigation
+- Show/hide Qur’an block on homepage
+
+2. Default Reader Settings
+- Default translation
+- Default reciter
+- Default display mode:
+  - Arabic only
+  - Arabic + translation
+  - Translation only
+- Default font size
+- Default theme:
+  - Light
+  - Dark
+  - Cream
+
+3. Featured Ayah of the Day
+Admin can:
+- Select surah number
+- Select ayah number
+- Fetch verified ayah from API
+- Add optional short reflection/reminder
+- Publish/unpublish featured ayah
+- Schedule start/end date
+- Mark as homepage featured
+
+Important:
+- Admin can add reflection text only.
+- Admin cannot edit Qur’an Arabic text.
+- Admin cannot edit translation text.
+- Reflections must be stored separately.
+
+4. Qur’an Reflections
+Admin can add reflections linked to specific ayahs:
+- Surah number
+- Ayah number
+- Reflection title
+- Reflection content
+- Author/speaker name optional
+- Publish/draft status
+- Show on public reader yes/no
+
+5. Homepage Qur’an Block
+Admin can control:
+- Show Ayah of the Day on homepage
+- Section title
+- Short intro text
+- Button text
+- Button link
+
+6. API Settings
+Admin can configure:
+- Primary Qur’an API provider
+- Fallback provider
+- Cache duration
+- Default translation resource
+- Default reciter resource
+- Attribution text
+
+7. Cache Management
+Add backend caching so the app does not call the API unnecessarily.
+Cache:
+- Surah list
+- Surah ayahs
+- Translations
+- Reciter list
+- Audio URLs where available
+- Search results if practical
+
+Admin actions:
+- Clear Qur’an cache
+- Refresh surah list
+- Refresh selected surah
+
+DATABASE MODELS
+
+Create database tables/models for:
+
+QuranSettings:
+- id
+- isQuranPageEnabled
+- showInNavigation
+- showOnHomepage
+- defaultTranslation
+- defaultReciter
+- defaultDisplayMode
+- defaultFontSize
+- defaultTheme
+- primaryApiProvider
+- fallbackApiProvider
+- cacheDuration
+- attributionText
+- createdAt
+- updatedAt
+
+FeaturedAyah:
+- id
+- surahNumber
+- ayahNumber
+- reflectionTitle
+- reflectionText
+- isPublished
+- showOnHomepage
+- startDate
+- endDate
+- createdAt
+- updatedAt
+
+QuranReflection:
+- id
+- surahNumber
+- ayahNumber
+- title
+- content
+- author
+- status
+- showPublicly
+- createdAt
+- updatedAt
+
+QuranCache:
+- id
+- cacheKey
+- cacheType
+- dataJson
+- expiresAt
+- createdAt
+- updatedAt
+
+BACKEND API ENDPOINTS
+
+Create API endpoints:
+
+Public:
+GET /api/quran/settings
+GET /api/quran/chapters
+GET /api/quran/chapters/:surahNumber
+GET /api/quran/chapters/:surahNumber/verses
+GET /api/quran/ayah/:surahNumber/:ayahNumber
+GET /api/quran/search?q=
+GET /api/quran/reciters
+GET /api/quran/translations
+GET /api/quran/featured-ayah
+GET /api/quran/reflections/:surahNumber/:ayahNumber
+
+Admin protected:
+GET /api/admin/quran/settings
+PUT /api/admin/quran/settings
+GET /api/admin/quran/featured-ayah
+POST /api/admin/quran/featured-ayah
+PUT /api/admin/quran/featured-ayah/:id
+DELETE /api/admin/quran/featured-ayah/:id
+GET /api/admin/quran/reflections
+POST /api/admin/quran/reflections
+PUT /api/admin/quran/reflections/:id
+DELETE /api/admin/quran/reflections/:id
+POST /api/admin/quran/cache/clear
+POST /api/admin/quran/cache/refresh
+
+ADMIN UI
+
+Create admin screens:
+
+1. Qur’an Settings Dashboard
+- Current API status
+- Qur’an page enabled/disabled
+- Default translation
+- Default reciter
+- Cache status
+- Quick actions
+
+2. Reader Settings Screen
+Form for:
+- Default translation
+- Default reciter
+- Default display mode
+- Default font size
+- Default theme
+- Show in navigation
+- Show on homepage
+
+3. Featured Ayah Screen
+- Select surah
+- Select ayah
+- Preview verified Arabic and translation from API
+- Add reflection/reminder
+- Publish/draft toggle
+- Schedule start/end
+- Homepage toggle
+
+4. Reflections Screen
+- List all reflections
+- Filter by surah
+- Status filter
+- Add/edit/delete reflection
+- Preview public display
+
+5. Cache/API Screen
+- API provider status
+- Clear cache
+- Refresh all chapters
+- Refresh selected surah
+- Show last updated time
+
+FRONTEND DESIGN DETAILS
+
+The /quran page should match the masjid website design.
+
+Suggested layout:
+
+Hero:
+- Cream background
+- Deep green heading
+- Gold accent line
+- Search bar
+- Ayah of the Day card
+
+Surah browser:
+- Grid of elegant cards
+- Hover state
+- Arabic name on right
+- English name on left
+- Small metadata row
+
+Reader page:
+- Centered reading column
+- Max width around 900px
+- Arabic text large and elegant
+- Translation smaller and calm
+- Each ayah inside soft card or separated by clean dividers
+- Sticky top controls on desktop
+- Bottom mini player on mobile
+
+Audio player:
+- Fixed bottom player when active
+- Shows reciter, surah, ayah
+- Play/pause/next controls
+- Progress indicator
+
+ERROR HANDLING
+
+Handle:
+- API unavailable
+- Audio unavailable
+- Translation unavailable
+- Empty search
+- Invalid surah number
+- Invalid ayah number
+- Network errors
+
+Show respectful messages:
+- “Qur’an content could not be loaded. Please try again shortly.”
+- “This audio is not available from the selected reciter.”
+- “No results found.”
+
+SECURITY AND QUALITY
+
+- Protect admin routes
+- Validate all admin inputs
+- Sanitize reflection text
+- Do not allow script injection
+- Do not expose API secrets
+- Use environment variables if needed
+- Use clean reusable components
+- Use proper loading states
+- Use skeleton loaders
+- Use accessible buttons and labels
+- Make everything responsive
+
+FINAL REQUIREMENT
+
+When complete, the Qur’an system must allow visitors to:
+- Browse all surahs
+- Read Qur’an
+- View translation
+- Listen to recitation
+- Search Qur’an
+- Bookmark ayahs
+- Continue reading
+- Share/copy ayahs
+- View Ayah of the Day
+
+And allow admins to:
+- Enable/disable the Qur’an page
+- Set default reader preferences
+- Select featured ayah
+- Add reflections
+- Manage Qur’an homepage block
+- Manage API/cache settings
+
+Do not leave any placeholder sections.
+Do not use dummy Qur’an content.
+Do not fake API responses.
+Build this as a complete working feature.

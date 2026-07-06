@@ -3,6 +3,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -254,77 +260,121 @@ export function SiteHeader() {
           </Link>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Menu" data-testid="button-mobile-menu">
-                <Menu className="h-5 w-5" />
+              <Button
+                size="icon"
+                className="md:hidden h-11 w-11 rounded-xl bg-primary hover:bg-primary/90 shadow-md shadow-primary/30 border border-secondary/40"
+                aria-label="Menu"
+                data-testid="button-mobile-menu"
+              >
+                <span className="flex flex-col items-center justify-center gap-[5px]">
+                  <span className="h-[3px] w-6 rounded-full bg-secondary" />
+                  <span className="h-[3px] w-6 rounded-full bg-secondary" />
+                  <span className="h-[3px] w-4 self-start ml-[3px] rounded-full bg-secondary" />
+                </span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="overflow-y-auto">
-              <nav className="flex flex-col gap-6 mt-10 text-lg font-medium">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="border-t border-border pt-6">
-                  <p className="text-sm text-muted-foreground mb-4 font-normal">Community</p>
-                  <div className="flex flex-col gap-5">
-                    {COMMUNITY_LINKS.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 hover:text-primary transition-colors"
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-primary/10 text-primary">
-                          <link.icon className="h-4 w-4" strokeWidth={1.75} />
-                        </span>
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
+            <SheetContent
+              side="right"
+              className="overflow-y-auto p-0 bg-primary text-primary-foreground border-l border-secondary/30 w-[85vw] sm:max-w-sm"
+            >
+              <div className="relative overflow-hidden bg-primary px-6 pt-8 pb-6 border-b border-secondary/30">
+                <IslamicPattern className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 text-secondary/10" />
+                <IslamicStar className="pointer-events-none absolute -bottom-6 left-8 h-16 w-16 text-secondary/10" />
+                <img
+                  src={gpmLogo}
+                  alt="Grays Park Masjid"
+                  className="relative h-11 w-auto brightness-0 invert"
+                />
+              </div>
+              <nav className="flex flex-col px-4 py-4">
+                <div className="flex flex-col gap-1 pb-2">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`rounded-lg px-3 py-3 text-base font-semibold tracking-wide hover:bg-primary-foreground/10 transition-colors ${
+                        location === link.href ? "text-secondary" : ""
+                      }`}
+                      data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                 </div>
-                <div className="border-t border-border pt-6">
-                  <p className="text-sm text-muted-foreground mb-4 font-normal">Services</p>
-                  <div className="flex flex-col gap-5">
-                    {SERVICES_LINKS.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 hover:text-primary transition-colors"
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-primary/10 text-primary">
-                          <link.icon className="h-4 w-4" strokeWidth={1.75} />
-                        </span>
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                <div className="border-t border-border pt-6">
-                  <p className="text-sm text-muted-foreground mb-4 font-normal">Info</p>
-                  <div className="flex flex-col gap-5">
-                    {INFO_LINKS.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 hover:text-primary transition-colors"
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-primary/10 text-primary">
-                          <link.icon className="h-4 w-4" strokeWidth={1.75} />
-                        </span>
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                <Link href="/donate" onClick={() => setOpen(false)} className="donate-glow block rounded-full">
+                <Accordion type="multiple" className="border-t border-secondary/20 mt-1">
+                  <AccordionItem value="community" className="border-secondary/20">
+                    <AccordionTrigger className="px-3 text-sm font-semibold uppercase tracking-[0.1em] text-secondary hover:no-underline">
+                      Community
+                    </AccordionTrigger>
+                    <AccordionContent className="px-1">
+                      <div className="flex flex-col gap-1">
+                        {COMMUNITY_LINKS.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-primary-foreground/10 transition-colors"
+                          >
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-secondary/15 text-secondary">
+                              <link.icon className="h-4 w-4" strokeWidth={1.75} />
+                            </span>
+                            <span className="text-sm">{link.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="services" className="border-secondary/20">
+                    <AccordionTrigger className="px-3 text-sm font-semibold uppercase tracking-[0.1em] text-secondary hover:no-underline">
+                      Services
+                    </AccordionTrigger>
+                    <AccordionContent className="px-1">
+                      <div className="flex flex-col gap-1">
+                        {SERVICES_LINKS.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-primary-foreground/10 transition-colors"
+                          >
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-secondary/15 text-secondary">
+                              <link.icon className="h-4 w-4" strokeWidth={1.75} />
+                            </span>
+                            <span className="text-sm">{link.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="info" className="border-secondary/20">
+                    <AccordionTrigger className="px-3 text-sm font-semibold uppercase tracking-[0.1em] text-secondary hover:no-underline">
+                      Info
+                    </AccordionTrigger>
+                    <AccordionContent className="px-1">
+                      <div className="flex flex-col gap-1">
+                        {INFO_LINKS.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-primary-foreground/10 transition-colors"
+                          >
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-secondary/15 text-secondary">
+                              <link.icon className="h-4 w-4" strokeWidth={1.75} />
+                            </span>
+                            <span className="text-sm">{link.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                <Link
+                  href="/donate"
+                  onClick={() => setOpen(false)}
+                  className="donate-glow block rounded-full mt-6 mb-4"
+                >
                   <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-9 font-semibold shadow-md shadow-secondary/30">
                     Donate
                   </Button>
