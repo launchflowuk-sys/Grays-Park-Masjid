@@ -107,7 +107,7 @@ export default function Home() {
 
           <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-12 py-10 md:py-14 lg:pb-16">
             <div className="max-w-3xl pt-2 md:pt-4">
-              <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
+              <span className="inline-block max-w-full rounded-full bg-black/80 backdrop-blur-sm border border-secondary/30 shadow-lg shadow-black/40 px-3.5 sm:px-5 py-2 uppercase tracking-tight sm:tracking-[0.12em] whitespace-nowrap overflow-hidden text-ellipsis text-[10px] sm:text-xs md:text-sm text-secondary font-bold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
               </span>
               <div className="max-w-2xl">

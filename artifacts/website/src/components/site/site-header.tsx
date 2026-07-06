@@ -144,9 +144,9 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
-      <div className="bg-primary/5 border-b border-border/60">
-        <div className="mx-auto max-w-6xl px-6 py-1.5 flex justify-center md:justify-end">
-          <PrayerTimesWidget variant="compact" />
+      <div className="bg-primary border-b border-primary/30">
+        <div className="mx-auto max-w-6xl px-3 sm:px-6 py-1.5 sm:py-2 flex justify-center overflow-x-auto">
+          <PrayerTimesWidget variant="topbar" />
         </div>
       </div>
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">

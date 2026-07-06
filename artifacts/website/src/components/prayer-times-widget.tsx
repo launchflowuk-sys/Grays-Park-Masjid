@@ -125,14 +125,21 @@ export function usePrayerTimesToday() {
   return { data, isLoading, today, todayRow, tomorrowRow };
 }
 
-export function PrayerTimesWidget({ variant = "compact" }: { variant?: "compact" | "full" | "kiosk" }) {
+export function PrayerTimesWidget({
+  variant = "compact",
+}: {
+  variant?: "compact" | "full" | "kiosk" | "topbar";
+}) {
   const { isLoading, todayRow, tomorrowRow } = usePrayerTimesToday();
   const now = useNow(1000);
   const current = computeCurrentNext(todayRow, tomorrowRow, now);
 
   if (isLoading) {
     return (
-      <div className="text-sm text-muted-foreground" data-testid="prayer-widget-loading">
+      <div
+        className={variant === "topbar" ? "text-sm text-primary-foreground/80" : "text-sm text-muted-foreground"}
+        data-testid="prayer-widget-loading"
+      >
         Loading prayer times...
       </div>
     );
@@ -140,8 +147,47 @@ export function PrayerTimesWidget({ variant = "compact" }: { variant?: "compact"
 
   if (!todayRow) {
     return (
-      <div className="text-sm text-muted-foreground" data-testid="prayer-widget-empty">
+      <div
+        className={variant === "topbar" ? "text-sm text-primary-foreground/80" : "text-sm text-muted-foreground"}
+        data-testid="prayer-widget-empty"
+      >
         Prayer times have not been published yet.
+      </div>
+    );
+  }
+
+  if (variant === "topbar") {
+    const activeKey = current?.currentKey ?? current?.nextKey ?? null;
+    return (
+      <div className="flex items-center justify-center gap-1 sm:gap-2.5" data-testid="prayer-widget-topbar">
+        {IQAMAH_PRAYER_ORDER.map((prayer) => {
+          const iqamah = todayRow[`${prayer.key}Iqamah` as keyof PrayerTime] as string | null | undefined;
+          const adhan = todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined;
+          const time = iqamah ?? adhan;
+          const isActive = activeKey === prayer.key;
+          return (
+            <div
+              key={prayer.key}
+              data-testid={`prayer-widget-topbar-cell-${prayer.key}`}
+              className={`flex flex-col items-center justify-center text-center rounded-md px-2 sm:px-3.5 py-1 sm:py-1.5 min-w-[52px] sm:min-w-[70px] transition-all duration-300 ${
+                isActive
+                  ? "bg-secondary text-secondary-foreground shadow-md scale-105"
+                  : "text-primary-foreground/85"
+              }`}
+            >
+              <span
+                className={`uppercase tracking-wide font-bold text-[9px] sm:text-[11px] ${
+                  isActive ? "text-secondary-foreground" : "text-primary-foreground/70"
+                }`}
+              >
+                {prayer.label}
+              </span>
+              <span className="text-[11px] sm:text-sm font-semibold tabular-nums">
+                {time ? minutesToLabel(timeToMinutes(time)) : "--:--"}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   }
