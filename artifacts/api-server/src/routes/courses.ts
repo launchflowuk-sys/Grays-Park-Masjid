@@ -63,11 +63,14 @@ router.post("/course-registrations", async (req: Request, res: Response) => {
   const [row] = await db.insert(courseRegistrationsTable).values(parsed.data).returning();
   res.status(201).json(serializeRegistration(row));
 
+  const appBaseUrl = process.env.APP_BASE_URL ?? "";
+  const adminUrl = `${appBaseUrl}/admin/courses`;
+
   void notifyModule("courses", {
     subject: `New course registration: ${course.title}`,
-    text: `A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).`,
-    html: `<p>A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).</p>`,
-    smsBody: `New course registration for "${course.title}" from ${row.studentName}`,
+    text: `A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).\n\nView in admin panel: ${adminUrl}`,
+    html: `<p>A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    smsBody: `New course registration for "${course.title}" from ${row.studentName}. View: ${adminUrl}`,
   });
 
   void sendUserConfirmationEmail({

@@ -77,11 +77,14 @@ router.post("/volunteer-applications", async (req: Request, res: Response) => {
   const [row] = await db.insert(volunteerApplicationsTable).values(parsed.data).returning();
   res.status(201).json(serializeApplication(row));
 
+  const appBaseUrl = process.env.APP_BASE_URL ?? "";
+  const adminUrl = `${appBaseUrl}/admin/volunteers`;
+
   void notifyModule("volunteers", {
     subject: `New volunteer application: ${opportunity.title}`,
-    text: `A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).`,
-    html: `<p>A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).</p>`,
-    smsBody: `New volunteer application for "${opportunity.title}" from ${row.name}`,
+    text: `A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).\n\nView in admin panel: ${adminUrl}`,
+    html: `<p>A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    smsBody: `New volunteer application for "${opportunity.title}" from ${row.name}. View: ${adminUrl}`,
   });
 
   void sendUserConfirmationEmail({

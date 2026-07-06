@@ -160,13 +160,13 @@ function UserDialog({
     if (!editing) return;
     const payload: {
       name: string;
-      phone?: string;
+      phone: string | null;
       role: (typeof ROLES)[number];
       active: boolean;
       password?: string;
     } = {
       name: values.name,
-      phone: values.phone || undefined,
+      phone: values.phone ? values.phone : null,
       role: values.role,
       active: values.active,
     };

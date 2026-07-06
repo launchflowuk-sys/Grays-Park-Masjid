@@ -34,11 +34,14 @@ router.post("/enquiries", async (req: Request, res: Response) => {
   const [row] = await db.insert(enquiriesTable).values(parsed.data).returning();
   res.status(201).json(serialize(row));
 
+  const appBaseUrl = process.env.APP_BASE_URL ?? "";
+  const adminUrl = `${appBaseUrl}/admin/enquiries`;
+
   void notifyModule("enquiries", {
     subject: `New enquiry: ${row.subject}`,
-    text: `A new enquiry was submitted by ${row.name} (${row.email}).\n\nSubject: ${row.subject}\n\nMessage:\n${row.message}`,
-    html: `<p>A new enquiry was submitted by ${row.name} (${row.email}).</p><p><strong>Subject:</strong> ${row.subject}</p><p><strong>Message:</strong><br/>${row.message}</p>`,
-    smsBody: `New enquiry from ${row.name}: ${row.subject}`,
+    text: `A new enquiry was submitted by ${row.name} (${row.email}).\n\nSubject: ${row.subject}\n\nMessage:\n${row.message}\n\nView in admin panel: ${adminUrl}`,
+    html: `<p>A new enquiry was submitted by ${row.name} (${row.email}).</p><p><strong>Subject:</strong> ${row.subject}</p><p><strong>Message:</strong><br/>${row.message}</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    smsBody: `New enquiry from ${row.name}: ${row.subject}. View: ${adminUrl}`,
   });
 
   void sendUserConfirmationEmail({

@@ -99,11 +99,14 @@ router.post("/donations/checkout", async (req: Request, res: Response) => {
 
     res.status(201).json(serializeTransaction(transaction));
 
+    const appBaseUrl = process.env.APP_BASE_URL ?? "";
+    const adminUrl = `${appBaseUrl}/admin/donations`;
+
     void notifyModule("donations", {
       subject: `New donation received: ${campaign.title}`,
-      text: `A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.`,
-      html: `<p>A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.</p>`,
-      smsBody: `New donation of £${amount} for "${campaign.title}"`,
+      text: `A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.\n\nView in admin panel: ${adminUrl}`,
+      html: `<p>A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+      smsBody: `New donation of £${amount} for "${campaign.title}". View: ${adminUrl}`,
     });
 
     if (donorEmail) {
