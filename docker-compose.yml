@@ -39,7 +39,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
     working_dir: /app
-    command: ["pnpm", "--filter", "@workspace/db", "run", "push-force"]
+    command:
+      - sh
+      - -c
+      - "pnpm --filter @workspace/db run check-db && pnpm --filter @workspace/db run push-force"
 
   website:
     build:
