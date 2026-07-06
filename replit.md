@@ -61,24 +61,26 @@ This repo ships with everything needed for a Coolify (or any Docker-Compose-base
 
 - `Dockerfile.api-server` — multi-stage build, runs the API server on port 8080 (healthcheck at `/api/healthz`)
 - `Dockerfile.website` — builds the Vite app and serves it via nginx on port 80
-- `docker-compose.yml` — postgres + api-server + website, wired together with a healthchecked Postgres dependency
+- `docker-compose.yml` — api-server + website only. Postgres is **not** bundled — bring your own database (a separate Coolify Postgres resource, or any managed Postgres) and point `DATABASE_URL` at it.
 
 ### Steps
 
 1. Push this repo to GitHub (done — `launchflowuk-sys/Grays-Park-Masjid`).
-2. In Coolify, create a new resource from the Git repository, choose "Docker Compose" as the build pack, and point it at `docker-compose.yml`.
-3. Set the required environment variables in Coolify (do not commit real secrets):
+2. In Coolify, create your Postgres database first (as its own resource, separate from this app's compose stack), and note its internal connection string.
+3. Create a new resource from the Git repository, choose "Docker Compose" as the build pack, and point it at `docker-compose.yml`.
+4. Set the required environment variables in Coolify (do not commit real secrets):
+   - `DATABASE_URL` (required — connection string for the Postgres database you created in step 2)
    - `JWT_SECRET` (required — a long random string)
    - `APP_BASE_URL` (public URL of the deployed app)
    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
    - `DEFAULT_OBJECT_STORAGE_BUCKET_ID`, `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS` (if object storage/gallery uploads are used)
-   - Optionally override `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` for the bundled Postgres service, and `LOG_LEVEL`.
+   - Optionally override `LOG_LEVEL`.
    - Do **not** set Square credentials here — see below.
-4. Deploy. Coolify will build both Docker images and start all three services; the api-server waits for Postgres to report healthy before starting.
-5. After first deploy, the production Postgres database starts empty. Run these two one-off jobs against the production `DATABASE_URL` (the compose stack does not auto-migrate or seed on boot):
+5. Deploy. Coolify will build both Docker images and start the api-server and website services.
+6. After first deploy, the production Postgres database starts empty. Run these two one-off jobs against the production `DATABASE_URL` (the compose stack does not auto-migrate or seed on boot):
    - `pnpm --filter @workspace/db run push` — creates the schema/tables
    - `pnpm --filter @workspace/db run seed` — creates the initial admin login and default content (prayer times, sample pages, etc.). Optionally set `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` first to control the admin credentials it creates; otherwise it uses the defaults in `lib/db/src/seed.ts` — log in and change the password immediately after.
-6. Log in to `/admin/settings` and enter the Square Access Token, Application ID, and Location ID under "Payment Integration (Square)". These are stored in the database (not env vars) and are only ever readable by authenticated admins — the public site never exposes them.
+7. Log in to `/admin/settings` and enter the Square Access Token, Application ID, and Location ID under "Payment Integration (Square)". These are stored in the database (not env vars) and are only ever readable by authenticated admins — the public site never exposes them.
 
 ## Pointers
 

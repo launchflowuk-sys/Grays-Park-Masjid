@@ -1,29 +1,11 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: grays_park_masjid
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   api-server:
     build:
       context: .
       dockerfile: Dockerfile.api-server
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/grays_park_masjid
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
       PORT: "8080"
       NODE_ENV: production
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
@@ -58,6 +40,3 @@ services:
       PORT: "80"
     ports:
       - "8081:80"
-
-volumes:
-  postgres-data:
