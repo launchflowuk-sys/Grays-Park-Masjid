@@ -80,19 +80,13 @@ export function SiteFooter() {
     <footer className="bg-primary text-primary-foreground mt-auto">
       <div className="mx-auto max-w-6xl px-6 py-14 grid gap-10 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="mb-4">
             <img
               src={gpmLogoWhite}
-              alt="Grays Park Masjid"
-              className="h-11 w-auto"
+              alt="Grays Park Masjid - Thurrock Islamic Education &amp; Cultural Association"
+              className="h-20 w-auto"
               data-testid="img-footer-logo"
             />
-            <div>
-              <p className="font-serif text-lg leading-tight">Grays Park Masjid</p>
-              <p className="text-[11px] text-primary-foreground/60 leading-tight">
-                Thurrock Islamic Education &amp; Cultural Association
-              </p>
-            </div>
           </div>
           <div className="w-10 h-[2px] bg-secondary mb-4" />
           <p className="text-sm text-primary-foreground/70 leading-relaxed mb-5">

@@ -93,7 +93,7 @@ export default function Home() {
       <SiteHeader />
 
       <section className="relative">
-        <div className="relative overflow-visible md:overflow-hidden md:min-h-[620px]">
+        <div className="relative overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <img
               src={heroImage}
@@ -105,23 +105,19 @@ export default function Home() {
           </div>
           <IslamicPattern className="pointer-events-none absolute inset-0 w-full h-full text-primary-foreground/[0.04]" />
 
-          <div className="hidden md:block md:absolute md:right-6 lg:right-[calc((100vw-72rem)/2+24px)] md:-bottom-16 lg:-bottom-20 z-20">
-            <HeroPrayerCard />
-          </div>
-
-          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col gap-12 py-10 md:py-14">
+          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-12 py-10 md:py-14 lg:pb-16">
             <div className="max-w-3xl pt-2 md:pt-4">
               <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
               </span>
-              <div className="inline-block bg-black/35 backdrop-blur-[2px] rounded-2xl px-5 py-5 md:px-7 md:py-6 -mx-1">
-                <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground">
+              <div className="max-w-2xl">
+                <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
                   A Place of Worship,
                   <br />
                   Learning &amp; Community
                 </h1>
                 <div className="w-14 h-[3px] bg-secondary my-6" />
-                <p className="text-base md:text-lg text-primary-foreground/95 leading-relaxed max-w-md">
+                <p className="text-base md:text-lg text-primary-foreground/95 leading-relaxed max-w-md drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
                   Grays Park Masjid is a welcoming center for worship, education and
                   community service. All are welcome.
                 </p>
@@ -157,11 +153,11 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="md:hidden px-6 mt-8">
-          <HeroPrayerCard />
+            <div className="w-full lg:w-[420px] xl:w-[460px] lg:shrink-0">
+              <HeroPrayerCard />
+            </div>
+          </div>
         </div>
 
         <div className="bg-primary pt-8 pb-8 md:pt-16 md:pb-9 relative overflow-hidden">

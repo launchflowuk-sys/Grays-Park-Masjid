@@ -246,7 +246,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link href="/donate" className="donate-glow hidden sm:inline-flex rounded-full">
             <Button
-              className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-7 py-5 font-semibold shadow-md shadow-secondary/30"
+              className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-9 font-semibold shadow-md shadow-secondary/30"
               data-testid="button-donate-nav"
             >
               Donate
@@ -325,7 +325,7 @@ export function SiteHeader() {
                   </div>
                 </div>
                 <Link href="/donate" onClick={() => setOpen(false)} className="donate-glow block rounded-full">
-                  <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-7 py-5 font-semibold shadow-md shadow-secondary/30">
+                  <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-9 font-semibold shadow-md shadow-secondary/30">
                     Donate
                   </Button>
                 </Link>
