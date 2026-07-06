@@ -77,12 +77,18 @@ export function HeroPrayerCard() {
             return (
               <div
                 key={p.key}
-                className={`aspect-square rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-colors ${
+                className={`relative aspect-square rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-colors ${
                   isNext
                     ? "bg-primary/10 border-primary/30"
                     : "bg-muted/40 border-transparent"
                 }`}
               >
+                {isNext && (
+                  <span className="absolute top-2 right-2 flex h-2.5 w-2.5" data-testid="indicator-next-prayer-pulse">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+                  </span>
+                )}
                 <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">
                   {SHORT_LABELS[p.key] ?? p.label}
                 </p>

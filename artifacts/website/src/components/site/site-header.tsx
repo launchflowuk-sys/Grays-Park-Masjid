@@ -16,13 +16,13 @@ const NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
   { href: "/timetable", label: "Timetable" },
   { href: "/about", label: "About" },
-  { href: "/events", label: "Events" },
-  { href: "/education", label: "Education" },
-  { href: "/announcements", label: "News" },
   { href: "/contact", label: "Contact" },
 ];
 
 const COMMUNITY_LINKS = [
+  { href: "/events", label: "Events" },
+  { href: "/education", label: "Education" },
+  { href: "/announcements", label: "News" },
   { href: "/madrassah", label: "Madrassah" },
   { href: "/sisters-facilities", label: "Sisters' Facilities" },
   { href: "/youth-programmes", label: "Youth Programmes" },

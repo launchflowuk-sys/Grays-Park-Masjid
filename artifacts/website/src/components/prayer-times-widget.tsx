@@ -198,7 +198,7 @@ export function PrayerTimesWidget({ variant = "compact" }: { variant?: "compact"
             <div
               key={prayer.key}
               data-testid={`prayer-widget-cell-${prayer.key}`}
-              className={`text-center rounded-lg border p-4 ${
+              className={`relative text-center rounded-lg border p-4 ${
                 isCurrent
                   ? "border-primary bg-primary/10"
                   : isNext
@@ -206,6 +206,12 @@ export function PrayerTimesWidget({ variant = "compact" }: { variant?: "compact"
                     : "border-card-border"
               }`}
             >
+              {isNext && (
+                <span className="absolute top-2 right-2 flex h-2.5 w-2.5" data-testid={`indicator-next-prayer-pulse-${prayer.key}`}>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+                </span>
+              )}
               <p
                 className={`uppercase tracking-wide text-muted-foreground ${
                   variant === "kiosk" ? "text-lg" : "text-sm"
