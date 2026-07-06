@@ -29,3 +29,9 @@ id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
 type = "text"
 title = "Production content seed SQL"
+
+[[outputs]]
+id = "VMZAB1VcU57CXyaqtX6yL"
+uri = "file://.local/exports/coolify-terminal-command.log"
+type = "unspecified"
+title = "Coolify terminal command (paste this in)"
