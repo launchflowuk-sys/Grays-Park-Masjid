@@ -49,8 +49,10 @@ import {
   type TimetablePdf,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, FileText } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { ObjectUploader } from "@workspace/object-storage-web";
+import type { UppyFile, UploadResult } from "@uppy/core";
 
 const prayerTimeSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -404,7 +406,7 @@ function PrayerTimesTab() {
 
 const timetablePdfSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  fileUrl: z.string().min(1, "File URL is required"),
+  fileUrl: z.string().min(1, "Please upload a PDF file"),
   monthLabel: z.string().min(1, "Month label is required"),
   active: z.boolean(),
   sortOrder: z.coerce.number().int().default(0),
@@ -510,10 +512,58 @@ function TimetablePdfDialog({
               name="fileUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>File URL</FormLabel>
+                  <FormLabel>PDF File</FormLabel>
                   <FormControl>
-                    <Input placeholder="/uploads/timetable-2026.pdf" data-testid="input-pdf-url" {...field} />
+                    <div className="flex items-center gap-3">
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={26214400}
+                        buttonClassName="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                        onGetUploadParameters={async (file: UppyFile<Record<string, unknown>, Record<string, unknown>>) => {
+                          const res = await fetch("/api/storage/uploads/request-url", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({
+                              name: file.name,
+                              size: file.size,
+                              contentType: file.type || "application/pdf",
+                            }),
+                          });
+                          if (!res.ok) {
+                            throw new Error("Failed to get upload URL");
+                          }
+                          const data = await res.json();
+                          return {
+                            method: "PUT" as const,
+                            url: data.uploadURL,
+                            headers: { "Content-Type": file.type || "application/pdf" },
+                          };
+                        }}
+                        onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                          const uploaded = result.successful?.[0];
+                          const objectPath = (uploaded?.response?.body as { objectPath?: string } | undefined)
+                            ?.objectPath;
+                          if (objectPath) {
+                            field.onChange(`/api/storage${objectPath}`);
+                          }
+                        }}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {field.value ? "Replace PDF" : "Upload PDF"}
+                      </ObjectUploader>
+                      {field.value && (
+                        <span
+                          className="flex items-center gap-1 text-sm text-muted-foreground truncate max-w-[240px]"
+                          data-testid="text-pdf-uploaded"
+                        >
+                          <FileText className="h-4 w-4 shrink-0" />
+                          File uploaded
+                        </span>
+                      )}
+                    </div>
                   </FormControl>
+                  <input type="hidden" data-testid="input-pdf-url" {...field} />
                   <FormMessage />
                 </FormItem>
               )}

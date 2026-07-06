@@ -8,6 +8,7 @@ import {
 } from "@workspace/db";
 import {
   registerAdminCreate,
+  registerAdminExportCsv,
   registerAdminItemRoutes,
   registerAdminList,
   registerPublicCreate,
@@ -42,6 +43,22 @@ registerAdminItemRoutes(
 
 registerPublicCreate(router, "/volunteer-applications", volunteerApplicationsTable, insertVolunteerApplicationSchema);
 registerAdminList(router, "/admin/volunteer-applications", volunteerApplicationsTable, ALL_ROLES);
+registerAdminExportCsv(
+  router,
+  "/admin/volunteer-applications",
+  volunteerApplicationsTable,
+  [
+    { key: "createdAt", header: "Date" },
+    { key: "opportunityId", header: "Opportunity ID" },
+    { key: "name", header: "Name" },
+    { key: "email", header: "Email" },
+    { key: "phone", header: "Phone" },
+    { key: "message", header: "Message" },
+    { key: "status", header: "Status" },
+  ],
+  ALL_ROLES,
+  "volunteer-applications.csv",
+);
 registerAdminItemRoutes(
   router,
   "/admin/volunteer-applications",

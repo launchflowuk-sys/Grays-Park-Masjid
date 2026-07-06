@@ -56,7 +56,7 @@ import {
   type VolunteerOpportunity,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Download } from "lucide-react";
 
 const opportunitySchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -342,6 +342,15 @@ function ApplicationsTab() {
   );
 
   return (
+    <div>
+    <div className="flex items-center justify-end mb-4">
+      <a href="/api/admin/volunteer-applications/export" download data-testid="link-export-applications">
+        <Button variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+      </a>
+    </div>
     <Card className="border-card-border">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -406,6 +415,7 @@ function ApplicationsTab() {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
 

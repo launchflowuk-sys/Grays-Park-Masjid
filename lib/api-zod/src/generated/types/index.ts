@@ -60,6 +60,8 @@ export * from './service';
 export * from './siteSetting';
 export * from './staffMember';
 export * from './timetablePdf';
+export * from './uploadUrlRequest';
+export * from './uploadUrlResponse';
 export * from './upsertSiteSetting';
 export * from './volunteerApplication';
 export * from './volunteerOpportunity';

@@ -14,6 +14,7 @@ import volunteersRouter from "./volunteers";
 import staffRouter from "./staff";
 import newsRouter from "./news";
 import settingsRouter from "./settings";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(volunteersRouter);
 router.use(staffRouter);
 router.use(newsRouter);
 router.use(settingsRouter);
+router.use(storageRouter);
 
 export default router;

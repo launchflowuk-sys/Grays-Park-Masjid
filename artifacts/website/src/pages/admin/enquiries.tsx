@@ -37,7 +37,7 @@ import {
   type Enquiry,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Download } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 const STATUS_OPTIONS = ["new", "in_progress", "resolved"] as const;
@@ -145,8 +145,18 @@ export default function AdminEnquiriesPage() {
 
   return (
     <AdminLayout>
-      <h1 className="font-serif text-3xl mb-2">Enquiries</h1>
-      <p className="text-muted-foreground mb-6">Messages submitted through the contact form.</p>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-serif text-3xl mb-2">Enquiries</h1>
+          <p className="text-muted-foreground">Messages submitted through the contact form.</p>
+        </div>
+        <a href="/api/admin/enquiries/export" download data-testid="link-export-enquiries">
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </a>
+      </div>
 
       <Card className="border-card-border">
         <CardContent className="p-0">

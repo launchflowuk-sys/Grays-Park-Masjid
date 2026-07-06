@@ -98,6 +98,38 @@ export function registerAdminCreate(
   });
 }
 
+function csvEscape(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const str = value instanceof Date ? value.toISOString() : String(value);
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function toCsv(rows: Record<string, unknown>[], columns: { key: string; header: string }[]): string {
+  const headerLine = columns.map((c) => csvEscape(c.header)).join(",");
+  const lines = rows.map((row) => columns.map((c) => csvEscape(row[c.key])).join(","));
+  return [headerLine, ...lines].join("\r\n");
+}
+
+export function registerAdminExportCsv(
+  router: IRouter,
+  path: string,
+  table: AnyTable,
+  columns: { key: string; header: string }[],
+  allowedRoles: AdminRole[],
+  filename: string,
+) {
+  router.get(`${path}/export`, requireAuth, requireRole(...allowedRoles), async (_req: Request, res: Response) => {
+    const rows = await db.select().from(table);
+    const csv = toCsv(rows as Record<string, unknown>[], columns);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csv);
+  });
+}
+
 export function registerAdminItemRoutes(
   router: IRouter,
   path: string,
