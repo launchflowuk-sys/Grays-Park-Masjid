@@ -70,14 +70,14 @@ export function HeroPrayerCard() {
           </div>
         )}
 
-        <div className="grid grid-cols-5 gap-3 mt-6">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 md:gap-3 mt-6">
           {IQAMAH_PRAYER_ORDER.map((p) => {
             const iqamah = todayRow[`${p.key}Iqamah` as keyof PrayerTime] as string | null | undefined;
             const isNext = current?.nextKey === p.key;
             return (
               <div
                 key={p.key}
-                className={`relative aspect-square rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-colors ${
+                className={`relative rounded-xl border flex flex-col items-center justify-center gap-1.5 px-2 py-3.5 md:py-4 transition-colors ${
                   isNext
                     ? "bg-primary/10 border-primary/30"
                     : "bg-muted/40 border-transparent"

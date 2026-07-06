@@ -66,6 +66,102 @@ uri = "file://artifacts/mockup-sandbox/src/assets/gallery-khutbah.png"
 type = "image"
 title = "jumuah khutbah sermon"
 
+[[generated]]
+id = "pM1n75UnR1lXp_cyzPkGg"
+uri = "file://attached_assets/generated_images/gallery-eid-cover.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "uX7twyzJ9B04dXH8fYRoN"
+uri = "file://attached_assets/generated_images/gallery-eid-media-1.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9Ui3jkbLWOq0s10EF-ZUm"
+uri = "file://attached_assets/generated_images/gallery-eid-media-2.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "K9XVhsYM5Yl0CUQUvFVWX"
+uri = "file://attached_assets/generated_images/gallery-extension-cover.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "MO-GYDw3pLf9Vw5R741nI"
+uri = "file://attached_assets/generated_images/gallery-extension-media-1.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "QXkoM5rRa-KgHAeJA8BR-"
+uri = "file://attached_assets/generated_images/gallery-extension-media-2.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "aFnRhX9lYZtL2AKU6l5oC"
+uri = "file://attached_assets/generated_images/gallery-iftar-cover.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "bT0JrjZvIWHz4wH1ZF7l7"
+uri = "file://attached_assets/generated_images/gallery-iftar-media-1.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "EIg7fpu7VYzQKTMHNrPye"
+uri = "file://attached_assets/generated_images/gallery-iftar-media-2.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "z1UHbf27b3PR8-KLlEXGA"
+uri = "file://attached_assets/generated_images/gallery-madrassah-cover.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "t2c9tqWY20HH5eDepAy3G"
+uri = "file://attached_assets/generated_images/gallery-madrassah-media-1.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "tiNQmSl6YPn6X-Fmp14AZ"
+uri = "file://attached_assets/generated_images/gallery-madrassah-media-2.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Y1F2bberbneT3MQQe8PKO"
+uri = "file://attached_assets/generated_images/event-iftar-night.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "LKK8vY0LZ02cPV3Guc9qk"
+uri = "file://attached_assets/generated_images/event-finance-workshop.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ic2PkoG2SSDmsJeajLXOt"
+uri = "file://attached_assets/generated_images/event-fun-run.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "DyJvVXXd66diqBBk8Cp4n"
+uri = "file://attached_assets/generated_images/event-eid-prayer.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
