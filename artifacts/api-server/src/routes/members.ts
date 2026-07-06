@@ -43,7 +43,18 @@ router.post("/members", async (req: Request, res: Response) => {
   void notifyModule("members", {
     subject: `New membership application: ${row.fullName}`,
     text: `A new membership application was submitted by ${row.fullName} (${row.email}).\n\nMembership type: ${row.membershipType}\n\nView in admin panel: ${adminUrl}`,
-    html: `<p>A new membership application was submitted by ${escapeHtml(row.fullName)} (${escapeHtml(row.email)}).</p><p><strong>Membership type:</strong> ${escapeHtml(row.membershipType)}</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    html: renderEmailTemplate({
+      preheader: `New membership application from ${row.fullName}.`,
+      heading: "New membership application",
+      bodyHtml:
+        emailParagraphs([`A new membership application was submitted by ${escapeHtml(row.fullName)} (${escapeHtml(row.email)}).`]) +
+        emailInfoBox([
+          { label: "Membership type", value: escapeHtml(row.membershipType) },
+          { label: "Email", value: escapeHtml(row.email) },
+        ]),
+      ctaLabel: "View in admin panel",
+      ctaUrl: adminUrl,
+    }),
     smsBody: `New membership application from ${row.fullName}. View: ${adminUrl}`,
   });
 
