@@ -184,10 +184,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pt-10 md:pt-12 w-full">
-        <TodayPrayersBar />
-      </section>
-
       <MosqueProjectSection />
 
       <ServicesSection />
