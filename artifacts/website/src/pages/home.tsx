@@ -21,6 +21,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
 import { TodayPrayersBar } from "@/components/today-prayers-bar";
+import { ArchIconBadge, IslamicPattern } from "@/components/site/islamic-pattern";
 import { useListDonationCampaignsPublic, useListServicesPublic } from "@workspace/api-client-react";
 import heroImage from "@assets/Home_Hero_1783357048983.png";
 import mosqueConstructionImage from "@assets/generated_images/mosque_construction.png";
@@ -43,10 +44,13 @@ function toPascalCase(name: string): string {
     .join("");
 }
 
-function ServiceIcon({ name }: { name?: string | null }) {
+function resolveServiceIcon(name?: string | null): Icons.LucideIcon {
   const iconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
-  const IconComp = (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
-  return <IconComp className="h-7 w-7 text-primary" />;
+  return (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
+}
+
+function ArchIconBadgeFor({ service }: { service: { icon?: string | null } }) {
+  return <ArchIconBadge icon={resolveServiceIcon(service.icon)} />;
 }
 
 const STATS = [
@@ -323,13 +327,22 @@ function ServicesSection() {
         <p className="text-center text-muted-foreground">No services published yet.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
-          {sorted.slice(0, 8).map((service) => (
-            <Card key={service.id} className="border-card-border text-center" data-testid={`card-home-service-${service.id}`}>
-              <CardContent className="py-8 px-4">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <ServiceIcon name={service.icon} />
+          {sorted.slice(0, 8).map((service, idx) => (
+            <Card
+              key={service.id}
+              className="group relative overflow-hidden border-card-border bg-card rounded-tl-md rounded-tr-2xl rounded-bl-2xl rounded-br-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+              data-testid={`card-home-service-${service.id}`}
+            >
+              <IslamicPattern className="pointer-events-none absolute -right-5 -top-5 h-24 w-24 text-primary/[0.05] transition-colors duration-300 group-hover:text-primary/[0.09]" />
+              <CardContent className="relative p-5 md:p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <ArchIconBadgeFor service={service} />
+                  <span className="font-serif text-2xl leading-none text-primary/10">
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
                 </div>
-                <p className="font-serif text-base mb-2">{service.title}</p>
+                <p className="font-serif text-base mb-1.5">{service.title}</p>
+                <div className="w-7 h-[2px] bg-secondary mb-3" />
                 <p className="text-xs text-muted-foreground leading-relaxed">{service.description}</p>
               </CardContent>
             </Card>
