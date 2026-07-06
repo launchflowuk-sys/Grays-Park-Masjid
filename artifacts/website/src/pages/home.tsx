@@ -93,8 +93,8 @@ export default function Home() {
       <SiteHeader />
 
       <section className="relative">
-        <div className="relative overflow-hidden md:min-h-[620px]">
-          <div className="absolute inset-0">
+        <div className="relative overflow-visible md:overflow-hidden md:min-h-[620px]">
+          <div className="absolute inset-0 overflow-hidden">
             <img
               src={heroImage}
               alt="Grays Park Masjid building and grounds"
@@ -104,6 +104,10 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
           <IslamicPattern className="pointer-events-none absolute inset-0 w-full h-full text-primary-foreground/[0.04]" />
+
+          <div className="hidden md:block md:absolute md:right-6 lg:right-[calc((100vw-72rem)/2+24px)] md:-bottom-16 lg:-bottom-20 z-20">
+            <HeroPrayerCard />
+          </div>
 
           <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col gap-12 py-10 md:py-14">
             <div className="max-w-3xl pt-2 md:pt-4">
@@ -156,11 +160,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="static md:absolute md:right-6 lg:right-[calc((100vw-72rem)/2+24px)] md:-bottom-28 lg:-bottom-32 z-20 px-6 md:px-0 mt-8 md:mt-0 flex justify-center md:block">
+        <div className="md:hidden px-6 mt-8">
           <HeroPrayerCard />
         </div>
 
-        <div className="bg-primary pt-20 pb-8 md:pt-24 md:pb-9 relative overflow-hidden">
+        <div className="bg-primary pt-8 pb-8 md:pt-16 md:pb-9 relative overflow-hidden">
           <IslamicPattern className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 text-primary-foreground/[0.05]" />
           <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 relative">
             {STATS.map(({ icon: Icon, title, desc }) => (
