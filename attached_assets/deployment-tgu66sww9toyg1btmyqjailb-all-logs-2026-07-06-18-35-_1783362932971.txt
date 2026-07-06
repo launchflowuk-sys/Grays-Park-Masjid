@@ -1,0 +1,367 @@
+2026-Jul-06 18:33:44.705231 Docker 29.5.1 with BuildKit and Buildx detected on deployment server (localhost).
+2026-Jul-06 18:33:44.720166 Starting deployment of grays--park--masjid:main-b2x3tzw42paqq8t4gb8kg5k7 to localhost.
+2026-Jul-06 18:33:44.890296 Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.14
+2026-Jul-06 18:33:44.986723 [DEBUG] [CMD]: docker stop --time=30 tgu66sww9toyg1btmyqjailb
+2026-Jul-06 18:33:44.986723 [DEBUG] Flag --time has been deprecated, use --timeout instead
+2026-Jul-06 18:33:44.989249 [DEBUG] Error response from daemon: No such container: tgu66sww9toyg1btmyqjailb
+2026-Jul-06 18:33:45.149108 [DEBUG] [CMD]: docker run -d --network 'coolify' --name tgu66sww9toyg1btmyqjailb  --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.14
+2026-Jul-06 18:33:45.149108 [DEBUG] 6c3359502df7b522c08801a9ebfafb722d373ec705e848b62e6356715a80fedf
+2026-Jul-06 18:33:46.676698 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/launchflowuk-sys/Grays-Park-Masjid.git refs/heads/main'
+2026-Jul-06 18:33:46.676698 [DEBUG] cbf4e7a7cfd116c6543604bb80907b9abd8571e0	refs/heads/main
+2026-Jul-06 18:33:46.902965 ----------------------------------------
+2026-Jul-06 18:33:46.910727 Importing launchflowuk-sys/Grays-Park-Masjid:main (commit sha cbf4e7a7cfd116c6543604bb80907b9abd8571e0) to /artifacts/tgu66sww9toyg1btmyqjailb.
+2026-Jul-06 18:33:47.054416 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'git clone --depth=1 --recurse-submodules --shallow-submodules -b '\''main'\'' '\''https://x-access-token:<REDACTED>@github.com/launchflowuk-sys/Grays-Park-Masjid.git'\'' '\''/artifacts/tgu66sww9toyg1btmyqjailb'\'' && cd '\''/artifacts/tgu66sww9toyg1btmyqjailb'\'' && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git fetch --depth=1 origin '\''cbf4e7a7cfd116c6543604bb80907b9abd8571e0'\'' && git -c advice.detachedHead=false checkout '\''cbf4e7a7cfd116c6543604bb80907b9abd8571e0'\'' >/dev/null 2>&1 && cd '\''/artifacts/tgu66sww9toyg1btmyqjailb'\'' && if [ -f .gitmodules ]; then git submodule sync && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive --depth=1; fi && cd '\''/artifacts/tgu66sww9toyg1btmyqjailb'\'' && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2026-Jul-06 18:33:47.054416 [DEBUG] Cloning into '/artifacts/tgu66sww9toyg1btmyqjailb'...
+2026-Jul-06 18:33:49.925497 [DEBUG] From https://github.com/launchflowuk-sys/Grays-Park-Masjid
+2026-Jul-06 18:<REDACTED>@workspace/api-server run build
+2026-Jul-06 18:33:54.130407 [DEBUG] RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-06 18:33:54.130407 [DEBUG] 
+2026-Jul-06 18:33:54.130407 [DEBUG] FROM node:24-bookworm-slim AS runtime
+2026-Jul-06 18:33:54.130407 [DEBUG] WORKDIR /app
+2026-Jul-06 18:33:54.130407 [DEBUG] 
+2026-Jul-06 18:33:54.130407 [DEBUG] ENV NODE_ENV=production
+2026-Jul-06 18:33:54.130407 [DEBUG] COPY --from=builder /app/deploy/api-server/node_modules ./node_modules
+2026-Jul-06 18:33:54.130407 [DEBUG] COPY --from=builder /app/artifacts/api-server/dist ./dist
+2026-Jul-06 18:33:54.130407 [DEBUG] 
+2026-Jul-06 18:33:54.130407 [DEBUG] EXPOSE 8080
+2026-Jul-06 18:33:54.130407 [DEBUG] 
+2026-Jul-06 18:33:54.130407 [DEBUG] CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
+2026-Jul-06 18:33:54.290480 Added 24 ARG declarations to Dockerfile for service api-server (multi-stage build, added to 2 stages).
+2026-Jul-06 18:33:54.427645 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'test -f /artifacts/tgu66sww9toyg1btmyqjailb/Dockerfile.api-server && echo '\''exists'\'' || echo '\''not found'\'''
+2026-Jul-06 18:33:54.427645 [DEBUG] exists
+2026-Jul-06 18:33:54.587026 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'cat /artifacts/tgu66sww9toyg1btmyqjailb/Dockerfile.api-server'
+2026-Jul-06 18:33:54.587026 [DEBUG] # syntax=docker/dockerfile:1
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] FROM node:24-bookworm-slim AS builder
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG COOLIFY_FQDN
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG LOG_LEVEL
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG JWT_SECRET
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG APP_BASE_URL
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_PORT
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG MAIL_FROM
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_USER
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_PASS
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SERVICE_URL_WEBSITE
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SERVICE_FQDN_WEBSITE
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_HOST
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG DATABASE_URL
+2026-Jul-06 18:33:54.587026 [DEBUG] WORKDIR /app
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] RUN corepack enable
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY lib lib
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY scripts scripts
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] # Fetch full dependency graph before copying source, for better layer caching.
+2026-Jul-06 18:33:54.587026 [DEBUG] RUN pnpm install --frozen-lockfile
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY . .
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] ENV NODE_ENV=production
+2026-Jul-06 18:33:54.587026 [DEBUG] RUN pnpm run typecheck:libs
+2026-Jul-06 18:33:54.587026 [DEBUG] RUN pnpm --filter @workspace/api-server run build
+2026-Jul-06 18:33:54.587026 [DEBUG] RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] FROM node:24-bookworm-slim AS runtime
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG COOLIFY_FQDN
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG LOG_LEVEL
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG JWT_SECRET
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG APP_BASE_URL
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_PORT
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG MAIL_FROM
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_USER
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_PASS
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SERVICE_URL_WEBSITE
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SERVICE_FQDN_WEBSITE
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG SMTP_HOST
+2026-Jul-06 18:33:54.587026 [DEBUG] ARG DATABASE_URL
+2026-Jul-06 18:33:54.587026 [DEBUG] WORKDIR /app
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] ENV NODE_ENV=production
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY --from=builder /app/deploy/api-server/node_modules ./node_modules
+2026-Jul-06 18:33:54.587026 [DEBUG] COPY --from=builder /app/artifacts/api-server/dist ./dist
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] EXPOSE 8080
+2026-Jul-06 18:33:54.587026 [DEBUG] 
+2026-Jul-06 18:33:54.587026 [DEBUG] CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
+2026-Jul-06 18:33:54.601238 Service db-push: All required ARG declarations already exist.
+2026-Jul-06 18:33:54.731336 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'test -f /artifacts/tgu66sww9toyg1btmyqjailb/Dockerfile.website && echo '\''exists'\'' || echo '\''not found'\'''
+2026-Jul-06 18:33:54.731336 [DEBUG] exists
+2026-Jul-06 18:33:54.879565 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'cat /artifacts/tgu66sww9toyg1btmyqjailb/Dockerfile.website'
+2026-Jul-06 18:33:54.879565 [DEBUG] # syntax=docker/dockerfile:1
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] FROM node:24-bookworm-slim AS builder
+2026-Jul-06 18:33:54.879565 [DEBUG] WORKDIR /app
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] RUN corepack enable
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY lib lib
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY scripts scripts
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] RUN pnpm install --frozen-lockfile
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY . .
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] # BASE_PATH/PORT only affect the build-time Vite config; the built assets are
+2026-Jul-06 18:33:54.879565 [DEBUG] # static and served by nginx afterwards. Override BASE_PATH at build time if
+2026-Jul-06 18:33:54.879565 [DEBUG] # the site will be hosted under a sub-path instead of the domain root.
+2026-Jul-06 18:33:54.879565 [DEBUG] ARG BASE_PATH=/
+2026-Jul-06 18:33:54.879565 [DEBUG] ARG VITE_BUILD_PORT=5173
+2026-Jul-06 18:33:54.879565 [DEBUG] ENV NODE_ENV=production
+2026-Jul-06 18:33:54.879565 [DEBUG] ENV BASE_PATH=${BASE_PATH}
+2026-Jul-06 18:33:54.879565 [DEBUG] ENV PORT=${VITE_BUILD_PORT}
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] RUN pnpm run typecheck:libs
+2026-Jul-06 18:33:54.879565 [DEBUG] RUN pnpm --filter @workspace/website run build
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] FROM nginx:1.27-alpine AS runtime
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY --from=builder /app/artifacts/website/dist/public /usr/share/nginx/html
+2026-Jul-06 18:33:54.879565 [DEBUG] COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] ENV PORT=80
+2026-Jul-06 18:33:54.879565 [DEBUG] EXPOSE 80
+2026-Jul-06 18:33:54.879565 [DEBUG] 
+2026-Jul-06 18:33:54.879565 [DEBUG] CMD ["nginx", "-g", "daemon off;"]
+2026-Jul-06 18:33:55.073751 Added 24 ARG declarations to Dockerfile for service website (multi-stage build, added to 2 stages).
+2026-Jul-06 18:33:55.079760 Pulling & building required images.
+2026-Jul-06 18:33:55.122027 [DEBUG] Creating build-time .env file in /artifacts (outside Docker context).
+2026-Jul-06 18:33:55.290685 Adding build arguments to Docker Compose build command.
+2026-Jul-06 18:33:55.598826 [DEBUG] [CMD]: docker exec tgu66sww9toyg1btmyqjailb bash -c 'DOCKER_BUILDKIT=1 COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=b2x3tzw42paqq8t4gb8kg5k7  docker compose --env-file /artifacts/build-time.env --project-name b2x3tzw42paqq8t4gb8kg5k7 --project-directory /artifacts/tgu66sww9toyg1btmyqjailb -f /artifacts/tgu66sww9toyg1btmyqjailb/docker-compose.yml build --pull --build-arg COOLIFY_FQDN --build-arg LOG_LEVEL --build-arg JWT_SECRET --build-arg APP_BASE_URL --build-arg SMTP_PORT --build-arg MAIL_FROM --build-arg SMTP_USER --build-arg SMTP_PASS --build-arg SERVICE_URL_WEBSITE --build-arg SERVICE_FQDN_WEBSITE --build-arg SMTP_HOST --build-arg DATABASE_URL --build-arg COOLIFY_BUILD_SECRETS_HASH=7ec0fba771e5fc4de1b405c709938e4d2bd7dfb89f724b5396979096a87b89dc'
+2026-Jul-06 18:33:55.598826 [DEBUG] #1 [internal] load local bake definitions
+2026-Jul-06 18:33:55.831008 [DEBUG] #1 reading from stdin 3.85kB done
+2026-Jul-06 18:33:55.831008 [DEBUG] #1 DONE 0.0s
+2026-Jul-06 18:33:55.831008 [DEBUG] 
+2026-Jul-06 18:33:55.831008 [DEBUG] #2 [website internal] load build definition from Dockerfile.website
+2026-Jul-06 18:33:55.831008 [DEBUG] #2 transferring dockerfile: 1.57kB done
+2026-Jul-06 18:33:55.831008 [DEBUG] #2 DONE 0.0s
+2026-Jul-06 18:33:55.831008 [DEBUG] 
+2026-Jul-06 18:33:55.831008 [DEBUG] #3 [api-server internal] load build definition from Dockerfile.api-server
+2026-Jul-06 18:33:55.831008 [DEBUG] #3 transferring dockerfile: 1.45kB done
+2026-Jul-06 18:33:55.831008 [DEBUG] #3 DONE 0.0s
+2026-Jul-06 18:33:55.831008 [DEBUG] 
+2026-Jul-06 18:33:55.831008 [DEBUG] #4 [db-push] resolve image config for docker-image://docker.io/docker/dockerfile:1
+2026-Jul-06 18:33:56.468666 [DEBUG] #4 DONE 0.6s
+2026-Jul-06 18:33:56.468666 [DEBUG] 
+2026-Jul-06 18:33:56.468666 [DEBUG] #5 [db-push] docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-Jul-06 18:33:56.468666 [DEBUG] #5 resolve docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89 0.0s done
+2026-Jul-06 18:33:56.468666 [DEBUG] #5 CACHED
+2026-Jul-06 18:33:56.468666 [DEBUG] 
+2026-Jul-06 18:33:56.468666 [DEBUG] #6 [api-server internal] load metadata for docker.io/library/node:24-bookworm-slim
+2026-Jul-06 18:33:57.048872 [DEBUG] #6 ...
+2026-Jul-06 18:33:57.048872 [DEBUG] 
+2026-Jul-06 18:33:57.048872 [DEBUG] #7 [website internal] load metadata for docker.io/library/nginx:1.27-alpine
+2026-Jul-06 18:33:57.048872 [DEBUG] #7 DONE 0.6s
+2026-Jul-06 18:33:57.205169 [DEBUG] #6 [db-push internal] load metadata for docker.io/library/node:24-bookworm-slim
+2026-Jul-06 18:33:57.205169 [DEBUG] #6 DONE 0.6s
+2026-Jul-06 18:33:57.205169 [DEBUG] 
+2026-Jul-06 18:33:57.205169 [DEBUG] #8 [website internal] load .dockerignore
+2026-Jul-06 18:33:57.205169 [DEBUG] #8 transferring context:
+2026-Jul-06 18:33:57.306582 [DEBUG] #8 transferring context: 190B done
+2026-Jul-06 18:33:57.306582 [DEBUG] #8 DONE 0.1s
+2026-Jul-06 18:33:57.306582 [DEBUG] 
+2026-Jul-06 18:33:57.306582 [DEBUG] #9 [website runtime 1/3] FROM docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+2026-Jul-06 18:33:57.306582 [DEBUG] #9 resolve docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 0.0s done
+2026-Jul-06 18:33:57.306582 [DEBUG] #9 DONE 0.0s
+2026-Jul-06 18:33:57.306582 [DEBUG] 
+2026-Jul-06 18:33:57.306582 [DEBUG] #10 [api-server internal] load build context
+2026-Jul-06 18:33:57.411974 [DEBUG] #10 ...
+2026-Jul-06 18:33:57.411974 [DEBUG] 
+2026-Jul-06 18:33:57.411974 [DEBUG] #11 [api-server builder  1/13] FROM docker.io/library/node:24-bookworm-slim@sha256:b31e7a42fdf8b8aa5f5ed477c72d694301273f1069c5a2f71d53c6482e99a2fc
+2026-Jul-06 18:33:57.411974 [DEBUG] #11 resolve docker.io/library/node:24-bookworm-slim@sha256:b31e7a42fdf8b8aa5f5ed477c72d694301273f1069c5a2f71d53c6482e99a2fc 0.0s done
+2026-Jul-06 18:33:57.411974 [DEBUG] #11 DONE 0.0s
+2026-Jul-06 18:33:57.411974 [DEBUG] 
+2026-Jul-06 18:33:57.411974 [DEBUG] #10 [db-push internal] load build context
+2026-Jul-06 18:33:57.411974 [DEBUG] #10 transferring context: 8.80MB 0.1s done
+2026-Jul-06 18:33:57.523235 [DEBUG] #10 transferring context: 8.80MB 0.1s done
+2026-Jul-06 18:33:57.523235 [DEBUG] #10 DONE 0.1s
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #12 [api-server builder  4/13] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-06 18:33:57.523235 [DEBUG] #12 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #13 [api-server builder  8/13] COPY lib lib
+2026-Jul-06 18:33:57.523235 [DEBUG] #13 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #14 [api-server builder  5/13] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-06 18:33:57.523235 [DEBUG] #14 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #15 [api-server builder  6/13] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-06 18:33:57.523235 [DEBUG] #15 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #16 [api-server builder  2/13] WORKDIR /app
+2026-Jul-06 18:33:57.523235 [DEBUG] #16 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #17 [api-server builder  3/13] RUN corepack enable
+2026-Jul-06 18:33:57.523235 [DEBUG] #17 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #18 [api-server builder  9/13] COPY scripts scripts
+2026-Jul-06 18:33:57.523235 [DEBUG] #18 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #19 [api-server builder  7/13] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-06 18:33:57.523235 [DEBUG] #19 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #20 [website builder 10/13] RUN pnpm install --frozen-lockfile
+2026-Jul-06 18:33:57.523235 [DEBUG] #20 CACHED
+2026-Jul-06 18:33:57.523235 [DEBUG] 
+2026-Jul-06 18:33:57.523235 [DEBUG] #21 [website builder 11/13] COPY . .
+2026-Jul-06 18:33:57.674769 [DEBUG] #21 DONE 0.1s
+2026-Jul-06 18:33:57.674769 [DEBUG] 
+2026-Jul-06 18:33:57.674769 [DEBUG] #22 [db-push builder 12/14] RUN pnpm run typecheck:libs
+2026-Jul-06 18:33:57.946570 [DEBUG] #22 0.422
+2026-Jul-06 18:33:57.946570 [DEBUG] #22 0.422 > workspace@0.0.0 typecheck:libs /app
+2026-Jul-06 18:33:57.946570 [DEBUG] #22 0.422 > tsc --build
+2026-Jul-06 18:33:57.946570 [DEBUG] #22 0.422
+2026-Jul-06 18:34:03.982161 [DEBUG] #22 ...
+2026-Jul-06 18:34:03.982161 [DEBUG] 
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 [website builder 12/13] RUN pnpm run typecheck:libs
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 0.428
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 0.428 > workspace@0.0.0 typecheck:libs /app
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 0.428 > tsc --build
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 0.428
+2026-Jul-06 18:34:03.982161 [DEBUG] #23 DONE 6.5s
+2026-Jul-06 18:34:04.140272 [DEBUG] #22 [db-push builder 12/14] RUN pnpm run typecheck:libs
+2026-Jul-06 18:34:04.140272 [DEBUG] #22 DONE 6.5s
+2026-Jul-06 18:34:04.140272 [DEBUG] 
+2026-Jul-06 18:34:04.140272 [DEBUG] #24 [db-push builder 13/14] RUN pnpm --filter @workspace/api-server run build
+2026-Jul-06 18:34:04.576155 [DEBUG] #24 0.586
+2026-Jul-06 18:34:04.576155 [DEBUG] #24 0.586 > @workspace/api-server@0.0.0 build /app/artifacts/api-server
+2026-Jul-06 18:34:04.576155 [DEBUG] #24 0.586 > node ./build.mjs
+2026-Jul-06 18:34:04.576155 [DEBUG] #24 0.586
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/index.mjs                      17.5mb ⚠️
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-worker.mjs               153.4kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-file.mjs                 142.0kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-pretty.mjs               114.6kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/thread-stream-worker.mjs        7.3kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/index.mjs.map                  28.2mb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-worker.mjs.map           256.9kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-file.mjs.map             229.0kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/pino-pretty.mjs.map           204.0kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615   dist/thread-stream-worker.mjs.map   12.0kb
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615
+2026-Jul-06 18:34:06.601219 [DEBUG] #24 2.615 ⚡ Done in 1951ms
+2026-Jul-06 18:34:06.877371 [DEBUG] #24 DONE 2.7s
+2026-Jul-06 18:34:06.877371 [DEBUG] 
+2026-Jul-06 18:34:06.877371 [DEBUG] #25 [db-push builder 14/14] RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-06 18:34:07.010605 [DEBUG] #25 CANCELED
+2026-Jul-06 18:34:07.010605 [DEBUG] 
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 [website builder 13/13] RUN pnpm --filter @workspace/website run build
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 0.611
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 0.611 > @workspace/website@0.0.0 build /app/artifacts/website
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 0.611 > vite build --config vite.config.ts
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 0.611
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.008 vite v7.3.5 building client environment for production...
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.076 transforming...
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 Found 2 warnings while optimizing generated CSS:
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 Issue #1:
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │   }
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │   .\[\&_\.bg-primary\\\\\/10\]\:bg-secondary\/10 {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │     & .bg-primary\\/10 {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 ┆                     ^-- Unexpected token Number { has_sign: false, value: 10.0, int_value: Some(10) }
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 ┆
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │       background-color: hsl(var(--secondary));
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │       @supports (color: color-mix(in lab, red, red)) {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 Issue #2:
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │   }
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │   .\[\&_\.bg-secondary\\\\\/10\]\:bg-secondary\/20 {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │     & .bg-secondary\\/10 {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 ┆                       ^-- Unexpected token Number { has_sign: false, value: 10.0, int_value: Some(10) }
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 ┆
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │       background-color: hsl(var(--secondary));
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337 │       @supports (color: color-mix(in lab, red, red)) {
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 1.337
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.075 src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.190 src/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.197 src/components/ui/progress.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.261 src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.817 ✓ 1108 modules transformed.
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820 ✗ Build failed in 1.79s
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820 error during build:
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820 [vite:asset] Could not load /app/attached_assets/GPM_Logo_1783358587809.png (imported by src/pages/admin/login.tsx): ENOENT: no such file or directory, open '/app/attached_assets/GPM_Logo_1783358587809.png'
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async open (node:internal/fs/promises:640:25)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async Object.readFile (node:internal/fs/promises:1290:14)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async fileToBuiltUrl (file:///app/node_modules/.pnpm/vite@7.3.5_@types+node@25.9.4_jiti@2.7.0_lightningcss@1.32.0_tsx@4.22.4_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:8793:18)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async Object.handler (file:///app/node_modules/.pnpm/vite@7.3.5_@types+node@25.9.4_jiti@2.7.0_lightningcss@1.32.0_tsx@4.22.4_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:8687:17)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async PluginDriver.hookFirstAndGetPlugin (file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:22908:28)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:21894:33
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.820     at async Queue.work (file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:23136:32)
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.894 /app/artifacts/website:
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.894  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/website@0.0.0 build: `vite build --config vite.config.ts`
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 2.894 Exit status 1
+2026-Jul-06 18:34:07.010605 [DEBUG] #26 ERROR: process "/bin/sh -c pnpm --filter @workspace/website run build" did not complete successfully: exit code: 1
+2026-Jul-06 18:34:07.023177 [DEBUG] ------
+2026-Jul-06 18:34:07.023177 [DEBUG] > [website builder 13/13] RUN pnpm --filter @workspace/website run build:
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async open (node:internal/fs/promises:640:25)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async Object.readFile (node:internal/fs/promises:1290:14)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async fileToBuiltUrl (file:///app/node_modules/.pnpm/vite@7.3.5_@types+node@25.9.4_jiti@2.7.0_lightningcss@1.32.0_tsx@4.22.4_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:8793:18)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async Object.handler (file:///app/node_modules/.pnpm/vite@7.3.5_@types+node@25.9.4_jiti@2.7.0_lightningcss@1.32.0_tsx@4.22.4_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:8687:17)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async PluginDriver.hookFirstAndGetPlugin (file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:22908:28)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:21894:33
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.820     at async Queue.work (file:///app/node_modules/.pnpm/rollup@4.62.2/node_modules/rollup/dist/es/shared/node-entry.js:23136:32)
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.894 /app/artifacts/website:
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.894  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/website@0.0.0 build: `vite build --config vite.config.ts`
+2026-Jul-06 18:34:07.023177 [DEBUG] 2.894 Exit status 1
+2026-Jul-06 18:34:07.023177 [DEBUG] ------
+2026-Jul-06 18:34:07.027696 [DEBUG] Dockerfile.website:41
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] --------------------
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] 39 |
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] 40 |     RUN pnpm run typecheck:libs
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] 41 | >>> RUN pnpm --filter @workspace/website run build
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] 42 |
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] 43 |     FROM nginx:1.27-alpine AS runtime
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] --------------------
+2026-Jul-06 18:34:07.027696 [DEBUG] 
+2026-Jul-06 18:34:07.027696 [DEBUG] target website: failed to solve: process "/bin/sh -c pnpm --filter @workspace/website run build" did not complete successfully: exit code: 1
+2026-Jul-06 18:34:07.032811 [DEBUG] exit status 1
+2026-Jul-06 18:34:07.088404 ========================================
+2026-Jul-06 18:34:07.093934 Deployment failed: Command execution failed (exit code 1): docker exec tgu66sww9toyg1btmyqjailb bash -c 'DOCKER_BUILDKIT=1 COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=b2x3tzw42paqq8t4gb8kg5k7  docker compose --env-file /artifacts/build-time.env --project-name b2x3tzw42paqq8t4gb8kg5k7 --project-directory /artifacts/tgu66sww9toyg1btmyqjailb -f /artifacts/tgu66sww9toyg1btmyqjailb/docker-compose.yml build --pull --build-arg COOLIFY_FQDN --build-arg LOG_LEVEL --build-arg JWT_SECRET --build-arg APP_BASE_URL --build-arg SMTP_PORT --build-arg MAIL_FROM --build-arg SMTP_USER --build-arg SMTP_PASS --build-arg SERVICE_URL_WEBSITE --build-arg SERVICE_FQDN_WEBSITE --build-arg SMTP_HOST --build-arg DATABASE_URL --build-arg COOLIFY_BUILD_SECRETS_HASH=7ec0fba771e5fc4de1b405c709938e4d2bd7dfb89f724b5396979096a87b89dc'
+2026-Jul-06 18:34:07.093934 Error: Dockerfile.website:41
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 --------------------
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 39 |
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 40 |     RUN pnpm run typecheck:libs
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 41 | >>> RUN pnpm --filter @workspace/website run build
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 42 |
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 43 |     FROM nginx:1.27-alpine AS runtime
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 --------------------
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 target website: failed to solve: process "/bin/sh -c pnpm --filter @workspace/website run build" did not complete successfully: exit code: 1
+2026-Jul-06 18:34:07.093934 
+2026-Jul-06 18:34:07.093934 exit status 1
+2026-Jul-06 18:34:07.099437 [DEBUG] Error type: App\Exceptions\DeploymentException
+2026-Jul-06 18:34:07.105929 [DEBUG] Error code: 0
+2026-Jul-06 18:34:07.112762 [DEBUG] Location: /var/www/html/app/Traits/ExecuteRemoteCommand.php:242
+2026-Jul-06 18:34:07.118979 [DEBUG] Stack trace (first 5 lines):
+2026-Jul-06 18:34:07.125565 [DEBUG] #0 /var/www/html/app/Traits/ExecuteRemoteCommand.php(106): App\Jobs\ApplicationDeploymentJob->executeCommandWithProcess()
+2026-Jul-06 18:34:07.132260 [DEBUG] #1 /var/www/html/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(275): App\Jobs\ApplicationDeploymentJob->{closure:App\Traits\ExecuteRemoteCommand::execute_remote_command():72}()
+2026-Jul-06 18:34:07.138848 [DEBUG] #2 /var/www/html/app/Traits/ExecuteRemoteCommand.php(72): Illuminate\Support\Collection->each()
+2026-Jul-06 18:34:07.145444 [DEBUG] #3 /var/www/html/app/Jobs/ApplicationDeploymentJob.php(772): App\Jobs\ApplicationDeploymentJob->execute_remote_command()
+2026-Jul-06 18:34:07.152107 [DEBUG] #4 /var/www/html/app/Jobs/ApplicationDeploymentJob.php(496): App\Jobs\ApplicationDeploymentJob->deploy_docker_compose_buildpack()
+2026-Jul-06 18:34:07.158270 ========================================
+2026-Jul-06 18:34:07.418950 Gracefully shutting down build container: tgu66sww9toyg1btmyqjailb
+2026-Jul-06 18:34:07.515986 [DEBUG] [CMD]: docker stop --time=30 tgu66sww9toyg1btmyqjailb
+2026-Jul-06 18:34:07.515986 [DEBUG] Flag --time has been deprecated, use --timeout instead
+2026-Jul-06 18:34:08.795776 [DEBUG] tgu66sww9toyg1btmyqjailb

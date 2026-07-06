@@ -39,8 +39,8 @@ import {
   useListCoursesPublic,
   useListGalleryAlbumsPublic,
 } from "@workspace/api-client-react";
-import heroImage from "@assets/Home_Hero_1783357048983.png";
-import mosqueConstructionImage from "@assets/generated_images/mosque_construction.png";
+import heroImage from "@/assets/Home_Hero_1783357048983.png";
+import mosqueConstructionImage from "@/assets/generated_images/mosque_construction.png";
 import { format, parseISO } from "date-fns";
 
 const PRESET_AMOUNTS = ["10", "25", "50", "100"];

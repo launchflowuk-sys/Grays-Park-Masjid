@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
-import gpmLogo from "@assets/GPM_Logo_1783358587809.png";
+import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
 
 const NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },

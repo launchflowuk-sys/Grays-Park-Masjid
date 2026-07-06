@@ -18,7 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import gpmLogoWhite from "@assets/GPM_Logo_white_1783358587808.png";
+import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.png";
 import { useGetSettingPublic, useListServicesPublic } from "@workspace/api-client-react";
 
 const QUICK_LINKS = [

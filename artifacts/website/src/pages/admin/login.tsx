@@ -18,7 +18,7 @@ import {
 import { useLogin, getGetCurrentAdminQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
-import gpmLogo from "@assets/GPM_Logo_1783358587809.png";
+import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
