@@ -7,3 +7,4 @@
 - [Admin-managed secrets vs env vars](admin-managed-secrets-vs-env-vars.md) — third-party API credentials an admin must rotate themselves belong in an authenticated admin settings DB row, not deployment env vars; allowlist public settings endpoints.
 - [Uppy upload completion & objectPath timing](object-storage-uppy-objectpath-timing.md) — don't read server-issued metadata from the PUT response body of a signed upload; capture it from the initial request-url response instead.
 - [nginx reverse proxy in Docker Compose needs lazy DNS resolution](nginx-compose-lazy-dns-proxy.md) — static `proxy_pass` to a Compose service name resolves once at nginx startup and can fail to boot; use a variable + `resolver 127.0.0.11`.
+- [drizzle-kit push schema sync in Docker Compose deploys](drizzle-push-based-schema-sync.md) — no migration files here; forgetting to re-run `drizzle-kit push` against prod after a schema change causes widespread unrelated-looking 500s.
