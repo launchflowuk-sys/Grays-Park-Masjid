@@ -162,6 +162,12 @@ uri = "file://attached_assets/generated_images/event-eid-prayer.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "q5krSEYZkfk7gifX3SzVk"
+uri = "file://attached_assets/generated_images/community_group_cutout.png"
+type = "image"
+title = "diverse community group outside"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
