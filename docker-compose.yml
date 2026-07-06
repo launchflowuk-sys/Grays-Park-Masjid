@@ -6,6 +6,9 @@ services:
     restart: unless-stopped
     depends_on:
       - db-push
+    networks:
+      - default
+      - coolify
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
       PORT: "8080"
@@ -35,6 +38,9 @@ services:
       dockerfile: Dockerfile.api-server
       target: builder
     restart: "no"
+    networks:
+      - default
+      - coolify
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
     working_dir: /app
@@ -61,6 +67,6 @@ volumes:
   uploads-data:
 
 networks:
-  default:
+  coolify:
     name: coolify
     external: true
