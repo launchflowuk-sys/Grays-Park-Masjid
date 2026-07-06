@@ -191,7 +191,7 @@ export function SiteFooter() {
             Your donations help us maintain our masjid and continue serving our community.
           </p>
           <Link href="/donate">
-            <Button className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-footer-donate">
+            <Button className="w-full rounded-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-footer-donate">
               Donate Now <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

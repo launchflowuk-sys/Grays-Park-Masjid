@@ -123,7 +123,7 @@ function MegaPanel({
           <Link href={feature.href} onClick={onNavigate} className="relative mt-5">
             <Button
               size="sm"
-              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5"
+              className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5"
               data-testid={`button-mega-feature-${feature.cta.toLowerCase().replace(/\s+/g, "-")}`}
             >
               {feature.cta} <ArrowRight className="h-3.5 w-3.5" />
@@ -245,7 +245,7 @@ export function SiteHeader() {
         </NavigationMenu>
         <div className="flex items-center gap-3">
           <Link href="/donate" className="hidden sm:inline-flex">
-            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-donate-nav">
+            <Button className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-donate-nav">
               Donate
             </Button>
           </Link>
@@ -322,7 +322,7 @@ export function SiteHeader() {
                   </div>
                 </div>
                 <Link href="/donate" onClick={() => setOpen(false)}>
-                  <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                  <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
                     Donate
                   </Button>
                 </Link>
