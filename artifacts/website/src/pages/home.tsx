@@ -39,52 +39,52 @@ export default function Home() {
               alt="Grays Park Masjid building and grounds"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/30 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/55 via-primary/15 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 mx-auto max-w-6xl px-6 w-full">
-            <div className="max-w-xl">
-              <p className="uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-4">
+            <div className="max-w-2xl">
+              <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
-              </p>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground">
+              </span>
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
                 A Place of Worship,
                 <br />
                 Learning &amp; Community
               </h1>
               <div className="w-14 h-[3px] bg-secondary my-6" />
-              <p className="text-base md:text-lg text-primary-foreground/85 leading-relaxed max-w-md">
+              <p className="text-base md:text-lg text-primary-foreground/90 leading-relaxed max-w-md drop-shadow-[0_1px_6px_rgba(0,0,0,0.4)]">
                 Grays Park Masjid is a welcoming center for worship, education and
                 community service. All are welcome.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Link href="/prayer-times">
                   <Button
                     size="lg"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                    className="h-14 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
                     data-testid="button-hero-prayer-times"
                   >
-                    View Prayer Times <Clock className="h-4 w-4" />
+                    View Prayer Times <Clock className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link href="/donate">
                   <Button
                     size="lg"
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
+                    className="h-14 px-8 text-base bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
                     data-testid="button-hero-donate"
                   >
-                    Donate Now <HandHeart className="h-4 w-4" />
+                    Donate Now <HandHeart className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link href="/about">
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
+                    className="h-14 px-8 text-base border-2 border-primary-foreground/80 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
                     data-testid="button-hero-visit"
                   >
-                    Visit Us <MapPin className="h-4 w-4" />
+                    Visit Us <MapPin className="h-5 w-5" />
                   </Button>
                 </Link>
               </div>
@@ -95,20 +95,23 @@ export default function Home() {
         <HeroPrayerCard />
 
         <div className="bg-primary pt-20 pb-8 md:pt-24 md:pb-9">
-          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
-            {STATS.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
-                  <Icon className="w-5 h-5" aria-hidden="true" />
+          <div className="mx-auto max-w-6xl px-6 flex flex-col md:flex-row md:items-center gap-6">
+            <div className="hidden md:block md:w-[calc(560px+1.5rem)] shrink-0" aria-hidden="true" />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 flex-1">
+              {STATS.map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
+                    <Icon className="w-5 h-5" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-primary-foreground text-[13px] font-semibold tracking-wide">
+                      {title}
+                    </p>
+                    <p className="text-primary-foreground/60 text-xs mt-0.5">{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-primary-foreground text-[13px] font-semibold tracking-wide">
-                    {title}
-                  </p>
-                  <p className="text-primary-foreground/60 text-xs mt-0.5">{desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
