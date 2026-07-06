@@ -3,3 +3,4 @@
 - [Object storage web package setup](object-storage-web-package-setup.md) — new `lib/*` packages need `composite:true` + a manual `tsc -b` build, and pnpm.overrides for catalog deps must use `"catalog:"` not `"$react"`.
 - [Admin RBAC frontend gating](admin-rbac-frontend-gating.md) — backend role middleware alone isn't enough; hide write controls per-role in the UI too, and test with the most restricted role.
 - [Square sandbox credential mismatch debugging](square-sandbox-credential-mismatch.md) — sanity-check `applicationId` prefix and echo resolved config after rotating SQUARE_* secrets before retrying payments.
+- [SMTP sender address must match authenticated mailbox](smtp-sender-address-match.md) — providers like Hostinger reject mail if From ≠ authenticated SMTP_USER; default MAIL_FROM to SMTP_USER.
