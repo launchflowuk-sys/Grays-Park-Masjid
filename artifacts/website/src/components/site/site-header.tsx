@@ -2,7 +2,13 @@ import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Menu } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
@@ -16,9 +22,17 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+const COMMUNITY_LINKS = [
+  { href: "/madrassah", label: "Madrassah" },
+  { href: "/sisters-facilities", label: "Sisters' Facilities" },
+  { href: "/youth-programmes", label: "Youth Programmes" },
+  { href: "/gallery", label: "Gallery" },
+];
+
 export function SiteHeader() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const communityActive = COMMUNITY_LINKS.some((link) => link.href === location);
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
@@ -32,7 +46,7 @@ export function SiteHeader() {
             <p className="text-xs text-muted-foreground">Grays, Essex</p>
           </div>
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -45,6 +59,29 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={`flex items-center gap-1 hover:text-primary transition-colors outline-none ${
+                communityActive ? "text-primary" : ""
+              }`}
+              data-testid="link-nav-community"
+            >
+              Community
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {COMMUNITY_LINKS.map((link) => (
+                <DropdownMenuItem key={link.href} asChild>
+                  <Link
+                    href={link.href}
+                    data-testid={`link-nav-${link.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  >
+                    {link.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
         <div className="flex items-center gap-3">
           <Link href="/donate" className="hidden sm:inline-flex">
@@ -58,7 +95,7 @@ export function SiteHeader() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="overflow-y-auto">
               <nav className="flex flex-col gap-6 mt-10 text-lg font-medium">
                 {NAV_LINKS.map((link) => (
                   <Link
@@ -70,6 +107,21 @@ export function SiteHeader() {
                     {link.label}
                   </Link>
                 ))}
+                <div className="border-t border-border pt-6">
+                  <p className="text-sm text-muted-foreground mb-4 font-normal">Community</p>
+                  <div className="flex flex-col gap-6">
+                    {COMMUNITY_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className="hover:text-primary transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
                 <Link href="/donate" onClick={() => setOpen(false)}>
                   <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
                     Donate

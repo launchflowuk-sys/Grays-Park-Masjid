@@ -1,1 +1,2 @@
 - [Drizzle-zod patch schemas must include all patchable fields](drizzle-patch-schema-status-field.md) — reusing `insertXSchema.partial()` as a PATCH schema silently drops fields the insert schema omits (e.g. `status`), causing "No values to set" 500s.
+- [React Hook Form stale defaultValues in always-mounted dialogs](rhf-dialog-defaults.md) — dialogs toggled via `open` prop (not unmounted) keep stale `useForm` defaultValues; must `form.reset()` in a `useEffect` on open.

@@ -18,6 +18,8 @@ import {
   CalendarDays,
   GraduationCap,
   Menu,
+  Images,
+  Newspaper,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -26,8 +28,10 @@ const NAV_ITEMS = [
   { href: "/admin/donations", label: "Donations", icon: HandHeart },
   { href: "/admin/services", label: "Services", icon: Wrench },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
+  { href: "/admin/news", label: "News", icon: Newspaper },
   { href: "/admin/events", label: "Events", icon: CalendarDays },
   { href: "/admin/courses", label: "Courses", icon: GraduationCap },
+  { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/volunteers", label: "Volunteers", icon: HandHeart },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/admin/settings", label: "Site Settings", icon: Settings },

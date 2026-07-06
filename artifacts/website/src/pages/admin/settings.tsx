@@ -29,6 +29,24 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
     description: "Shown to donors who prefer bank transfer.",
     multiline: true,
   },
+  {
+    key: "madrassah_content",
+    label: "Madrassah Page Content",
+    description: "Shown on the public Madrassah page.",
+    multiline: true,
+  },
+  {
+    key: "sisters_facilities_content",
+    label: "Sisters' Facilities Page Content",
+    description: "Shown on the public Sisters' Facilities page.",
+    multiline: true,
+  },
+  {
+    key: "youth_programmes_content",
+    label: "Youth Programmes Page Content",
+    description: "Shown on the public Youth Programmes page.",
+    multiline: true,
+  },
 ];
 
 function SettingField({
