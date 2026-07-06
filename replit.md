@@ -75,7 +75,9 @@ This repo ships with everything needed for a Coolify (or any Docker-Compose-base
    - Optionally override `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` for the bundled Postgres service, and `LOG_LEVEL`.
    - Do **not** set Square credentials here — see below.
 4. Deploy. Coolify will build both Docker images and start all three services; the api-server waits for Postgres to report healthy before starting.
-5. After first deploy, run the DB schema push against the production `DATABASE_URL` (`pnpm --filter @workspace/db run push`) or apply it as a one-off job, since the compose stack does not auto-migrate on boot.
+5. After first deploy, the production Postgres database starts empty. Run these two one-off jobs against the production `DATABASE_URL` (the compose stack does not auto-migrate or seed on boot):
+   - `pnpm --filter @workspace/db run push` — creates the schema/tables
+   - `pnpm --filter @workspace/db run seed` — creates the initial admin login and default content (prayer times, sample pages, etc.). Optionally set `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` first to control the admin credentials it creates; otherwise it uses the defaults in `lib/db/src/seed.ts` — log in and change the password immediately after.
 6. Log in to `/admin/settings` and enter the Square Access Token, Application ID, and Location ID under "Payment Integration (Square)". These are stored in the database (not env vars) and are only ever readable by authenticated admins — the public site never exposes them.
 
 ## Pointers
