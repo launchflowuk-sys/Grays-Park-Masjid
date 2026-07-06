@@ -169,14 +169,31 @@ export function PrayerTimesWidget({
             <div
               key={prayer.key}
               data-testid={`prayer-widget-topbar-cell-${prayer.key}`}
-              className={`flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2.5 py-1 transition-colors duration-300 ${
-                isActive ? "bg-primary-foreground/15" : ""
+              className={`relative flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2.5 py-1 transition-colors duration-300 ${
+                isActive ? "bg-secondary" : ""
               }`}
             >
-              <span className="text-[11px] sm:text-sm font-semibold tabular-nums text-primary-foreground">
+              {isActive && (
+                <span
+                  className="absolute -top-1 -right-1 flex h-2 w-2 sm:h-2.5 sm:w-2.5"
+                  data-testid={`indicator-topbar-current-pulse-${prayer.key}`}
+                >
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500 ring-1 ring-white/70" />
+                </span>
+              )}
+              <span
+                className={`text-[11px] sm:text-sm font-semibold tabular-nums ${
+                  isActive ? "text-secondary-foreground" : "text-primary-foreground"
+                }`}
+              >
                 {time ? minutesToLabel(timeToMinutes(time)) : "--:--"}
               </span>
-              <span className="uppercase tracking-wide font-semibold text-[9px] sm:text-[11px] text-primary-foreground/70">
+              <span
+                className={`uppercase tracking-wide font-semibold text-[9px] sm:text-[11px] ${
+                  isActive ? "text-secondary-foreground/80" : "text-primary-foreground/70"
+                }`}
+              >
                 {prayer.label}
               </span>
             </div>
