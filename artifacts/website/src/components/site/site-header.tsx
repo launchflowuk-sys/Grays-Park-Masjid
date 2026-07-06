@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Accordion,
@@ -17,7 +18,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
-  Menu,
+  X,
   CalendarDays,
   GraduationCap,
   Newspaper,
@@ -275,11 +276,22 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent
               side="right"
+              hideDefaultClose
               className="overflow-y-auto p-0 bg-primary text-primary-foreground border-l border-secondary/30 w-[85vw] sm:max-w-sm"
             >
               <div className="relative overflow-hidden bg-primary px-6 pt-8 pb-6 border-b border-secondary/30">
                 <IslamicPattern className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 text-secondary/10" />
                 <IslamicStar className="pointer-events-none absolute -bottom-6 left-8 h-16 w-16 text-secondary/10" />
+                <SheetPrimitive.Close asChild>
+                  <button
+                    type="button"
+                    aria-label="Close menu"
+                    data-testid="button-mobile-menu-close"
+                    className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary shadow-md shadow-black/20 hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-primary"
+                  >
+                    <X className="h-5 w-5" strokeWidth={2.5} />
+                  </button>
+                </SheetPrimitive.Close>
                 <img
                   src={gpmLogo}
                   alt="Grays Park Masjid"

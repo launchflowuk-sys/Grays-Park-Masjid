@@ -329,7 +329,8 @@
  */
 @layer utilities {
 
-  /* Rotating Islamic star-pattern glow used behind the header Donate button */
+  /* Subtle light travelling around the border of the header Donate button.
+     Confined strictly to the button's own edge (no outward blur/fan spill). */
   @keyframes donate-glow-spin {
     from {
       transform: rotate(0deg);
@@ -342,39 +343,30 @@
   .donate-glow {
     position: relative;
     isolation: isolate;
+    border-radius: 9999px;
   }
 
   .donate-glow::before {
     content: "";
     position: absolute;
-    inset: -3px;
-    z-index: -1;
-    border-radius: 9999px;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    padding: 1.5px;
     background: conic-gradient(
       from 0deg,
-      hsl(var(--secondary) / 0.15),
-      hsl(var(--secondary) / 0.85),
-      hsl(var(--secondary) / 0.15) 35%,
-      hsl(var(--primary) / 0.4) 50%,
-      hsl(var(--secondary) / 0.15) 65%,
-      hsl(var(--secondary) / 0.85),
-      hsl(var(--secondary) / 0.15)
+      transparent 0%,
+      hsl(var(--secondary) / 0.9) 10%,
+      hsl(var(--secondary)) 16%,
+      hsl(var(--secondary) / 0.9) 22%,
+      transparent 34%,
+      transparent 100%
     );
-    filter: blur(6px);
-    opacity: 0.75;
-    animation: donate-glow-spin 6s linear infinite;
-  }
-
-  .donate-glow::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    z-index: -1;
-    border-radius: 9999px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' width='40' height='40'%3E%3Cg stroke='%23ffffff' stroke-opacity='0.5' stroke-width='1' fill='none'%3E%3Crect x='7' y='7' width='26' height='26' transform='rotate(45 20 20)'/%3E%3Crect x='7' y='7' width='26' height='26'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 14px 14px;
-    opacity: 0.35;
-    mix-blend-mode: overlay;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: donate-glow-spin 3.5s linear infinite;
   }
 
   /* Hide ugly search cancel button in Chrome until we can style it properly */
