@@ -1,50 +1,119 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, HandHeart, MapPin, GraduationCap, Users, BookOpen } from "lucide-react";
+import {
+  Clock,
+  HandHeart,
+  MapPin,
+  GraduationCap,
+  Users,
+  BookOpen,
+  HeartHandshake,
+  HandCoins,
+  Calendar,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
+import { HeroPrayerCard } from "@/components/hero-prayer-card";
+import heroImage from "@assets/Home_Hero_1783357048983.png";
+
+const STATS = [
+  { icon: Users, title: "Welcoming Everyone", desc: "All are welcome" },
+  { icon: BookOpen, title: "Islamic Education", desc: "Classes for all ages" },
+  { icon: HeartHandshake, title: "Community Service", desc: "Serving the community" },
+  { icon: HandCoins, title: "Donate & Support", desc: "Help build our future" },
+  { icon: Calendar, title: "Events & Activities", desc: "Bringing people together" },
+];
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SiteHeader />
 
-      <section className="relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="absolute inset-0 opacity-10 pointer-events-none [background-image:radial-gradient(circle_at_20%_20%,white,transparent_35%),radial-gradient(circle_at_80%_60%,white,transparent_30%)]" />
-        <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32 text-center">
-          <p className="uppercase tracking-[0.3em] text-sm text-secondary font-medium mb-4">
-            Serving our community since 1998
-          </p>
-          <h1 className="font-serif text-4xl md:text-6xl leading-tight max-w-3xl mx-auto">
-            Welcome to Grays Park Masjid
-          </h1>
-          <p className="mt-6 text-primary-foreground/80 max-w-xl mx-auto text-lg">
-            A place of worship, learning, and community for Muslims in Grays and the
-            surrounding areas of Essex.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/prayer-times">
-              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-hero-prayer-times">
-                View Prayer Times
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10"
-                data-testid="button-hero-visit"
-              >
-                Plan a Visit
-              </Button>
-            </Link>
+      <section className="relative">
+        <div className="relative min-h-[620px] md:min-h-[680px] flex items-center overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src={heroImage}
+              alt="Grays Park Masjid building and grounds"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
+          </div>
+
+          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full">
+            <div className="max-w-xl">
+              <p className="uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-4">
+                In the name of Allah, the Most Gracious, the Most Merciful
+              </p>
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground">
+                A Place of Worship,
+                <br />
+                Learning &amp; Community
+              </h1>
+              <div className="w-14 h-[3px] bg-secondary my-6" />
+              <p className="text-base md:text-lg text-primary-foreground/85 leading-relaxed max-w-md">
+                Grays Park Masjid is a welcoming center for worship, education and
+                community service. All are welcome.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="/prayer-times">
+                  <Button
+                    size="lg"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                    data-testid="button-hero-prayer-times"
+                  >
+                    View Prayer Times <Clock className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/donate">
+                  <Button
+                    size="lg"
+                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
+                    data-testid="button-hero-donate"
+                  >
+                    Donate Now <HandHeart className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
+                    data-testid="button-hero-visit"
+                  >
+                    Visit Us <MapPin className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <HeroPrayerCard />
+
+        <div className="bg-primary pt-20 pb-8 md:pt-24 md:pb-9">
+          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
+            {STATS.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
+                  <Icon className="w-5 h-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-primary-foreground text-[13px] font-semibold tracking-wide">
+                    {title}
+                  </p>
+                  <p className="text-primary-foreground/60 text-xs mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <section className="mx-auto max-w-6xl px-6 pt-56 pb-16 md:pt-44 w-full">
         <div className="flex items-center gap-2 mb-8 justify-center">
           <Clock className="h-5 w-5 text-primary" />
           <h2 className="font-serif text-2xl md:text-3xl text-center">Today's Prayer Times</h2>
