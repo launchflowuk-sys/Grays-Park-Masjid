@@ -18,3 +18,9 @@ id = "BQGPnUSxf3_5A9KySJprv"
 uri = "file://artifacts/mockup-sandbox/src/assets/community.png"
 type = "image"
 title = "Community gathering warmth"
+
+[[generated]]
+id = "6FYKWr4Yr00kDp0Fbl8qw"
+uri = "file://attached_assets/generated_images/mosque_construction.png"
+type = "image"
+title = "generated_image"

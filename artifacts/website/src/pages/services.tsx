@@ -5,8 +5,16 @@ import { useListServicesPublic } from "@workspace/api-client-react";
 import * as Icons from "lucide-react";
 import { HandHeart } from "lucide-react";
 
+function toPascalCase(name: string): string {
+  return name
+    .split(/[-_ ]+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
 function ServiceIcon({ name }: { name?: string | null }) {
-  const IconComp = (name && (Icons as unknown as Record<string, Icons.LucideIcon>)[name]) || HandHeart;
+  const iconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
+  const IconComp = (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
   return <IconComp className="h-7 w-7 text-primary" />;
 }
 

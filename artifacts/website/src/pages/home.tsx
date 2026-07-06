@@ -1,22 +1,53 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import * as Icons from "lucide-react";
 import {
   Clock,
   HandHeart,
   MapPin,
-  GraduationCap,
   Users,
   BookOpen,
   HeartHandshake,
   HandCoins,
   Calendar,
+  ArrowRight,
+  ShieldCheck,
+  Lock,
+  Sparkles,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
-import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
+import { TodayPrayersBar } from "@/components/today-prayers-bar";
+import { useListDonationCampaignsPublic, useListServicesPublic } from "@workspace/api-client-react";
 import heroImage from "@assets/Home_Hero_1783357048983.png";
+import mosqueConstructionImage from "@assets/generated_images/mosque_construction.png";
+
+const PRESET_AMOUNTS = ["10", "25", "50", "100"];
+
+function formatCurrency(value: string | null | undefined) {
+  const num = Number(value ?? 0);
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    maximumFractionDigits: 0,
+  }).format(num);
+}
+
+function toPascalCase(name: string): string {
+  return name
+    .split(/[-_ ]+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function ServiceIcon({ name }: { name?: string | null }) {
+  const iconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
+  const IconComp = (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
+  return <IconComp className="h-7 w-7 text-primary" />;
+}
 
 const STATS = [
   { icon: Users, title: "Welcoming Everyone", desc: "All are welcome" },
@@ -117,92 +148,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 w-full">
-        <div className="flex items-center gap-2 mb-8 justify-center">
-          <Clock className="h-5 w-5 text-primary" />
-          <h2 className="font-serif text-2xl md:text-3xl text-center">Today's Prayer Times</h2>
-        </div>
-        <PrayerTimesWidget variant="full" />
-        <div className="text-center mt-8">
-          <Link href="/prayer-times" className="text-primary font-medium hover:underline" data-testid="link-full-prayer-times">
-            View full prayer timetable &rarr;
-          </Link>
-        </div>
+      <section className="mx-auto max-w-6xl px-6 pt-10 md:pt-12 w-full">
+        <TodayPrayersBar />
       </section>
 
-      <section className="bg-muted/40 border-y border-border">
-        <div className="mx-auto max-w-6xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="font-serif text-3xl mb-4">About Our Masjid</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Grays Park Masjid has served the Muslim community of Grays and Thurrock for
-              over two decades. We offer five daily prayers, Friday Jumu'ah, Islamic
-              education for children and adults, and a range of community services.
-            </p>
-            <Link href="/about">
-              <Button variant="link" className="px-0 mt-4 text-primary" data-testid="link-learn-more">
-                Learn more about us &rarr;
-              </Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="border-card-border">
-              <CardContent className="py-6">
-                <MapPin className="h-6 w-6 text-primary mb-3" />
-                <p className="font-medium">Grays, Essex</p>
-                <p className="text-sm text-muted-foreground">United Kingdom</p>
-              </CardContent>
-            </Card>
-            <Card className="border-card-border">
-              <CardContent className="py-6">
-                <HandHeart className="h-6 w-6 text-secondary mb-3" />
-                <p className="font-medium">Support Us</p>
-                <p className="text-sm text-muted-foreground">Sadaqah &amp; Zakat welcome</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <MosqueProjectSection />
 
-      <section className="mx-auto max-w-6xl px-6 py-16 w-full">
-        <h2 className="font-serif text-3xl mb-10 text-center">What We Offer</h2>
-        <div className="grid sm:grid-cols-3 gap-6">
-          <Card className="border-card-border text-center">
-            <CardContent className="py-8">
-              <BookOpen className="h-8 w-8 text-primary mx-auto mb-4" />
-              <p className="font-serif text-lg mb-2">Islamic Education</p>
-              <p className="text-sm text-muted-foreground">
-                Quran classes and Islamic studies for children and adults.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-card-border text-center">
-            <CardContent className="py-8">
-              <Users className="h-8 w-8 text-primary mx-auto mb-4" />
-              <p className="font-serif text-lg mb-2">Community Support</p>
-              <p className="text-sm text-muted-foreground">
-                Volunteering, welfare support, and events for the whole family.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-card-border text-center">
-            <CardContent className="py-8">
-              <GraduationCap className="h-8 w-8 text-primary mx-auto mb-4" />
-              <p className="font-serif text-lg mb-2">Guidance &amp; Counsel</p>
-              <p className="text-sm text-muted-foreground">
-                Marriage services, funeral guidance, and pastoral care.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="text-center mt-10">
-          <Link href="/services">
-            <Button size="lg" variant="outline" data-testid="button-view-services">
-              View All Services
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <ServicesSection />
 
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-4xl px-6 py-16 text-center">
@@ -222,5 +174,168 @@ export default function Home() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+function MosqueProjectSection() {
+  const { data, isLoading } = useListDonationCampaignsPublic();
+  const active = (data ?? []).filter((c) => c.active);
+  const withTarget = active.filter((c) => c.targetAmount);
+  const buildingMatch = withTarget.find((c) => /extension|new mosque|building/i.test(c.title));
+  const campaign = buildingMatch ?? withTarget.find((c) => c.featured) ?? withTarget[0] ?? active[0];
+
+  if (isLoading || !campaign) {
+    return null;
+  }
+
+  const target = campaign.targetAmount ? Number(campaign.targetAmount) : null;
+  const raised = Number(campaign.raisedAmount);
+  const pct = target && target > 0 ? Math.min(100, Math.round((raised / target) * 100)) : null;
+
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <div className="rounded-2xl border border-card-border bg-card overflow-hidden">
+        <div className="grid lg:grid-cols-[1fr_1.1fr_0.9fr] gap-8 lg:gap-6 p-6 md:p-8 lg:items-center">
+          <div>
+            <span className="inline-block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-3">
+              New Mosque Project
+            </span>
+            <h2 className="font-serif text-3xl md:text-[2rem] leading-tight mb-4">
+              Building for our future, together.
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+              {campaign.description}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/donate" className="w-full sm:w-auto">
+                <Button
+                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                  data-testid="button-mosque-donate-now"
+                >
+                  Donate Now <HandHeart className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/about" className="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto gap-2"
+                  data-testid="button-mosque-learn-more"
+                >
+                  Learn More <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            {target && (
+              <>
+                <p className="uppercase tracking-[0.1em] text-xs text-muted-foreground mb-1">
+                  Total Target
+                </p>
+                <p className="font-serif text-2xl md:text-3xl mb-4">{formatCurrency(String(target))}</p>
+                <p className="uppercase tracking-[0.1em] text-xs text-muted-foreground mb-1">
+                  Raised So Far
+                </p>
+                <p className="font-serif text-2xl md:text-3xl text-primary mb-3">
+                  {formatCurrency(campaign.raisedAmount)}
+                </p>
+                <Progress value={pct ?? 0} className="h-2.5 mb-2" data-testid="progress-mosque-project" />
+                <p className="text-xs font-medium text-primary mb-5">{pct}% Completed</p>
+              </>
+            )}
+
+            <div className="grid grid-cols-5 gap-2 mb-5">
+              {PRESET_AMOUNTS.map((preset) => (
+                <Link key={preset} href="/donate">
+                  <Button
+                    type="button"
+                    variant={preset === "50" ? "default" : "outline"}
+                    className={`w-full ${preset === "50" ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
+                    data-testid={`button-preset-amount-${preset}`}
+                  >
+                    £{preset}
+                  </Button>
+                </Link>
+              ))}
+              <Link href="/donate">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-secondary text-secondary-foreground hover:bg-secondary/10"
+                  data-testid="button-preset-amount-custom"
+                >
+                  Custom
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-primary" /> 100% Donation Policy
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="h-4 w-4 text-primary" /> Secure &amp; Trusted
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-secondary-foreground/80" /> Sadaqah Jariyah
+              </span>
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <img
+              src={campaign.imageUrl || mosqueConstructionImage}
+              alt="New mosque construction project"
+              className="w-full h-full min-h-[260px] object-cover rounded-xl"
+              data-testid="img-mosque-project"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ServicesSection() {
+  const { data, isLoading } = useListServicesPublic();
+  const sorted = [...(data ?? [])].filter((s) => s.published).sort((a, b) => a.sortOrder - b.sortOrder);
+
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <div className="flex items-end justify-between gap-4 mb-10 flex-wrap">
+        <div>
+          <span className="inline-block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-2">
+            Our Services
+          </span>
+          <h2 className="font-serif text-3xl">Serving Our Community</h2>
+        </div>
+        <Link href="/services">
+          <Button variant="outline" className="gap-2" data-testid="button-view-all-services">
+            View All Services <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <p className="text-center text-muted-foreground">Loading services...</p>
+      ) : sorted.length === 0 ? (
+        <p className="text-center text-muted-foreground">No services published yet.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
+          {sorted.slice(0, 8).map((service) => (
+            <Card key={service.id} className="border-card-border text-center" data-testid={`card-home-service-${service.id}`}>
+              <CardContent className="py-8 px-4">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <ServiceIcon name={service.icon} />
+                </div>
+                <p className="font-serif text-base mb-2">{service.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{service.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
