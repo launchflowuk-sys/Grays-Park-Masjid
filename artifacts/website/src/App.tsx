@@ -10,6 +10,10 @@ import AboutPage from "@/pages/about";
 import ServicesPage from "@/pages/services";
 import DonatePage from "@/pages/donate";
 import ContactPage from "@/pages/contact";
+import AnnouncementsPage from "@/pages/announcements";
+import EventsPage from "@/pages/events";
+import EducationPage from "@/pages/education";
+import VolunteerPage from "@/pages/volunteer";
 import { AuthProvider } from "@/lib/auth-context";
 import AdminLoginPage from "@/pages/admin/login";
 import AdminDashboardPage from "@/pages/admin/dashboard";
@@ -19,6 +23,10 @@ import AdminServicesPage from "@/pages/admin/services";
 import AdminEnquiriesPage from "@/pages/admin/enquiries";
 import AdminSettingsPage from "@/pages/admin/settings";
 import AdminUsersPage from "@/pages/admin/users";
+import AdminAnnouncementsPage from "@/pages/admin/announcements";
+import AdminEventsPage from "@/pages/admin/events";
+import AdminCoursesPage from "@/pages/admin/courses";
+import AdminVolunteersPage from "@/pages/admin/volunteers";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +40,10 @@ function Router() {
       <Route path="/services" component={ServicesPage} />
       <Route path="/donate" component={DonatePage} />
       <Route path="/contact" component={ContactPage} />
+      <Route path="/announcements" component={AnnouncementsPage} />
+      <Route path="/events" component={EventsPage} />
+      <Route path="/education" component={EducationPage} />
+      <Route path="/volunteer" component={VolunteerPage} />
       <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin/prayer-times" component={AdminPrayerTimesPage} />
       <Route path="/admin/donations" component={AdminDonationsPage} />
@@ -39,6 +51,10 @@ function Router() {
       <Route path="/admin/enquiries" component={AdminEnquiriesPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/users" component={AdminUsersPage} />
+      <Route path="/admin/announcements" component={AdminAnnouncementsPage} />
+      <Route path="/admin/events" component={AdminEventsPage} />
+      <Route path="/admin/courses" component={AdminCoursesPage} />
+      <Route path="/admin/volunteers" component={AdminVolunteersPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>

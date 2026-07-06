@@ -9,6 +9,10 @@ const NAV_LINKS = [
   { href: "/timetable", label: "Timetable" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
+  { href: "/events", label: "Events" },
+  { href: "/education", label: "Education" },
+  { href: "/announcements", label: "News" },
+  { href: "/volunteer", label: "Volunteer" },
   { href: "/contact", label: "Contact" },
 ];
 

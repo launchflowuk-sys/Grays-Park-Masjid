@@ -32,6 +32,18 @@ export function SiteFooter() {
             <Link href="/services" className="hover:text-primary-foreground transition-colors">
               Services
             </Link>
+            <Link href="/events" className="hover:text-primary-foreground transition-colors">
+              Events
+            </Link>
+            <Link href="/education" className="hover:text-primary-foreground transition-colors">
+              Education
+            </Link>
+            <Link href="/volunteer" className="hover:text-primary-foreground transition-colors">
+              Volunteer
+            </Link>
+            <Link href="/announcements" className="hover:text-primary-foreground transition-colors">
+              News
+            </Link>
             <Link href="/donate" className="hover:text-primary-foreground transition-colors">
               Donate
             </Link>
