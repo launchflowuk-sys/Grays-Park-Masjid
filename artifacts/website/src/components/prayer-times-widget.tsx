@@ -159,7 +159,7 @@ export function PrayerTimesWidget({
   if (variant === "topbar") {
     const activeKey = current?.currentKey ?? current?.nextKey ?? null;
     return (
-      <div className="flex items-center justify-center gap-1 sm:gap-2.5" data-testid="prayer-widget-topbar">
+      <div className="flex items-center justify-center gap-1 sm:gap-2" data-testid="prayer-widget-topbar">
         {IQAMAH_PRAYER_ORDER.map((prayer) => {
           const iqamah = todayRow[`${prayer.key}Iqamah` as keyof PrayerTime] as string | null | undefined;
           const adhan = todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined;
@@ -169,21 +169,15 @@ export function PrayerTimesWidget({
             <div
               key={prayer.key}
               data-testid={`prayer-widget-topbar-cell-${prayer.key}`}
-              className={`flex flex-col items-center justify-center text-center rounded-md px-2 sm:px-3.5 py-1 sm:py-1.5 min-w-[52px] sm:min-w-[70px] transition-all duration-300 ${
-                isActive
-                  ? "bg-secondary text-secondary-foreground shadow-md scale-105"
-                  : "text-primary-foreground/85"
+              className={`flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2.5 py-1 transition-colors duration-300 ${
+                isActive ? "bg-primary-foreground/15" : ""
               }`}
             >
-              <span
-                className={`uppercase tracking-wide font-bold text-[9px] sm:text-[11px] ${
-                  isActive ? "text-secondary-foreground" : "text-primary-foreground/70"
-                }`}
-              >
-                {prayer.label}
-              </span>
-              <span className="text-[11px] sm:text-sm font-semibold tabular-nums">
+              <span className="text-[11px] sm:text-sm font-semibold tabular-nums text-primary-foreground">
                 {time ? minutesToLabel(timeToMinutes(time)) : "--:--"}
+              </span>
+              <span className="uppercase tracking-wide font-semibold text-[9px] sm:text-[11px] text-primary-foreground/70">
+                {prayer.label}
               </span>
             </div>
           );
