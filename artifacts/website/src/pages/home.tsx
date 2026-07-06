@@ -40,7 +40,7 @@ import {
   useListGalleryAlbumsPublic,
 } from "@workspace/api-client-react";
 import heroImage from "@/assets/Home_Hero_1783357048983.png";
-import mosqueConstructionImage from "@/assets/generated_images/mosque_construction.png";
+import masjidBuildingImage from "@/assets/generated_images/masjid_building.webp";
 import { format, parseISO } from "date-fns";
 
 const PRESET_AMOUNTS = ["10", "25", "50", "100"];
@@ -93,7 +93,7 @@ export default function Home() {
       <SiteHeader />
 
       <section className="relative">
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden lg:overflow-visible">
           <div className="absolute inset-0 overflow-hidden">
             <img
               src={heroImage}
@@ -122,11 +122,11 @@ export default function Home() {
                   community service. All are welcome.
                 </p>
               </div>
-              <div className="mt-9 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
+              <div className="mt-9 flex flex-col sm:flex-row lg:flex-nowrap items-stretch sm:items-center gap-3 lg:gap-2 xl:gap-3">
                 <Link href="/prayer-times" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-5 xl:px-8 text-sm md:text-base rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2 whitespace-nowrap"
                     data-testid="button-hero-prayer-times"
                   >
                     View Prayer Times <Clock className="h-5 w-5" />
@@ -135,7 +135,7 @@ export default function Home() {
                 <Link href="/donate" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-5 xl:px-8 text-sm md:text-base rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2 whitespace-nowrap"
                     data-testid="button-hero-donate"
                   >
                     Donate Now <HandHeart className="h-5 w-5" />
@@ -145,7 +145,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base rounded-full border-2 border-primary-foreground/80 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-5 xl:px-8 text-sm md:text-base rounded-full border-2 border-primary-foreground/80 text-primary-foreground hover:bg-primary-foreground/10 gap-2 whitespace-nowrap"
                     data-testid="button-hero-visit"
                   >
                     Visit Us <MapPin className="h-5 w-5" />
@@ -154,7 +154,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full lg:w-[420px] xl:w-[460px] lg:shrink-0">
+            <div className="w-full lg:w-[420px] xl:w-[460px] lg:shrink-0 lg:z-20 lg:mb-[-4.5rem] xl:mb-[-5.5rem]">
               <HeroPrayerCard />
             </div>
           </div>
@@ -236,8 +236,8 @@ function MosqueProjectSection() {
             aria-hidden="true"
           />
           <img
-            src={campaign.imageUrl || mosqueConstructionImage}
-            alt="New mosque construction project"
+            src={campaign.imageUrl || masjidBuildingImage}
+            alt="Grays Park Masjid building"
             className="relative w-full object-cover aspect-[4/3]"
             style={{ borderRadius: "2.5rem 2.5rem 0.75rem 2.5rem" }}
             data-testid="img-mosque-project"
@@ -342,7 +342,7 @@ function ServicesSection() {
   const sorted = [...(data ?? [])].filter((s) => s.published).sort((a, b) => a.sortOrder - b.sortOrder);
   const featured = sorted.slice(0, 2);
   const rest = sorted.slice(2, 8);
-  const featureImage = albumsData?.find((a) => a.coverImageUrl)?.coverImageUrl ?? mosqueConstructionImage;
+  const featureImage = albumsData?.find((a) => a.coverImageUrl)?.coverImageUrl ?? masjidBuildingImage;
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16 w-full">
