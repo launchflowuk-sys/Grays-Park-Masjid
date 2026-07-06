@@ -73,8 +73,8 @@ This repo ships with everything needed for a Coolify (or any Docker-Compose-base
    - `JWT_SECRET` (required — a long random string)
    - `APP_BASE_URL` (public URL of the deployed app)
    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
-   - `DEFAULT_OBJECT_STORAGE_BUCKET_ID`, `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS` (if object storage/gallery uploads are used)
    - Optionally override `LOG_LEVEL`.
+   - File uploads (gallery photos, prayer timetable PDFs) are **not** stored on Replit or any cloud service — they are written directly to disk on the api-server container at `LOCAL_STORAGE_DIR` (default `./data/uploads`), which `docker-compose.yml` mounts to the named volume `uploads-data` so files persist across redeploys. No extra env vars or third-party account are required; this is fully automatic outside of the Replit environment. Optionally override `LOCAL_STORAGE_DIR` if you want a different path.
    - Do **not** set Square credentials here — see below.
 5. Deploy. Coolify will build both Docker images and start the api-server and website services.
 6. After first deploy, the production Postgres database starts empty. Run these two one-off jobs against the production `DATABASE_URL` (the compose stack does not auto-migrate or seed on boot):

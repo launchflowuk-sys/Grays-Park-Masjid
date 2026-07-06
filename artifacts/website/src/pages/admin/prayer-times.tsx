@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -433,6 +433,7 @@ function TimetablePdfDialog({
   editing: TimetablePdf | null;
 }) {
   const { toast } = useToast();
+  const uploadedObjectPathsRef = useRef<Map<string, string>>(new Map());
   const queryClient = useQueryClient();
   const form = useForm<TimetablePdfForm>({
     resolver: zodResolver(timetablePdfSchema),
@@ -544,6 +545,11 @@ function TimetablePdfDialog({
                             throw new Error("Failed to get upload URL");
                           }
                           const data = await res.json();
+                          // The object path is known as soon as we get the upload URL —
+                          // the PUT response body itself is not reliable (some storage
+                          // backends return an empty body on a successful upload), so we
+                          // stash it here keyed by file id and read it back in onComplete.
+                          uploadedObjectPathsRef.current.set(file.id, data.objectPath as string);
                           return {
                             method: "PUT" as const,
                             url: data.uploadURL,
@@ -552,10 +558,10 @@ function TimetablePdfDialog({
                         }}
                         onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
                           const uploaded = result.successful?.[0];
-                          const objectPath = (uploaded?.response?.body as { objectPath?: string } | undefined)
-                            ?.objectPath;
-                          if (objectPath) {
+                          const objectPath = uploaded?.id ? uploadedObjectPathsRef.current.get(uploaded.id) : undefined;
+                          if (objectPath && uploaded?.id) {
                             field.onChange(`/api/storage${objectPath}`);
+                            uploadedObjectPathsRef.current.delete(uploaded.id);
                           }
                         }}
                       >

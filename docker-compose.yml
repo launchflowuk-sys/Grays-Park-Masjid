@@ -16,9 +16,9 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       MAIL_FROM: ${MAIL_FROM:-no-reply@graysparkmasjid.org.uk}
-      DEFAULT_OBJECT_STORAGE_BUCKET_ID: ${DEFAULT_OBJECT_STORAGE_BUCKET_ID:-}
-      PRIVATE_OBJECT_DIR: ${PRIVATE_OBJECT_DIR:-}
-      PUBLIC_OBJECT_SEARCH_PATHS: ${PUBLIC_OBJECT_SEARCH_PATHS:-}
+      LOCAL_STORAGE_DIR: /app/data/uploads
+    volumes:
+      - uploads-data:/app/data/uploads
     ports:
       - "8080:8080"
     healthcheck:
@@ -40,3 +40,6 @@ services:
       PORT: "80"
     ports:
       - "8081:80"
+
+volumes:
+  uploads-data:

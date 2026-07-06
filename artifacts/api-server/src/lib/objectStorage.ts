@@ -11,6 +11,16 @@ import {
 
 const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
 
+// The Replit-backed driver below only works inside the Replit environment
+// (it depends on a local sidecar process for GCS credentials). Everywhere
+// else — Coolify, any other Docker host, bare metal — we use plain local
+// disk storage instead (see objectStorageLocal.ts). Detected automatically
+// via env vars that are only ever present inside Replit, so no extra config
+// is needed either way.
+export const IS_REPLIT_ENVIRONMENT = Boolean(
+  process.env.REPL_ID || process.env.REPLIT_DEV_DOMAIN,
+);
+
 export const objectStorageClient = new Storage({
   credentials: {
     audience: "replit",
