@@ -70,6 +70,15 @@ function ArchIconBadgeFor({ service }: { service: { icon?: string | null } }) {
   return <ArchIconBadge icon={resolveServiceIcon(service.icon)} />;
 }
 
+const GALLERY_SPANS = [
+  "col-span-2 lg:col-span-3 lg:row-span-2",
+  "col-span-1 lg:col-span-2",
+  "col-span-1 lg:col-span-2",
+  "col-span-1 lg:col-span-2 lg:row-span-2",
+  "col-span-1 lg:col-span-3",
+  "col-span-2 lg:col-span-2",
+];
+
 const STATS = [
   { icon: Users, title: "Welcoming Everyone", desc: "All are welcome" },
   { icon: BookOpen, title: "Islamic Education", desc: "Classes for all ages" },
@@ -84,7 +93,7 @@ export default function Home() {
       <SiteHeader />
 
       <section className="relative">
-        <div className="relative overflow-hidden md:min-h-[740px]">
+        <div className="relative overflow-hidden md:min-h-[620px]">
           <div className="absolute inset-0">
             <img
               src={heroImage}
@@ -94,8 +103,9 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/55 via-primary/15 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
+          <IslamicPattern className="pointer-events-none absolute inset-0 w-full h-full text-primary-foreground/[0.04]" />
 
-          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col gap-12 md:h-full md:justify-between py-10 md:py-12">
+          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col gap-12 py-10 md:py-14">
             <div className="max-w-3xl pt-2 md:pt-4">
               <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
@@ -143,15 +153,16 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-
-            <div className="pb-2 md:pb-4">
-              <HeroPrayerCard />
-            </div>
           </div>
         </div>
 
-        <div className="bg-primary pt-10 pb-10 md:pt-10 md:pb-10">
-          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
+        <div className="static md:absolute md:right-6 lg:right-[calc((100vw-72rem)/2+24px)] md:-bottom-28 lg:-bottom-32 z-20 px-6 md:px-0 mt-8 md:mt-0 flex justify-center md:block">
+          <HeroPrayerCard />
+        </div>
+
+        <div className="bg-primary pt-20 pb-8 md:pt-24 md:pb-9 relative overflow-hidden">
+          <IslamicPattern className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 text-primary-foreground/[0.05]" />
+          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 relative">
             {STATS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
@@ -459,9 +470,22 @@ function ThisWeekSection() {
                   const { day, month } = formatEventDay(event.startsAt);
                   return (
                     <div key={event.id} className="flex items-start gap-3" data-testid={`item-home-event-${event.id}`}>
-                      <div className="shrink-0 w-12 rounded-lg bg-primary text-primary-foreground text-center py-1.5">
-                        <p className="font-serif text-lg leading-none">{day}</p>
-                        <p className="text-[10px] tracking-wide mt-0.5">{month}</p>
+                      <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-primary">
+                        {event.imageUrl ? (
+                          <img
+                            src={event.imageUrl}
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <CalendarDays className="h-5 w-5 text-primary-foreground/70" />
+                          </div>
+                        )}
+                        <div className="absolute inset-x-0 bottom-0 bg-black/55 backdrop-blur-[1px] text-center py-0.5">
+                          <p className="text-primary-foreground font-serif text-xs leading-none">{day}</p>
+                          <p className="text-primary-foreground/80 text-[8px] tracking-wide">{month}</p>
+                        </div>
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium leading-snug truncate">{event.title}</p>
@@ -660,28 +684,36 @@ function GallerySection() {
       ) : albums.length === 0 ? (
         <p className="text-center text-muted-foreground">No gallery albums published yet.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-          {albums.map((album) => (
-            <Link key={album.id} href="/gallery" data-testid={`link-home-gallery-album-${album.id}`}>
-              <div className="group relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer">
-                {album.coverImageUrl ? (
-                  <img
-                    src={album.coverImageUrl}
-                    alt={album.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <Images className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
-                <p className="absolute bottom-2.5 left-3 right-3 text-xs md:text-sm font-medium text-white leading-snug">
-                  {album.title}
-                </p>
-              </div>
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 lg:grid-cols-5 auto-rows-[130px] sm:auto-rows-[150px] md:auto-rows-[170px] gap-4 md:gap-5">
+          {albums.map((album, idx) => {
+            const span = GALLERY_SPANS[idx % GALLERY_SPANS.length];
+            return (
+              <Link
+                key={album.id}
+                href="/gallery"
+                className={span}
+                data-testid={`link-home-gallery-album-${album.id}`}
+              >
+                <div className="group relative h-full w-full rounded-lg overflow-hidden cursor-pointer">
+                  {album.coverImageUrl ? (
+                    <img
+                      src={album.coverImageUrl}
+                      alt={album.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <Images className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <p className="absolute bottom-2.5 left-3 right-3 text-xs md:text-sm font-medium text-white leading-snug">
+                    {album.title}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
 
