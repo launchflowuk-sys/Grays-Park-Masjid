@@ -203,7 +203,7 @@ function PrayerTimeDialog({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {FIELD_GROUPS.map((group) => (
                 <div key={group.label} className="border border-border rounded-md p-3 space-y-3">
                   <p className="text-sm font-medium">{group.label}</p>
@@ -238,7 +238,7 @@ function PrayerTimeDialog({
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="jummahKhutbah"
@@ -314,6 +314,7 @@ function PrayerTimesTab() {
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -374,6 +375,7 @@ function PrayerTimesTab() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -589,6 +591,7 @@ function TimetablePdfsTab() {
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -643,6 +646,7 @@ function TimetablePdfsTab() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

@@ -161,6 +161,8 @@ export interface Announcement {
   id: string;
   title: string;
   body: string;
+  /** @nullable */
+  imageUrl?: string | null;
   published: boolean;
   pinned: boolean;
   /** @nullable */
@@ -171,6 +173,8 @@ export interface Announcement {
 export interface InsertAnnouncement {
   title: string;
   body: string;
+  /** @nullable */
+  imageUrl?: string | null;
   published: boolean;
   pinned: boolean;
   /** @nullable */
@@ -180,6 +184,8 @@ export interface InsertAnnouncement {
 export interface PatchAnnouncement {
   title?: string;
   body?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   published?: boolean;
   pinned?: boolean;
   /** @nullable */
@@ -423,6 +429,8 @@ export interface Service {
   description: string;
   /** @nullable */
   icon?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   sortOrder: number;
   published: boolean;
   createdAt: string;
@@ -433,6 +441,8 @@ export interface InsertService {
   description: string;
   /** @nullable */
   icon?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   sortOrder: number;
   published: boolean;
 }
@@ -442,6 +452,8 @@ export interface PatchService {
   description?: string;
   /** @nullable */
   icon?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   sortOrder?: number;
   published?: boolean;
 }
@@ -482,6 +494,8 @@ export interface VolunteerOpportunity {
   id: string;
   title: string;
   description: string;
+  /** @nullable */
+  imageUrl?: string | null;
   active: boolean;
   createdAt: string;
 }
@@ -489,12 +503,16 @@ export interface VolunteerOpportunity {
 export interface InsertVolunteerOpportunity {
   title: string;
   description: string;
+  /** @nullable */
+  imageUrl?: string | null;
   active: boolean;
 }
 
 export interface PatchVolunteerOpportunity {
   title?: string;
   description?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   active?: boolean;
 }
 

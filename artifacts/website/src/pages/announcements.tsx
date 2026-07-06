@@ -41,6 +41,14 @@ export default function AnnouncementsPage() {
                   data-testid={`card-announcement-${announcement.id}`}
                 >
                   <CardContent className="py-6">
+                    {announcement.imageUrl && (
+                      <img
+                        src={announcement.imageUrl}
+                        alt={announcement.title}
+                        className="w-full h-48 object-cover rounded-md mb-4"
+                        data-testid={`img-announcement-${announcement.id}`}
+                      />
+                    )}
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <p className="font-serif text-lg">{announcement.title}</p>
                       {announcement.pinned && (

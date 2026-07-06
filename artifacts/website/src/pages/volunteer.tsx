@@ -188,9 +188,18 @@ export default function VolunteerPage() {
                 <Card key={opportunity.id} className="border-card-border" data-testid={`card-volunteer-${opportunity.id}`}>
                   <CardContent className="py-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <HandHeart className="h-5 w-5 text-primary" />
-                      </div>
+                      {opportunity.imageUrl ? (
+                        <img
+                          src={opportunity.imageUrl}
+                          alt={opportunity.title}
+                          className="h-10 w-10 rounded-lg object-cover shrink-0"
+                          data-testid={`img-volunteer-${opportunity.id}`}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <HandHeart className="h-5 w-5 text-primary" />
+                        </div>
+                      )}
                       <div>
                         <p className="font-serif text-lg mb-1">{opportunity.title}</p>
                         <p className="text-sm text-muted-foreground leading-relaxed">

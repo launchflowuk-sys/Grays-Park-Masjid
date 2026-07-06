@@ -312,6 +312,7 @@ function CoursesTab() {
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -370,6 +371,7 @@ function CoursesTab() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -426,6 +428,7 @@ function RegistrationsTab() {
   return (
     <Card className="border-card-border">
       <CardContent className="p-0">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -488,6 +491,7 @@ function RegistrationsTab() {
             )}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );

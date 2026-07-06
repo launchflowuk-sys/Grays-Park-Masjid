@@ -11,6 +11,8 @@ export interface InsertService {
   description: string;
   /** @nullable */
   icon?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   sortOrder: number;
   published: boolean;
 }

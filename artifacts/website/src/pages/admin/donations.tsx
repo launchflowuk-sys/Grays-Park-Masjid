@@ -183,7 +183,7 @@ function CampaignDialog({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="targetAmount"
@@ -224,7 +224,7 @@ function CampaignDialog({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="active"
@@ -301,6 +301,7 @@ export default function AdminDonationsPage() {
 
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -359,6 +360,7 @@ export default function AdminDonationsPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

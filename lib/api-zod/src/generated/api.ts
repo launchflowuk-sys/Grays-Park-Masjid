@@ -437,6 +437,7 @@ export const ListAnnouncementsPublicResponseItem = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish(),
@@ -452,6 +453,7 @@ export const AdminListAnnouncementsResponseItem = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish(),
@@ -466,6 +468,7 @@ export const AdminListAnnouncementsResponse = zod.array(AdminListAnnouncementsRe
 export const AdminCreateAnnouncementBody = zod.object({
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish()
@@ -475,6 +478,7 @@ export const AdminCreateAnnouncementResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish(),
@@ -493,6 +497,7 @@ export const AdminGetAnnouncementResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish(),
@@ -510,6 +515,7 @@ export const AdminUpdateAnnouncementParams = zod.object({
 export const AdminUpdateAnnouncementBody = zod.object({
   "title": zod.string().optional(),
   "body": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean().optional(),
   "pinned": zod.boolean().optional(),
   "publishedAt": zod.string().nullish()
@@ -519,6 +525,7 @@ export const AdminUpdateAnnouncementResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "body": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "pinned": zod.boolean(),
   "publishedAt": zod.string().nullish(),
@@ -1203,6 +1210,7 @@ export const ListServicesPublicResponseItem = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
@@ -1218,6 +1226,7 @@ export const AdminListServicesResponseItem = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
@@ -1232,6 +1241,7 @@ export const AdminCreateServiceBody = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean()
 })
@@ -1241,6 +1251,7 @@ export const AdminCreateServiceResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
@@ -1259,6 +1270,7 @@ export const AdminGetServiceResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
@@ -1276,6 +1288,7 @@ export const AdminUpdateServiceBody = zod.object({
   "title": zod.string().optional(),
   "description": zod.string().optional(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
 })
@@ -1285,6 +1298,7 @@ export const AdminUpdateServiceResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "icon": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
@@ -1386,6 +1400,7 @@ export const ListVolunteerOpportunitiesPublicResponseItem = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -1399,6 +1414,7 @@ export const AdminListVolunteerOpportunitiesResponseItem = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -1411,6 +1427,7 @@ export const AdminListVolunteerOpportunitiesResponse = zod.array(AdminListVolunt
 export const AdminCreateVolunteerOpportunityBody = zod.object({
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean()
 })
 
@@ -1418,6 +1435,7 @@ export const AdminCreateVolunteerOpportunityResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -1434,6 +1452,7 @@ export const AdminGetVolunteerOpportunityResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -1449,6 +1468,7 @@ export const AdminUpdateVolunteerOpportunityParams = zod.object({
 export const AdminUpdateVolunteerOpportunityBody = zod.object({
   "title": zod.string().optional(),
   "description": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean().optional()
 })
 
@@ -1456,6 +1476,7 @@ export const AdminUpdateVolunteerOpportunityResponse = zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
+  "imageUrl": zod.string().nullish(),
   "active": zod.boolean(),
   "createdAt": zod.string()
 })

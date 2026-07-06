@@ -6,6 +6,7 @@ export const volunteerOpportunitiesTable = pgTable("volunteer_opportunities", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  imageUrl: text("image_url"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

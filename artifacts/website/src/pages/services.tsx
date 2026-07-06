@@ -38,9 +38,18 @@ export default function ServicesPage() {
               {sorted.map((service) => (
                 <Card key={service.id} className="border-card-border" data-testid={`card-service-${service.id}`}>
                   <CardContent className="py-8">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <ServiceIcon name={service.icon} />
-                    </div>
+                    {service.imageUrl ? (
+                      <img
+                        src={service.imageUrl}
+                        alt={service.title}
+                        className="w-full h-40 object-cover rounded-lg mb-4"
+                        data-testid={`img-service-${service.id}`}
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                        <ServiceIcon name={service.icon} />
+                      </div>
+                    )}
                     <p className="font-serif text-lg mb-2">{service.title}</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {service.description}

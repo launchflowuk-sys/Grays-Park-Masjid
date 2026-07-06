@@ -50,6 +50,7 @@ import { Plus, Pencil, Trash2, Pin } from "lucide-react";
 const announcementSchema = z.object({
   title: z.string().min(1, "Title is required"),
   body: z.string().min(1, "Body is required"),
+  imageUrl: z.string().optional(),
   pinned: z.boolean(),
   published: z.boolean(),
 });
@@ -72,10 +73,11 @@ function AnnouncementDialog({
       ? {
           title: editing.title,
           body: editing.body,
+          imageUrl: editing.imageUrl ?? "",
           pinned: editing.pinned,
           published: editing.published,
         }
-      : { title: "", body: "", pinned: false, published: true },
+      : { title: "", body: "", imageUrl: "", pinned: false, published: true },
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getAdminListAnnouncementsQueryKey() });
@@ -106,6 +108,7 @@ function AnnouncementDialog({
   function onSubmit(values: AnnouncementForm) {
     const payload = {
       ...values,
+      imageUrl: values.imageUrl || undefined,
       publishedAt: values.published ? new Date().toISOString() : undefined,
     };
     if (editing) {
@@ -146,6 +149,19 @@ function AnnouncementDialog({
                   <FormLabel>Body</FormLabel>
                   <FormControl>
                     <Textarea rows={5} data-testid="input-announcement-body" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="/uploads/announcement.jpg" data-testid="input-announcement-image" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -230,6 +246,7 @@ export default function AdminAnnouncementsPage() {
 
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -288,6 +305,7 @@ export default function AdminAnnouncementsPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

@@ -298,6 +298,7 @@ export default function AdminEventsPage() {
 
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -356,6 +357,7 @@ export default function AdminEventsPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

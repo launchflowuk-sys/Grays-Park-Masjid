@@ -12,6 +12,8 @@ export interface Service {
   description: string;
   /** @nullable */
   icon?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   sortOrder: number;
   published: boolean;
   createdAt: string;

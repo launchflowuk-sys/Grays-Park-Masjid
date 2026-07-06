@@ -2290,6 +2290,8 @@ components:
           type: string
         body:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
         pinned:
@@ -2312,6 +2314,8 @@ components:
           type: string
         body:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
         pinned:
@@ -2330,6 +2334,8 @@ components:
           type: string
         body:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
         pinned:
@@ -2718,6 +2724,8 @@ components:
           type: string
         icon:
           type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
         sortOrder:
           type: integer
         published:
@@ -2740,6 +2748,8 @@ components:
           type: string
         icon:
           type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
         sortOrder:
           type: integer
         published:
@@ -2757,6 +2767,8 @@ components:
         description:
           type: string
         icon:
+          type: ["string", "null"]
+        imageUrl:
           type: ["string", "null"]
         sortOrder:
           type: integer
@@ -2833,6 +2845,8 @@ components:
           type: string
         description:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         active:
           type: boolean
         createdAt:
@@ -2850,6 +2864,8 @@ components:
           type: string
         description:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         active:
           type: boolean
       required:
@@ -2863,6 +2879,8 @@ components:
           type: string
         description:
           type: string
+        imageUrl:
+          type: ["string", "null"]
         active:
           type: boolean
     VolunteerApplication:

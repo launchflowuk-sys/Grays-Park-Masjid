@@ -9,6 +9,8 @@
 export interface InsertAnnouncement {
   title: string;
   body: string;
+  /** @nullable */
+  imageUrl?: string | null;
   published: boolean;
   pinned: boolean;
   /** @nullable */

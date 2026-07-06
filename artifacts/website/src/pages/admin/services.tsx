@@ -50,6 +50,7 @@ const serviceSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   icon: z.string().optional(),
+  imageUrl: z.string().optional(),
   sortOrder: z.coerce.number().int().default(0),
   published: z.boolean(),
 });
@@ -73,10 +74,11 @@ function ServiceDialog({
           title: editing.title,
           description: editing.description,
           icon: editing.icon ?? "",
+          imageUrl: editing.imageUrl ?? "",
           sortOrder: editing.sortOrder,
           published: editing.published,
         }
-      : { title: "", description: "", icon: "", sortOrder: 0, published: true },
+      : { title: "", description: "", icon: "", imageUrl: "", sortOrder: 0, published: true },
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getAdminListServicesQueryKey() });
@@ -105,7 +107,7 @@ function ServiceDialog({
   });
 
   function onSubmit(values: ServiceForm) {
-    const payload = { ...values, icon: values.icon || undefined };
+    const payload = { ...values, icon: values.icon || undefined, imageUrl: values.imageUrl || undefined };
     if (editing) {
       updateMutation.mutate({ id: editing.id, data: payload });
     } else {
@@ -157,6 +159,19 @@ function ServiceDialog({
                   <FormLabel>Icon (lucide-react name, optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="HandHeart" data-testid="input-service-icon" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="/uploads/service.jpg" data-testid="input-service-image" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -240,6 +255,7 @@ export default function AdminServicesPage() {
 
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -294,6 +310,7 @@ export default function AdminServicesPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

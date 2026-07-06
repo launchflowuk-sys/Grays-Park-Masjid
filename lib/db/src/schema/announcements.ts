@@ -6,6 +6,7 @@ export const announcementsTable = pgTable("announcements", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   body: text("body").notNull(),
+  imageUrl: text("image_url"),
   published: boolean("published").notNull().default(false),
   pinned: boolean("pinned").notNull().default(false),
   publishedAt: timestamp("published_at", { withTimezone: true }),

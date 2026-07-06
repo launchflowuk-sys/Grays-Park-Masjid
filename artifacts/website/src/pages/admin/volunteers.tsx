@@ -61,6 +61,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 const opportunitySchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  imageUrl: z.string().optional(),
   active: z.boolean(),
 });
 type OpportunityForm = z.infer<typeof opportunitySchema>;
@@ -79,8 +80,13 @@ function OpportunityDialog({
   const form = useForm<OpportunityForm>({
     resolver: zodResolver(opportunitySchema),
     defaultValues: editing
-      ? { title: editing.title, description: editing.description, active: editing.active }
-      : { title: "", description: "", active: true },
+      ? {
+          title: editing.title,
+          description: editing.description,
+          imageUrl: editing.imageUrl ?? "",
+          active: editing.active,
+        }
+      : { title: "", description: "", imageUrl: "", active: true },
   });
 
   const invalidate = () =>
@@ -110,10 +116,11 @@ function OpportunityDialog({
   });
 
   function onSubmit(values: OpportunityForm) {
+    const payload = { ...values, imageUrl: values.imageUrl || undefined };
     if (editing) {
-      updateMutation.mutate({ id: editing.id, data: values });
+      updateMutation.mutate({ id: editing.id, data: payload });
     } else {
-      createMutation.mutate({ data: values });
+      createMutation.mutate({ data: payload });
     }
   }
 
@@ -148,6 +155,19 @@ function OpportunityDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea rows={4} data-testid="input-opportunity-description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="/uploads/opportunity.jpg" data-testid="input-opportunity-image" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,6 +231,7 @@ function OpportunitiesTab() {
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -267,6 +288,7 @@ function OpportunitiesTab() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -322,6 +344,7 @@ function ApplicationsTab() {
   return (
     <Card className="border-card-border">
       <CardContent className="p-0">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -380,6 +403,7 @@ function ApplicationsTab() {
             )}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );

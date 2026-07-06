@@ -391,6 +391,7 @@ export default function AdminUsersPage() {
 
       <Card className="border-card-border">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -448,6 +449,7 @@ export default function AdminUsersPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

@@ -9,5 +9,7 @@
 export interface PatchVolunteerOpportunity {
   title?: string;
   description?: string;
+  /** @nullable */
+  imageUrl?: string | null;
   active?: boolean;
 }
