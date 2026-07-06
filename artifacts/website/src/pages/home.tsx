@@ -48,16 +48,18 @@ export default function Home() {
               <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
               </span>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
-                A Place of Worship,
-                <br />
-                Learning &amp; Community
-              </h1>
-              <div className="w-14 h-[3px] bg-secondary my-6" />
-              <p className="text-base md:text-lg text-primary-foreground/90 leading-relaxed max-w-md drop-shadow-[0_1px_6px_rgba(0,0,0,0.4)]">
-                Grays Park Masjid is a welcoming center for worship, education and
-                community service. All are welcome.
-              </p>
+              <div className="inline-block bg-black/35 backdrop-blur-[2px] rounded-2xl px-5 py-5 md:px-7 md:py-6 -mx-1">
+                <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.1] text-primary-foreground">
+                  A Place of Worship,
+                  <br />
+                  Learning &amp; Community
+                </h1>
+                <div className="w-14 h-[3px] bg-secondary my-6" />
+                <p className="text-base md:text-lg text-primary-foreground/95 leading-relaxed max-w-md">
+                  Grays Park Masjid is a welcoming center for worship, education and
+                  community service. All are welcome.
+                </p>
+              </div>
               <div className="mt-9 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
                 <Link href="/prayer-times" className="w-full sm:w-auto">
                   <Button
