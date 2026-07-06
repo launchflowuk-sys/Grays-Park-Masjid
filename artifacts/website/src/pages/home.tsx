@@ -342,7 +342,11 @@ function MosqueProjectSection() {
 
 function ServicesSection() {
   const { data, isLoading } = useListServicesPublic();
+  const { data: albumsData } = useListGalleryAlbumsPublic();
   const sorted = [...(data ?? [])].filter((s) => s.published).sort((a, b) => a.sortOrder - b.sortOrder);
+  const featured = sorted.slice(0, 2);
+  const rest = sorted.slice(2, 8);
+  const featureImage = albumsData?.find((a) => a.coverImageUrl)?.coverImageUrl ?? mosqueConstructionImage;
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16 w-full">
@@ -351,7 +355,7 @@ function ServicesSection() {
           <span className="inline-block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-2">
             Our Services
           </span>
-          <h2 className="font-serif text-3xl">Serving Our Community</h2>
+          <h2 className="font-serif text-3xl">More Than a Place to Pray</h2>
         </div>
         <Link href="/services">
           <Button variant="outline" className="rounded-full gap-2" data-testid="button-view-all-services">
@@ -365,48 +369,82 @@ function ServicesSection() {
       ) : sorted.length === 0 ? (
         <p className="text-center text-muted-foreground">No services published yet.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
-          {sorted.slice(0, 8).map((service, idx) => (
-            <Card
-              key={service.id}
-              className="group relative overflow-hidden border-card-border bg-card rounded-tl-[2rem] rounded-tr-[2rem] rounded-bl-[2rem] rounded-br-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-              data-testid={`card-home-service-${service.id}`}
+        <>
+          <div className="grid lg:grid-cols-5 gap-6 mb-6">
+            <div
+              className="lg:col-span-3 relative min-h-[320px] overflow-hidden group"
+              style={{ borderRadius: "3rem 3rem 3rem 1rem" }}
+              data-testid="tile-home-services-feature"
             >
-              <IslamicPattern className="pointer-events-none absolute -right-5 -top-5 h-24 w-24 text-primary/[0.05] transition-colors duration-300 group-hover:text-primary/[0.09]" />
-              <CardContent className="relative p-5 md:p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <ArchIconBadgeFor service={service} />
-                  <span className="font-serif text-2xl leading-none text-primary/10">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <p className="font-serif text-base mb-1.5">{service.title}</p>
-                <div className="w-7 h-[2px] bg-secondary mb-3" />
-                <p className="text-xs text-muted-foreground leading-relaxed">{service.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              <img
+                src={featureImage}
+                alt="Grays Park Masjid community"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-7 md:p-8">
+                <h3 className="text-xl font-serif text-primary-foreground mb-2">Join our growing family</h3>
+                <p className="text-primary-foreground/75 text-sm max-w-xs mb-4">
+                  Everyone is welcome, from first prayer to lifelong member.
+                </p>
+                <Link
+                  href="/services"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-foreground underline decoration-primary-foreground/40 underline-offset-4 hover:decoration-primary-foreground transition-colors"
+                >
+                  View all services <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              {featured.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No services published yet.</p>
+              ) : (
+                featured.map((service) => (
+                  <Card
+                    key={service.id}
+                    className="border-card-border bg-card flex-1 overflow-hidden"
+                    style={{ borderRadius: "2rem 2rem 2rem 0.75rem" }}
+                    data-testid={`card-home-service-${service.id}`}
+                  >
+                    <CardContent className="p-6 md:p-7">
+                      <ArchIconBadgeFor service={service} />
+                      <p className="font-serif text-base mt-4 mb-2">{service.title}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+
+          {rest.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
+              {rest.map((service, idx) => (
+                <Card
+                  key={service.id}
+                  className="group relative overflow-hidden border-card-border bg-card rounded-tl-[2rem] rounded-tr-[2rem] rounded-bl-[2rem] rounded-br-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                  data-testid={`card-home-service-${service.id}`}
+                >
+                  <IslamicPattern className="pointer-events-none absolute -right-5 -top-5 h-24 w-24 text-primary/[0.05] transition-colors duration-300 group-hover:text-primary/[0.09]" />
+                  <CardContent className="relative p-5 md:p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <ArchIconBadgeFor service={service} />
+                      <span className="font-serif text-2xl leading-none text-primary/10">
+                        {String(idx + 3).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <p className="font-serif text-base mb-1.5">{service.title}</p>
+                    <div className="w-7 h-[2px] bg-secondary mb-3" />
+                    <p className="text-xs text-muted-foreground leading-relaxed">{service.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </section>
-  );
-}
-
-function SectionOrnamentHeading({ eyebrow, title }: { eyebrow?: string; title: string }) {
-  return (
-    <div className="text-center mb-10 md:mb-12">
-      <div className="flex items-center justify-center gap-3 mb-2">
-        <span className="h-px w-10 md:w-14 bg-secondary/60" />
-        <IslamicStar className="h-4 w-4 text-secondary" />
-        <span className="h-px w-10 md:w-14 bg-secondary/60" />
-      </div>
-      {eyebrow && (
-        <span className="block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-1">
-          {eyebrow}
-        </span>
-      )}
-      <h2 className="font-serif text-3xl md:text-[2rem]">{title}</h2>
-    </div>
   );
 }
 
@@ -447,76 +485,75 @@ function ThisWeekSection() {
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16 w-full">
-      <SectionOrnamentHeading title="This Week at the Masjid" />
-      <p className="text-center text-sm text-muted-foreground -mt-8 mb-10">
-        Stay updated with what's happening in our community
-      </p>
+      <div className="flex items-end justify-between gap-4 mb-10 flex-wrap">
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="h-px w-10 bg-secondary/60" />
+            <IslamicStar className="h-4 w-4 text-secondary" />
+          </div>
+          <h2 className="font-serif text-3xl mb-2">This Week at the Masjid</h2>
+          <p className="text-sm text-muted-foreground max-w-md">
+            Upcoming gatherings, classes and reminders from the community.
+          </p>
+        </div>
+        <Link href="/events" className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+          View all events <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      {eventsLoading ? (
+        <p className="text-center text-muted-foreground">Loading events...</p>
+      ) : upcomingEvents.length === 0 ? (
+        <p className="text-center text-muted-foreground">No upcoming events at this time.</p>
+      ) : (
+        <div className="grid lg:grid-cols-3 gap-6 mb-6">
+          {upcomingEvents.map((event) => {
+            const { day, month } = formatEventDay(event.startsAt);
+            return (
+              <Link
+                key={event.id}
+                href="/events"
+                className="group overflow-hidden bg-card border border-card-border block"
+                style={{ borderRadius: "1.75rem 1.75rem 1.75rem 0.5rem" }}
+                data-testid={`item-home-event-${event.id}`}
+              >
+                <div className="relative h-44 overflow-hidden bg-primary">
+                  {event.imageUrl ? (
+                    <img
+                      src={event.imageUrl}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <CalendarDays className="h-8 w-8 text-primary-foreground/50" />
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3 bg-card/95 rounded-xl px-3 py-1.5 text-center leading-none shadow-sm">
+                    <p className="text-lg font-serif text-primary">{day}</p>
+                    <p className="text-[10px] font-semibold tracking-wide text-muted-foreground mt-0.5">{month}</p>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-serif text-base leading-snug mb-3">{event.title}</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                    <Clock className="h-3.5 w-3.5 shrink-0" /> {format(parseISO(event.startsAt), "h:mm a")}
+                  </div>
+                  {event.location && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" /> {event.location}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-6">
         <Card
-          className="border-card-border overflow-hidden"
-          style={{ borderRadius: "1.75rem 1.75rem 1.75rem 0.5rem" }}
-          data-testid="card-home-upcoming-events"
-        >
-          <CardContent className="py-6">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-primary" />
-                <span className="uppercase tracking-[0.1em] text-xs font-semibold">Upcoming Events</span>
-              </div>
-              <Link href="/events" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
-                View all events <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-
-            {eventsLoading ? (
-              <p className="text-sm text-muted-foreground">Loading events...</p>
-            ) : upcomingEvents.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No upcoming events at this time.</p>
-            ) : (
-              <div className="space-y-4">
-                {upcomingEvents.map((event) => {
-                  const { day, month } = formatEventDay(event.startsAt);
-                  return (
-                    <div key={event.id} className="flex items-start gap-3" data-testid={`item-home-event-${event.id}`}>
-                      <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-primary">
-                        {event.imageUrl ? (
-                          <img
-                            src={event.imageUrl}
-                            alt={event.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <CalendarDays className="h-5 w-5 text-primary-foreground/70" />
-                          </div>
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 bg-black/55 backdrop-blur-[1px] text-center py-0.5">
-                          <p className="text-primary-foreground font-serif text-xs leading-none">{day}</p>
-                          <p className="text-primary-foreground/80 text-[8px] tracking-wide">{month}</p>
-                        </div>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium leading-snug truncate">{event.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {format(parseISO(event.startsAt), "h:mm a")}
-                        </p>
-                        {event.location && (
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <MapPin className="h-3 w-3 shrink-0" /> {event.location}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card
-          className="border-card-border overflow-hidden"
+          className="lg:col-span-2 border-card-border overflow-hidden"
           style={{ borderRadius: "1.75rem 1.75rem 1.75rem 0.5rem" }}
           data-testid="card-home-announcements"
         >
