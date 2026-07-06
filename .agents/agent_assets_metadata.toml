@@ -168,6 +168,12 @@ uri = "file://attached_assets/generated_images/community_group_cutout.png"
 type = "image"
 title = "diverse community group outside"
 
+[[generated]]
+id = "_WFaOFQyIeeEMnXriMK-Z"
+uri = "file://attached_assets/generated_images/eid_community_mustard.png"
+type = "image"
+title = "eid community mustard tones"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
@@ -179,3 +185,33 @@ id = "VMZAB1VcU57CXyaqtX6yL"
 uri = "file://.local/exports/coolify-terminal-command.log"
 type = "unspecified"
 title = "Coolify terminal command (paste this in)"
+
+[[outputs]]
+id = "i8yaydV364GwKc41ldGa4"
+uri = "file://attached_assets/stock_images/muslim_community_celebration_1.jpg"
+type = "image"
+title = "Muslim community gathering mosque celebration traditional clothing"
+
+[[outputs]]
+id = "rdsm4vENvoBe3NTx-xv0x"
+uri = "file://attached_assets/stock_images/muslim_community_celebration_2.jpg"
+type = "image"
+title = "Muslim community gathering mosque celebration traditional clothing"
+
+[[outputs]]
+id = "CcZfg72fFJqtoOw8Fpw6Q"
+uri = "file://attached_assets/stock_images/muslim_community_celebration_3.jpg"
+type = "image"
+title = "Muslim community gathering mosque celebration traditional clothing"
+
+[[outputs]]
+id = "mWeLzNzyeu8EAX3a_OBZI"
+uri = "file://attached_assets/stock_images/muslim_community_celebration_4.jpg"
+type = "image"
+title = "Muslim community gathering mosque celebration traditional clothing"
+
+[[outputs]]
+id = "DrFLuI9oEwtaywxDGj1hF"
+uri = "file://attached_assets/stock_images/muslim_community_celebration_5.jpg"
+type = "image"
+title = "Muslim community gathering mosque celebration traditional clothing"
