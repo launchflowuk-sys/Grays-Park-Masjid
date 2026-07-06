@@ -259,7 +259,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link href="/donate" className="donate-glow hidden sm:inline-flex rounded-full">
             <Button
-              className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-9 font-semibold shadow-md shadow-secondary/30"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-9 font-semibold shadow-md shadow-primary/30"
               data-testid="button-donate-nav"
             >
               Donate
@@ -393,7 +393,7 @@ export function SiteHeader() {
                   onClick={() => setOpen(false)}
                   className="donate-glow block rounded-full mt-6 mb-4"
                 >
-                  <Button className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-9 font-semibold shadow-md shadow-secondary/30">
+                  <Button className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-9 font-semibold shadow-md shadow-primary/30">
                     Donate
                   </Button>
                 </Link>
