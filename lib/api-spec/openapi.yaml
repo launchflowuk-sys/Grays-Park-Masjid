@@ -10,7 +10,1850 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Admin authentication operations
+  - name: prayer
+    description: Prayer operations
+  - name: content
+    description: Content operations
+  - name: education
+    description: Education operations
+  - name: donations
+    description: Donations operations
+  - name: engagement
+    description: Engagement operations
+  - name: settings
+    description: Settings operations
 paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in as an admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out the current admin session
+      responses:
+        "204":
+          description: Logged out
+  /auth/me:
+    get:
+      operationId: getCurrentAdmin
+      tags: [auth]
+      summary: Get the currently authenticated admin user
+      responses:
+        "200":
+          description: Current admin user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      tags: [auth]
+      summary: Request a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordInput"
+      responses:
+        "204":
+          description: Reset email sent if the account exists
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags: [auth]
+      summary: Reset a password using a reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordInput"
+      responses:
+        "204":
+          description: Password reset
+        "400":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /prayer-times:
+    get:
+      operationId: listPrayerTimesPublic
+      tags: [prayer]
+      summary: List published prayer times
+      responses:
+        "200":
+          description: List of prayer times
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrayerTime"
+  /admin/prayer-times:
+    get:
+      operationId: adminListPrayerTimes
+      tags: [prayer]
+      summary: List all prayer times (admin)
+      responses:
+        "200":
+          description: List of prayer times
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrayerTime"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreatePrayerTime
+      tags: [prayer]
+      summary: Create a new prayer time (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertPrayerTime"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerTime"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/prayer-times/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetPrayerTime
+      tags: [prayer]
+      summary: Get a single prayer time (admin)
+      responses:
+        "200":
+          description: The prayer time
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerTime"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdatePrayerTime
+      tags: [prayer]
+      summary: Update a prayer time (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchPrayerTime"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerTime"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeletePrayerTime
+      tags: [prayer]
+      summary: Delete a prayer time (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /timetable-pdfs:
+    get:
+      operationId: listTimetablePdfsPublic
+      tags: [prayer]
+      summary: List published timetable pdfs
+      responses:
+        "200":
+          description: List of timetable pdfs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetablePdf"
+  /admin/timetable-pdfs:
+    get:
+      operationId: adminListTimetablePdfs
+      tags: [prayer]
+      summary: List all timetable pdfs (admin)
+      responses:
+        "200":
+          description: List of timetable pdfs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetablePdf"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateTimetablePdf
+      tags: [prayer]
+      summary: Create a new timetable pdf (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertTimetablePdf"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetablePdf"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/timetable-pdfs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetTimetablePdf
+      tags: [prayer]
+      summary: Get a single timetable pdf (admin)
+      responses:
+        "200":
+          description: The timetable pdf
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetablePdf"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateTimetablePdf
+      tags: [prayer]
+      summary: Update a timetable pdf (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchTimetablePdf"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetablePdf"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteTimetablePdf
+      tags: [prayer]
+      summary: Delete a timetable pdf (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /announcements:
+    get:
+      operationId: listAnnouncementsPublic
+      tags: [content]
+      summary: List published announcements
+      responses:
+        "200":
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+  /admin/announcements:
+    get:
+      operationId: adminListAnnouncements
+      tags: [content]
+      summary: List all announcements (admin)
+      responses:
+        "200":
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateAnnouncement
+      tags: [content]
+      summary: Create a new announcement (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertAnnouncement"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/announcements/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetAnnouncement
+      tags: [content]
+      summary: Get a single announcement (admin)
+      responses:
+        "200":
+          description: The announcement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateAnnouncement
+      tags: [content]
+      summary: Update a announcement (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchAnnouncement"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteAnnouncement
+      tags: [content]
+      summary: Delete a announcement (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /events:
+    get:
+      operationId: listEventsPublic
+      tags: [content]
+      summary: List published events
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+  /admin/events:
+    get:
+      operationId: adminListEvents
+      tags: [content]
+      summary: List all events (admin)
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateEvent
+      tags: [content]
+      summary: Create a new event (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertEvent"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetEvent
+      tags: [content]
+      summary: Get a single event (admin)
+      responses:
+        "200":
+          description: The event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateEvent
+      tags: [content]
+      summary: Update a event (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchEvent"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteEvent
+      tags: [content]
+      summary: Delete a event (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /courses:
+    get:
+      operationId: listCoursesPublic
+      tags: [education]
+      summary: List published courses
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+  /admin/courses:
+    get:
+      operationId: adminListCourses
+      tags: [education]
+      summary: List all courses (admin)
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateCourse
+      tags: [education]
+      summary: Create a new course (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertCourse"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/courses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetCourse
+      tags: [education]
+      summary: Get a single course (admin)
+      responses:
+        "200":
+          description: The course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateCourse
+      tags: [education]
+      summary: Update a course (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchCourse"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteCourse
+      tags: [education]
+      summary: Delete a course (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /course-registrations:
+    post:
+      operationId: createCourseRegistrationPublic
+      tags: [education]
+      summary: Submit a new course registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertCourseRegistration"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseRegistration"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/course-registrations:
+    get:
+      operationId: adminListCourseRegistrations
+      tags: [education]
+      summary: List all course registrations (admin)
+      responses:
+        "200":
+          description: List of course registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseRegistration"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/course-registrations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: adminUpdateCourseRegistration
+      tags: [education]
+      summary: Update the status of a course registration (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchCourseRegistration"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseRegistration"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteCourseRegistration
+      tags: [education]
+      summary: Delete a course registration (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /donation-campaigns:
+    get:
+      operationId: listDonationCampaignsPublic
+      tags: [donations]
+      summary: List published donation campaigns
+      responses:
+        "200":
+          description: List of donation campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DonationCampaign"
+  /admin/donation-campaigns:
+    get:
+      operationId: adminListDonationCampaigns
+      tags: [donations]
+      summary: List all donation campaigns (admin)
+      responses:
+        "200":
+          description: List of donation campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DonationCampaign"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateDonationCampaign
+      tags: [donations]
+      summary: Create a new donation campaign (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertDonationCampaign"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationCampaign"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/donation-campaigns/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetDonationCampaign
+      tags: [donations]
+      summary: Get a single donation campaign (admin)
+      responses:
+        "200":
+          description: The donation campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationCampaign"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateDonationCampaign
+      tags: [donations]
+      summary: Update a donation campaign (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchDonationCampaign"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationCampaign"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteDonationCampaign
+      tags: [donations]
+      summary: Delete a donation campaign (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /gallery-albums:
+    get:
+      operationId: listGalleryAlbumsPublic
+      tags: [content]
+      summary: List published gallery albums
+      responses:
+        "200":
+          description: List of gallery albums
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryAlbum"
+  /admin/gallery-albums:
+    get:
+      operationId: adminListGalleryAlbums
+      tags: [content]
+      summary: List all gallery albums (admin)
+      responses:
+        "200":
+          description: List of gallery albums
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryAlbum"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateGalleryAlbum
+      tags: [content]
+      summary: Create a new gallery album (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertGalleryAlbum"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryAlbum"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/gallery-albums/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetGalleryAlbum
+      tags: [content]
+      summary: Get a single gallery album (admin)
+      responses:
+        "200":
+          description: The gallery album
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryAlbum"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateGalleryAlbum
+      tags: [content]
+      summary: Update a gallery album (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchGalleryAlbum"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryAlbum"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteGalleryAlbum
+      tags: [content]
+      summary: Delete a gallery album (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /gallery-media:
+    get:
+      operationId: listGalleryMediaPublic
+      tags: [content]
+      summary: List gallery media, optionally filtered by album
+      parameters:
+        - name: albumId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of gallery media
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryMedia"
+  /admin/gallery-media:
+    get:
+      operationId: adminListGalleryMedia
+      tags: [content]
+      summary: List all gallery media (admin)
+      responses:
+        "200":
+          description: List of gallery media
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryMedia"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateGalleryMedia
+      tags: [content]
+      summary: Create a new gallery media (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertGalleryMedia"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryMedia"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/gallery-media/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetGalleryMedia
+      tags: [content]
+      summary: Get a single gallery media (admin)
+      responses:
+        "200":
+          description: The gallery media
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryMedia"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateGalleryMedia
+      tags: [content]
+      summary: Update a gallery media (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchGalleryMedia"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryMedia"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteGalleryMedia
+      tags: [content]
+      summary: Delete a gallery media (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /services:
+    get:
+      operationId: listServicesPublic
+      tags: [content]
+      summary: List published services
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+  /admin/services:
+    get:
+      operationId: adminListServices
+      tags: [content]
+      summary: List all services (admin)
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateService
+      tags: [content]
+      summary: Create a new service (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertService"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/services/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetService
+      tags: [content]
+      summary: Get a single service (admin)
+      responses:
+        "200":
+          description: The service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateService
+      tags: [content]
+      summary: Update a service (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchService"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteService
+      tags: [content]
+      summary: Delete a service (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /enquiries:
+    post:
+      operationId: createEnquiryPublic
+      tags: [engagement]
+      summary: Submit a new enquiry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertEnquiry"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enquiry"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/enquiries:
+    get:
+      operationId: adminListEnquiries
+      tags: [engagement]
+      summary: List all enquiries (admin)
+      responses:
+        "200":
+          description: List of enquiries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enquiry"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/enquiries/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: adminUpdateEnquiry
+      tags: [engagement]
+      summary: Update the status of a enquiry (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchEnquiry"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enquiry"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteEnquiry
+      tags: [engagement]
+      summary: Delete a enquiry (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /volunteer-opportunities:
+    get:
+      operationId: listVolunteerOpportunitiesPublic
+      tags: [engagement]
+      summary: List published volunteer opportunities
+      responses:
+        "200":
+          description: List of volunteer opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VolunteerOpportunity"
+  /admin/volunteer-opportunities:
+    get:
+      operationId: adminListVolunteerOpportunities
+      tags: [engagement]
+      summary: List all volunteer opportunities (admin)
+      responses:
+        "200":
+          description: List of volunteer opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VolunteerOpportunity"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateVolunteerOpportunity
+      tags: [engagement]
+      summary: Create a new volunteer opportunity (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertVolunteerOpportunity"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerOpportunity"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/volunteer-opportunities/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetVolunteerOpportunity
+      tags: [engagement]
+      summary: Get a single volunteer opportunity (admin)
+      responses:
+        "200":
+          description: The volunteer opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerOpportunity"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateVolunteerOpportunity
+      tags: [engagement]
+      summary: Update a volunteer opportunity (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchVolunteerOpportunity"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerOpportunity"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteVolunteerOpportunity
+      tags: [engagement]
+      summary: Delete a volunteer opportunity (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /volunteer-applications:
+    post:
+      operationId: createVolunteerApplicationPublic
+      tags: [engagement]
+      summary: Submit a new volunteer application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertVolunteerApplication"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerApplication"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/volunteer-applications:
+    get:
+      operationId: adminListVolunteerApplications
+      tags: [engagement]
+      summary: List all volunteer applications (admin)
+      responses:
+        "200":
+          description: List of volunteer applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VolunteerApplication"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/volunteer-applications/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: adminUpdateVolunteerApplication
+      tags: [engagement]
+      summary: Update the status of a volunteer application (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchVolunteerApplication"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerApplication"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteVolunteerApplication
+      tags: [engagement]
+      summary: Delete a volunteer application (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /staff:
+    get:
+      operationId: listStaffPublic
+      tags: [content]
+      summary: List published staff
+      responses:
+        "200":
+          description: List of staff
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+  /admin/staff:
+    get:
+      operationId: adminListStaff
+      tags: [content]
+      summary: List all staff (admin)
+      responses:
+        "200":
+          description: List of staff
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateStaffMember
+      tags: [content]
+      summary: Create a new staff member (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertStaffMember"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/staff/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetStaffMember
+      tags: [content]
+      summary: Get a single staff member (admin)
+      responses:
+        "200":
+          description: The staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateStaffMember
+      tags: [content]
+      summary: Update a staff member (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchStaffMember"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteStaffMember
+      tags: [content]
+      summary: Delete a staff member (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /news:
+    get:
+      operationId: listNewsPublic
+      tags: [content]
+      summary: List published news
+      responses:
+        "200":
+          description: List of news
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsPost"
+  /admin/news:
+    get:
+      operationId: adminListNews
+      tags: [content]
+      summary: List all news (admin)
+      responses:
+        "200":
+          description: List of news
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsPost"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: adminCreateNewsPost
+      tags: [content]
+      summary: Create a new news post (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertNewsPost"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/news/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetNewsPost
+      tags: [content]
+      summary: Get a single news post (admin)
+      responses:
+        "200":
+          description: The news post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateNewsPost
+      tags: [content]
+      summary: Update a news post (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchNewsPost"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteNewsPost
+      tags: [content]
+      summary: Delete a news post (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/settings:
+    get:
+      operationId: adminListSettings
+      tags: [settings]
+      summary: List all site settings (admin)
+      responses:
+        "200":
+          description: List of site settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SiteSetting"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/settings/{key}:
+    parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: adminUpsertSetting
+      tags: [settings]
+      summary: Create or update a site setting (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertSiteSetting"
+      responses:
+        "200":
+          description: Setting saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSetting"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /settings/{key}:
+    parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getSettingPublic
+      tags: [settings]
+      summary: Get a public site setting by key
+      responses:
+        "200":
+          description: The setting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSetting"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /healthz:
     get:
       operationId: healthCheck
@@ -33,4 +1876,1047 @@ components:
           type: string
       required:
         - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    AdminRole:
+      type: string
+      enum:
+        - super_admin
+        - masjid_admin
+        - education_admin
+        - donation_admin
+        - content_editor
+        - read_only
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          $ref: "#/components/schemas/AdminRole"
+        active:
+          type: boolean
+        lastLoginAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - email
+        - name
+        - role
+        - active
+        - createdAt
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+      required:
+        - email
+        - password
+    ForgotPasswordInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
+    ResetPasswordInput:
+      type: object
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 8
+      required:
+        - token
+        - password
+    PrayerTime:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+        fajrAdhan:
+          type: string
+        fajrIqamah:
+          type: string
+        dhuhrAdhan:
+          type: string
+        dhuhrIqamah:
+          type: string
+        asrAdhan:
+          type: string
+        asrIqamah:
+          type: string
+        maghribAdhan:
+          type: string
+        maghribIqamah:
+          type: string
+        ishaAdhan:
+          type: string
+        ishaIqamah:
+          type: string
+        jummahKhutbah:
+          type: ["string", "null"]
+        jummahIqamah:
+          type: ["string", "null"]
+        sunrise:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - date
+        - fajrAdhan
+        - fajrIqamah
+        - dhuhrAdhan
+        - dhuhrIqamah
+        - asrAdhan
+        - asrIqamah
+        - maghribAdhan
+        - maghribIqamah
+        - ishaAdhan
+        - ishaIqamah
+        - createdAt
+    InsertPrayerTime:
+      type: object
+      properties:
+        date:
+          type: string
+        fajrAdhan:
+          type: string
+        fajrIqamah:
+          type: string
+        dhuhrAdhan:
+          type: string
+        dhuhrIqamah:
+          type: string
+        asrAdhan:
+          type: string
+        asrIqamah:
+          type: string
+        maghribAdhan:
+          type: string
+        maghribIqamah:
+          type: string
+        ishaAdhan:
+          type: string
+        ishaIqamah:
+          type: string
+        jummahKhutbah:
+          type: ["string", "null"]
+        jummahIqamah:
+          type: ["string", "null"]
+        sunrise:
+          type: ["string", "null"]
+      required:
+        - date
+        - fajrAdhan
+        - fajrIqamah
+        - dhuhrAdhan
+        - dhuhrIqamah
+        - asrAdhan
+        - asrIqamah
+        - maghribAdhan
+        - maghribIqamah
+        - ishaAdhan
+        - ishaIqamah
+    PatchPrayerTime:
+      type: object
+      properties:
+        date:
+          type: string
+        fajrAdhan:
+          type: string
+        fajrIqamah:
+          type: string
+        dhuhrAdhan:
+          type: string
+        dhuhrIqamah:
+          type: string
+        asrAdhan:
+          type: string
+        asrIqamah:
+          type: string
+        maghribAdhan:
+          type: string
+        maghribIqamah:
+          type: string
+        ishaAdhan:
+          type: string
+        ishaIqamah:
+          type: string
+        jummahKhutbah:
+          type: ["string", "null"]
+        jummahIqamah:
+          type: ["string", "null"]
+        sunrise:
+          type: ["string", "null"]
+    TimetablePdf:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        fileUrl:
+          type: string
+        monthLabel:
+          type: string
+        active:
+          type: boolean
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - fileUrl
+        - monthLabel
+        - active
+        - sortOrder
+        - createdAt
+    InsertTimetablePdf:
+      type: object
+      properties:
+        title:
+          type: string
+        fileUrl:
+          type: string
+        monthLabel:
+          type: string
+        active:
+          type: boolean
+        sortOrder:
+          type: integer
+      required:
+        - title
+        - fileUrl
+        - monthLabel
+        - active
+        - sortOrder
+    PatchTimetablePdf:
+      type: object
+      properties:
+        title:
+          type: string
+        fileUrl:
+          type: string
+        monthLabel:
+          type: string
+        active:
+          type: boolean
+        sortOrder:
+          type: integer
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        published:
+          type: boolean
+        pinned:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - body
+        - published
+        - pinned
+        - createdAt
+    InsertAnnouncement:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        published:
+          type: boolean
+        pinned:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+      required:
+        - title
+        - body
+        - published
+        - pinned
+    PatchAnnouncement:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        published:
+          type: boolean
+        pinned:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        startsAt:
+          type: string
+        endsAt:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - startsAt
+        - published
+        - createdAt
+    InsertEvent:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        startsAt:
+          type: string
+        endsAt:
+          type: ["string", "null"]
+        published:
+          type: boolean
+      required:
+        - title
+        - description
+        - startsAt
+        - published
+    PatchEvent:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        startsAt:
+          type: string
+        endsAt:
+          type: ["string", "null"]
+        published:
+          type: boolean
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        ageGroup:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        fee:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - published
+        - createdAt
+    InsertCourse:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        ageGroup:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        fee:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+      required:
+        - title
+        - description
+        - published
+    PatchCourse:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        ageGroup:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        fee:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+    CourseRegistration:
+      type: object
+      properties:
+        id:
+          type: string
+        courseId:
+          type: string
+        studentName:
+          type: string
+        guardianName:
+          type: ["string", "null"]
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - courseId
+        - studentName
+        - email
+        - status
+        - createdAt
+    InsertCourseRegistration:
+      type: object
+      properties:
+        courseId:
+          type: string
+        studentName:
+          type: string
+        guardianName:
+          type: ["string", "null"]
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - courseId
+        - studentName
+        - email
+    PatchCourseRegistration:
+      type: object
+      properties:
+        courseId:
+          type: string
+        studentName:
+          type: string
+        guardianName:
+          type: ["string", "null"]
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+    DonationCampaign:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        targetAmount:
+          type: ["string", "null"]
+        raisedAmount:
+          type: string
+        externalDonationUrl:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        featured:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - raisedAmount
+        - active
+        - featured
+        - createdAt
+    InsertDonationCampaign:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        targetAmount:
+          type: ["string", "null"]
+        raisedAmount:
+          type: string
+        externalDonationUrl:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        featured:
+          type: boolean
+      required:
+        - title
+        - description
+        - raisedAmount
+        - active
+        - featured
+    PatchDonationCampaign:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        targetAmount:
+          type: ["string", "null"]
+        raisedAmount:
+          type: string
+        externalDonationUrl:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        featured:
+          type: boolean
+    GalleryAlbum:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        coverImageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - published
+        - createdAt
+    InsertGalleryAlbum:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        coverImageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+      required:
+        - title
+        - published
+    PatchGalleryAlbum:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        coverImageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+    GalleryMedia:
+      type: object
+      properties:
+        id:
+          type: string
+        albumId:
+          type: string
+        mediaUrl:
+          type: string
+        caption:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - albumId
+        - mediaUrl
+        - sortOrder
+        - createdAt
+    InsertGalleryMedia:
+      type: object
+      properties:
+        albumId:
+          type: string
+        mediaUrl:
+          type: string
+        caption:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+      required:
+        - albumId
+        - mediaUrl
+        - sortOrder
+    PatchGalleryMedia:
+      type: object
+      properties:
+        albumId:
+          type: string
+        mediaUrl:
+          type: string
+        caption:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - sortOrder
+        - published
+        - createdAt
+    InsertService:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+      required:
+        - title
+        - description
+        - sortOrder
+        - published
+    PatchService:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+    Enquiry:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        subject:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - subject
+        - message
+        - status
+        - createdAt
+    InsertEnquiry:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        subject:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+      required:
+        - name
+        - email
+        - subject
+        - message
+    PatchEnquiry:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        subject:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+    VolunteerOpportunity:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - active
+        - createdAt
+    InsertVolunteerOpportunity:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+      required:
+        - title
+        - description
+        - active
+    PatchVolunteerOpportunity:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+    VolunteerApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        opportunityId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - opportunityId
+        - name
+        - email
+        - status
+        - createdAt
+    InsertVolunteerApplication:
+      type: object
+      properties:
+        opportunityId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+      required:
+        - opportunityId
+        - name
+        - email
+    PatchVolunteerApplication:
+      type: object
+      properties:
+        opportunityId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+    StaffMember:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - role
+        - sortOrder
+        - published
+        - createdAt
+    InsertStaffMember:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+      required:
+        - name
+        - role
+        - sortOrder
+        - published
+    PatchStaffMember:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        bio:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+    NewsPost:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        body:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - slug
+        - body
+        - published
+        - createdAt
+    InsertNewsPost:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        body:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+      required:
+        - title
+        - slug
+        - body
+        - published
+    PatchNewsPost:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        body:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        publishedAt:
+          type: ["string", "null"]
+    SiteSetting:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - key
+        - value
+        - updatedAt
+    UpsertSiteSetting:
+      type: object
+      properties:
+        value:
+          type: string
+      required:
+        - value
 

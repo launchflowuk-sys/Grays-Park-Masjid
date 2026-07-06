@@ -1,0 +1,296 @@
+Build a complete modern frontend revamp for Grays Park Masjid.
+
+Website: https://www.graysparkmasjid.co.uk
+
+The current website is basic and needs a full rebuild. The new version must feel professional, calm, Islamic, community-focused, mobile-first, and donation-focused without looking aggressive or commercial.
+
+Use this design direction:
+
+Brand colours:
+
+* Deep green: #1A5C1A
+* Gold: #C9A84C
+* Warm cream: #F8F5EE
+* Charcoal: #2A2A2A
+* White: #FFFFFF
+
+Style:
+
+* Premium Islamic community design
+* Clean spacing
+* Rounded cards
+* Soft shadows
+* Mobile-first
+* Fast loading
+* Accessible
+* Clear calls to action
+* No generic charity template look
+* No placeholder content
+* No dummy carousel text
+
+Main CTAs:
+
+* Donate Now
+* View Prayer Times
+* Visit Us
+* Register for Classes
+* Volunteer
+
+Build these public pages:
+
+1. Home
+2. Prayer Times
+3. Full Year Timetable
+4. About the Masjid
+5. Services
+6. Islamic Education
+7. Jumu’ah Information
+8. Donate / New Mosque Project
+9. Events
+10. News & Announcements
+11. Gallery
+12. Contact / Visit Us
+13. New Mosque Project
+14. Madrassah / Children’s Classes
+15. Sisters’ Facilities
+16. Youth Programmes
+17. Funeral Services / Janazah
+18. Nikah Services
+19. Ramadan
+20. Eid Information
+21. Zakat / Sadaqah / Lillah
+22. Volunteer
+23. Safeguarding
+24. Policies
+25. FAQs
+
+Homepage structure:
+
+1. Header
+
+* Logo
+* Navigation
+* Donate button
+* Mobile menu
+* Sticky behaviour on mobile
+
+2. Hero section
+
+* Large emotional masjid/community image area
+* Strong headline
+* Short introduction
+* Today’s prayer times card
+* Next prayer countdown
+* Buttons: Donate Now, View Prayer Times, Visit Us
+
+3. Live prayer strip
+
+* Fajr
+* Zuhr
+* Asr
+* Maghrib
+* Isha
+* Jumu’ah
+* Jama’ah times highlighted
+* Next prayer clearly shown
+
+4. New Mosque Project section
+
+* Explain that the masjid is raising funds for the new mosque project
+* Show progress tracker
+* Show donation buttons: £10, £25, £50, £100, Custom
+* Add “Learn More” link to full project page
+
+5. Services grid
+    Include cards for:
+
+* Daily prayers
+* Jumu’ah
+* Islamic classes
+* Youth programmes
+* Sisters’ facilities
+* Nikah
+* Janazah
+* Community events
+* New Muslim support
+
+6. This Week at the Masjid
+
+* Upcoming events
+* Classes
+* Announcements
+* Important notices
+
+7. Islamic Education section
+
+* Weekend madrassah
+* Weekday Qur’an classes
+* Tajweed
+* Arabic
+* Adult Islamic studies
+* Sisters’ classes
+* Youth classes
+* New Muslim basics
+
+8. Gallery / Construction Progress
+
+* Image grid
+* Building progress
+* Community images
+* Event images
+
+9. Visit Us section
+
+* Address
+* Parking info
+* Accessibility info
+* Google Map placeholder
+* Phone
+* Email
+* Charity number
+
+10. Final CTA
+
+* Strong donation and community support message
+* Donate Now button
+* Volunteer button
+
+Prayer Times page:
+
+* Today’s prayer times
+* Monthly timetable
+* Download PDF button
+* Full year timetable link
+* Ramadan timetable section
+* Eid prayer notice section
+* Special prayer notices
+* Mobile-friendly table
+
+Donate / New Mosque Project page:
+
+* Strong campaign story
+* Progress bar
+* Target amount
+* Amount raised
+* Remaining amount
+* Donation categories:
+    * New Mosque Project
+    * General Masjid Fund
+    * Ramadan Iftar
+    * Zakat
+    * Sadaqah
+    * Lillah
+    * Education Fund
+    * Funeral Support Fund
+* Bank details section
+* Gift Aid explanation
+* Recurring donation explanation
+* Construction update timeline
+* Donation FAQ
+
+Services page:
+Create proper sections for:
+
+* Daily prayers
+* Jumu’ah
+* Nikah
+* Janazah
+* Islamic education
+* New Muslim support
+* Sisters’ facilities
+* Youth programmes
+* Counselling/support
+* Hall/community use if applicable
+
+Islamic Education page:
+
+* Course cards
+* Age groups
+* Class times
+* Teacher information
+* Registration CTA
+* Course enquiry form
+* Open/closed enrolment badges
+
+Events page:
+
+* Event listing
+* Event categories
+* Event detail cards
+* Speaker name
+* Date/time/location
+* Registration button
+* Capacity badge
+* Free/paid badge
+
+News & Announcements page:
+
+* Announcement cards
+* Urgent pinned notices
+* Categories:
+    * Announcements
+    * Education
+    * Fundraising
+    * Community
+    * Ramadan
+    * Construction Updates
+
+Gallery page:
+
+* Albums:
+    * Masjid progress
+    * Events
+    * Ramadan
+    * Eid
+    * Classes
+    * Community work
+* Image grid
+* Video gallery section
+
+Contact / Visit Us page:
+
+* Contact form
+* Enquiry type dropdown:
+    * General enquiry
+    * Class registration
+    * Event registration
+    * Donation enquiry
+    * Volunteer application
+    * Nikah enquiry
+    * Janazah enquiry
+    * Safeguarding concern
+* Address
+* Phone
+* Email
+* Charity number
+* Opening times
+* Parking information
+* Accessibility information
+* Jumu’ah arrival advice
+* Map section
+
+Footer:
+
+* Prayer times shortcut
+* Donate shortcut
+* Address
+* Phone/email
+* Charity number
+* Quick links
+* Policies
+* Social links
+* Copyright
+
+Frontend behaviour:
+
+* All forms should submit to backend API endpoints later
+* Frontend should be ready to connect to admin-managed content
+* Use clean reusable components
+* Do not hard-code everything in a way that cannot later be managed
+* Use mock data where backend is not ready, but structure it as replaceable data arrays/API calls
+* Build with proper routing
+* Fully responsive
+* Optimised for mobile users
+* No broken links
+* No placeholder lorem ipsum
+* Include realistic content based on Grays Park Masjid context

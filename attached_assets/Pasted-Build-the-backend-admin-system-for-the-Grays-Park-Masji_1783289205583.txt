@@ -1,0 +1,527 @@
+Build the backend/admin system for the Grays Park Masjid website frontend.
+
+The backend must allow masjid staff/admins to manage the website without needing a developer. This is not just a basic CMS. It should be a Masjid Management Website System covering prayer times, announcements, events, courses, donations, enquiries, media, services, team members, and website settings.
+
+Build a secure admin panel with login and role-based access.
+
+Admin roles:
+
+1. Super Admin
+
+* Full access to everything
+
+2. Masjid Admin
+
+* Manage content, prayer times, announcements, events, classes, donations, enquiries, services, gallery, news, settings
+
+3. Education Admin
+
+* Manage courses, classes, teachers, student registrations
+
+4. Donation Admin
+
+* Manage donation campaigns and donation page content
+
+5. Content Editor
+
+* Manage news, gallery, announcements only
+
+6. Read Only
+
+* View dashboard and enquiries but cannot edit
+
+Admin dashboard must show:
+
+* Today’s prayer times
+* Next prayer
+* Active announcements
+* Upcoming events
+* New enquiries
+* Open class registrations
+* Active donation campaigns
+* Recent form submissions
+* Quick action buttons:
+    * Add Announcement
+    * Update Prayer Times
+    * Add Event
+    * Add Course
+    * Add Donation Campaign
+
+Backend modules to build:
+
+1. Prayer Times Management
+
+Admin actions:
+
+* Update daily jama’ah times
+* Add prayer beginning times
+* Upload monthly timetable PDF
+* Upload full year timetable PDF
+* Add Ramadan timetable
+* Set Jumu’ah times
+* Add Eid prayer times
+* Add special notices
+* Show/hide next prayer countdown
+* Manage date ranges
+
+Prayer fields:
+
+* Date
+* Fajr begins
+* Fajr jama’ah
+* Zuhr begins
+* Zuhr jama’ah
+* Asr begins
+* Asr jama’ah
+* Maghrib begins
+* Maghrib jama’ah
+* Isha begins
+* Isha jama’ah
+* Jumu’ah 1
+* Jumu’ah 2
+* Notes
+* Active/inactive
+
+2. Announcements Management
+
+Admin actions:
+
+* Add announcement
+* Edit announcement
+* Delete announcement
+* Pin announcement to homepage
+* Mark as urgent
+* Set start date
+* Set end date
+* Upload image/poster
+* Link to event/course/donation page
+* Auto-expire announcement after end date
+
+Announcement fields:
+
+* Title
+* Message
+* Category
+* Image/poster
+* Link
+* Urgent yes/no
+* Pinned yes/no
+* Start date
+* End date
+* Status
+
+3. Events Management
+
+Admin actions:
+
+* Create events
+* Edit events
+* Delete events
+* Add date/time/location
+* Add speaker name
+* Upload poster
+* Set capacity
+* Enable/disable registration
+* Mark as free/paid
+* Export attendees
+* Show event on homepage
+
+Event types:
+
+* Talks
+* Fundraisers
+* Youth events
+* Sisters’ programmes
+* Ramadan events
+* Eid events
+* Community meetings
+* Guest scholar visits
+
+Event fields:
+
+* Title
+* Description
+* Category
+* Date
+* Start time
+* End time
+* Location
+* Speaker
+* Poster/image
+* Capacity
+* Registration enabled yes/no
+* Price/free
+* Featured yes/no
+* Status
+
+4. Classes & Courses Management
+
+Admin actions:
+
+* Add course
+* Edit course
+* Delete course
+* Add class schedule
+* Assign teacher
+* Add age group
+* Add gender availability
+* Add price/free status
+* Add capacity
+* Open/close enrolment
+* View student registrations
+* Download registrations
+
+Course examples:
+
+* Weekend Madrassah
+* Qur’an classes
+* Tajweed
+* Arabic
+* Adult Islamic studies
+* Sisters’ classes
+* Youth classes
+* New Muslim basics
+
+Course fields:
+
+* Course title
+* Description
+* Teacher
+* Age group
+* Gender availability
+* Days
+* Start time
+* End time
+* Start date
+* End date
+* Location
+* Price
+* Capacity
+* Registration deadline
+* Enrolment status
+* Featured yes/no
+
+5. Donation Campaigns Management
+
+Admin actions:
+
+* Create donation campaign
+* Edit campaign
+* Delete campaign
+* Set target amount
+* Add amount raised manually
+* Add campaign image
+* Add bank details
+* Add donation buttons
+* Mark active/completed
+* Show/hide progress bar
+* Add Gift Aid text
+* Add construction updates
+
+Campaign examples:
+
+* New Mosque Project
+* General Masjid Fund
+* Ramadan Iftar
+* Zakat
+* Sadaqah
+* Lillah
+* Education Fund
+* Funeral Support Fund
+
+Donation campaign fields:
+
+* Campaign title
+* Description
+* Target amount
+* Amount raised
+* Suggested donation amounts
+* Bank details
+* Gift Aid text
+* Image
+* Active/completed
+* Featured yes/no
+* Show progress bar yes/no
+
+6. Gallery / Media Management
+
+Admin actions:
+
+* Upload images
+* Create gallery albums
+* Add video links
+* Add captions
+* Mark public/private
+* Add construction progress photos
+* Feature selected images on homepage
+
+Gallery types:
+
+* Masjid progress
+* Events
+* Ramadan
+* Eid
+* Classes
+* Community work
+
+Media fields:
+
+* Album name
+* Media type image/video
+* File/link
+* Caption
+* Category
+* Public/private
+* Featured yes/no
+
+7. Services Management
+
+Admin should be able to update service information.
+
+Services:
+
+* Daily prayers
+* Jumu’ah
+* Nikah
+* Janazah
+* Islamic education
+* New Muslim support
+* Sisters’ facilities
+* Youth programmes
+* Counselling/support
+* Hall/community use if applicable
+
+Admin actions:
+
+* Edit service title
+* Edit description
+* Add enquiry form type
+* Add contact person
+* Add availability
+* Add required documents
+* Add pricing/donation information where relevant
+* Publish/unpublish service
+
+Service fields:
+
+* Service title
+* Slug
+* Description
+* Short summary
+* Image
+* Availability
+* Contact person
+* Required documents
+* Price/donation info
+* Enquiry type
+* Status
+
+8. Enquiries / Form Submissions
+
+All frontend forms must submit into the backend.
+
+Admin actions:
+
+* View enquiries
+* Filter by enquiry type
+* Mark as new / in progress / replied / closed
+* Add internal notes
+* Export submissions
+* Track reply status
+* Search enquiries
+
+Enquiry types:
+
+* General enquiry
+* Class registration
+* Event registration
+* Donation enquiry
+* Volunteer application
+* Nikah enquiry
+* Janazah enquiry
+* Safeguarding concern
+
+Enquiry fields:
+
+* Name
+* Email
+* Phone
+* Enquiry type
+* Message
+* Related course/event/service if applicable
+* Status
+* Internal notes
+* Date submitted
+
+9. Volunteer Management
+
+Admin actions:
+
+* Add volunteer opportunities
+* Receive volunteer applications
+* Categorise volunteers
+* Mark DBS required if needed
+* Contact volunteers
+* Export volunteer list
+
+Volunteer categories:
+
+* Events
+* Cleaning
+* Fundraising
+* Teaching support
+* Youth work
+* Ramadan support
+* Parking/marshalling
+* Admin help
+
+Volunteer fields:
+
+* Name
+* Email
+* Phone
+* Area of interest
+* Availability
+* DBS required yes/no
+* Notes
+* Status
+
+10. Staff / Committee / Teachers
+
+Admin actions:
+
+* Add committee members
+* Add imams
+* Add teachers
+* Add role/title
+* Add image
+* Add bio
+* Decide whether to show publicly
+* Edit/delete people
+
+Fields:
+
+* Name
+* Role
+* Bio
+* Image
+* Email visibility yes/no
+* Phone visibility yes/no
+* Public/private
+* Sort order
+
+11. News / Blog / Updates
+
+Admin actions:
+
+* Add news post
+* Edit news post
+* Delete news post
+* Add featured image
+* Add category
+* Schedule publishing
+* Pin important posts
+* Add construction updates
+
+Categories:
+
+* Announcements
+* Education
+* Fundraising
+* Community
+* Ramadan
+* Construction Updates
+
+News fields:
+
+* Title
+* Slug
+* Excerpt
+* Content
+* Featured image
+* Category
+* Published/scheduled/draft
+* Pinned yes/no
+* Publish date
+
+12. Website Settings
+
+Admin actions:
+
+* Update masjid name
+* Update address
+* Update phone/email
+* Update charity number
+* Update bank details
+* Update social media links
+* Update homepage hero images
+* Update footer text
+* Update emergency banner
+* Update SEO defaults
+
+Settings fields:
+
+* Masjid name
+* Address
+* Phone
+* Email
+* Charity number
+* Bank account name
+* Sort code
+* Account number
+* Social links
+* Homepage hero title
+* Homepage hero text
+* Footer text
+* Emergency banner message
+* Emergency banner active yes/no
+
+Technical requirements:
+
+* Secure authentication
+* Role-based access control
+* CRUD for all modules
+* Database storage
+* Image/file upload support
+* PDF upload support for timetables
+* API endpoints for frontend
+* Form submission storage
+* Search/filter/sort inside admin tables
+* Status labels
+* Export CSV for registrations, enquiries, volunteers, attendees
+* Clean admin UI
+* Mobile-friendly admin where practical
+* Validation on forms
+* Delete confirmation
+* Success/error messages
+* Protect admin routes
+* Seed database with realistic Grays Park Masjid sample content
+* No dummy lorem ipsum
+
+Frontend connection:
+
+Create API endpoints so the frontend can fetch:
+
+* Prayer times
+* Announcements
+* Events
+* Courses
+* Donation campaigns
+* Gallery items
+* News posts
+* Services
+* Team members
+* Website settings
+
+Also create API endpoints for submitting:
+
+* Contact enquiries
+* Class registrations
+* Event registrations
+* Volunteer applications
+* Nikah enquiries
+* Janazah enquiries
+* Safeguarding concerns
+* Donation enquiries
+
+The final system should let the masjid team manage the website content themselves without developer help.
