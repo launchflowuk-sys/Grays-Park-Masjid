@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import * as Icons from "lucide-react";
 import {
   Clock,
@@ -16,15 +17,29 @@ import {
   ShieldCheck,
   Lock,
   Sparkles,
+  CalendarDays,
+  Megaphone,
+  Pin,
+  GraduationCap,
+  CalendarClock,
+  PoundSterling,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
 import { TodayPrayersBar } from "@/components/today-prayers-bar";
-import { ArchIconBadge, IslamicPattern } from "@/components/site/islamic-pattern";
-import { useListDonationCampaignsPublic, useListServicesPublic } from "@workspace/api-client-react";
+import { ArchIconBadge, IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { usePrayerTimesToday } from "@/components/prayer-times-widget";
+import {
+  useListDonationCampaignsPublic,
+  useListServicesPublic,
+  useListEventsPublic,
+  useListAnnouncementsPublic,
+  useListCoursesPublic,
+} from "@workspace/api-client-react";
 import heroImage from "@assets/Home_Hero_1783357048983.png";
 import mosqueConstructionImage from "@assets/generated_images/mosque_construction.png";
+import { format, parseISO } from "date-fns";
 
 const PRESET_AMOUNTS = ["10", "25", "50", "100"];
 
@@ -159,6 +174,10 @@ export default function Home() {
       <MosqueProjectSection />
 
       <ServicesSection />
+
+      <ThisWeekSection />
+
+      <IslamicEducationSection />
 
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-4xl px-6 py-16 text-center">
@@ -349,6 +368,274 @@ function ServicesSection() {
           ))}
         </div>
       )}
+    </section>
+  );
+}
+
+function SectionOrnamentHeading({ eyebrow, title }: { eyebrow?: string; title: string }) {
+  return (
+    <div className="text-center mb-10 md:mb-12">
+      <div className="flex items-center justify-center gap-3 mb-2">
+        <span className="h-px w-10 md:w-14 bg-secondary/60" />
+        <IslamicStar className="h-4 w-4 text-secondary" />
+        <span className="h-px w-10 md:w-14 bg-secondary/60" />
+      </div>
+      {eyebrow && (
+        <span className="block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-1">
+          {eyebrow}
+        </span>
+      )}
+      <h2 className="font-serif text-3xl md:text-[2rem]">{title}</h2>
+    </div>
+  );
+}
+
+function formatEventDay(startsAt: string) {
+  const d = parseISO(startsAt);
+  return { day: format(d, "d"), month: format(d, "MMM").toUpperCase() };
+}
+
+function ThisWeekSection() {
+  const { data: eventsData, isLoading: eventsLoading } = useListEventsPublic();
+  const { data: announcementsData, isLoading: announcementsLoading } = useListAnnouncementsPublic();
+  const { todayRow, isLoading: prayerLoading } = usePrayerTimesToday();
+
+  const now = Date.now();
+  const upcomingEvents = [...(eventsData ?? [])]
+    .filter((e) => new Date(e.startsAt).getTime() >= now)
+    .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())
+    .slice(0, 3);
+
+  const topAnnouncements = [...(announcementsData ?? [])]
+    .filter((a) => a.published)
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      const aDate = a.publishedAt ?? a.createdAt;
+      const bDate = b.publishedAt ?? b.createdAt;
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    })
+    .slice(0, 3);
+
+  function to12Hour(time?: string | null): string {
+    if (!time) return "";
+    const [hStr, mStr] = time.split(":");
+    let h = Number(hStr);
+    const period = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h}:${mStr} ${period}`;
+  }
+
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <SectionOrnamentHeading title="This Week at the Masjid" />
+      <p className="text-center text-sm text-muted-foreground -mt-8 mb-10">
+        Stay updated with what's happening in our community
+      </p>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="border-card-border" data-testid="card-home-upcoming-events">
+          <CardContent className="py-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                <span className="uppercase tracking-[0.1em] text-xs font-semibold">Upcoming Events</span>
+              </div>
+              <Link href="/events" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
+                View all events <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            {eventsLoading ? (
+              <p className="text-sm text-muted-foreground">Loading events...</p>
+            ) : upcomingEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No upcoming events at this time.</p>
+            ) : (
+              <div className="space-y-4">
+                {upcomingEvents.map((event) => {
+                  const { day, month } = formatEventDay(event.startsAt);
+                  return (
+                    <div key={event.id} className="flex items-start gap-3" data-testid={`item-home-event-${event.id}`}>
+                      <div className="shrink-0 w-12 rounded-lg bg-primary text-primary-foreground text-center py-1.5">
+                        <p className="font-serif text-lg leading-none">{day}</p>
+                        <p className="text-[10px] tracking-wide mt-0.5">{month}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-snug truncate">{event.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(parseISO(event.startsAt), "h:mm a")}
+                        </p>
+                        {event.location && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <MapPin className="h-3 w-3 shrink-0" /> {event.location}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-card-border" data-testid="card-home-announcements">
+          <CardContent className="py-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Megaphone className="h-4 w-4 text-primary" />
+                <span className="uppercase tracking-[0.1em] text-xs font-semibold">Announcements</span>
+              </div>
+              <Link href="/announcements" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
+                View all <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            {announcementsLoading ? (
+              <p className="text-sm text-muted-foreground">Loading announcements...</p>
+            ) : topAnnouncements.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No announcements at this time.</p>
+            ) : (
+              <div className="divide-y divide-border">
+                {topAnnouncements.map((announcement) => (
+                  <div key={announcement.id} className="py-3 first:pt-0 last:pb-0" data-testid={`item-home-announcement-${announcement.id}`}>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="text-sm font-medium leading-snug">{announcement.title}</p>
+                      {announcement.pinned && (
+                        <Badge variant="secondary" className="shrink-0 gap-1">
+                          <Pin className="h-3 w-3" /> Pinned
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{announcement.body}</p>
+                    {announcement.publishedAt && (
+                      <p className="text-[11px] text-muted-foreground mt-1.5">
+                        {format(parseISO(announcement.publishedAt), "d MMM yyyy")}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="relative overflow-hidden rounded-xl bg-primary text-primary-foreground p-6 md:p-7 flex flex-col" data-testid="card-home-jumuah-reminder">
+          <IslamicPattern className="pointer-events-none absolute -right-6 -bottom-6 h-40 w-40 text-primary-foreground/[0.06]" />
+          <h3 className="font-serif text-xl mb-1 relative">Jumu'ah Reminder</h3>
+          <div className="w-10 h-[2px] bg-secondary mb-4 relative" />
+          <div className="space-y-3 mb-6 relative flex-1">
+            <div className="flex items-center gap-2.5 text-sm">
+              <Clock className="h-4 w-4 text-secondary shrink-0" />
+              <span>
+                {prayerLoading
+                  ? "Loading khutbah time..."
+                  : todayRow?.jummahKhutbah
+                    ? `Khutbah starts at ${to12Hour(todayRow.jummahKhutbah)}`
+                    : "See Prayer Times page for Jumu'ah timings"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <Users className="h-4 w-4 text-secondary shrink-0" />
+              <span>Please arrive early</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <HeartHandshake className="h-4 w-4 text-secondary shrink-0" />
+              <span>Separate facilities for sisters</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <MapPin className="h-4 w-4 text-secondary shrink-0" />
+              <span>Car park available</span>
+            </div>
+          </div>
+          <Link href="/jumuah" className="relative">
+            <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2" data-testid="button-jumuah-information">
+              Jumu'ah Information <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function IslamicEducationSection() {
+  const { data, isLoading } = useListCoursesPublic();
+  const courses = [...(data ?? [])].filter((c) => c.published).slice(0, 6);
+
+  return (
+    <section className="bg-muted/40 border-y border-border">
+      <div className="mx-auto max-w-6xl px-6 py-16 w-full">
+        <div className="flex items-end justify-between gap-4 mb-10 flex-wrap">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <IslamicStar className="h-4 w-4 text-secondary" />
+              <span className="uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80">
+                Islamic Education
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl mb-2">Nurturing Knowledge, Strengthening Faith</h2>
+            <p className="text-sm text-muted-foreground">Building the future of our community, one class at a time.</p>
+          </div>
+          <Link href="/education">
+            <Button variant="outline" className="gap-2" data-testid="button-view-all-courses">
+              View All Courses <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <p className="text-center text-muted-foreground">Loading courses...</p>
+        ) : courses.length === 0 ? (
+          <p className="text-center text-muted-foreground">No courses published yet.</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {courses.map((course) => (
+              <Card key={course.id} className="border-card-border bg-card" data-testid={`card-home-course-${course.id}`}>
+                <CardContent className="py-6">
+                  <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <GraduationCap className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="font-serif text-base mb-1">{course.title}</p>
+                  {course.ageGroup && (
+                    <p className="text-xs text-muted-foreground mb-3">{course.ageGroup}</p>
+                  )}
+                  <div className="space-y-1.5 text-xs text-muted-foreground mb-4">
+                    {course.schedule && (
+                      <div className="flex items-center gap-2">
+                        <CalendarClock className="h-3.5 w-3.5 shrink-0" />
+                        <span>{course.schedule}</span>
+                      </div>
+                    )}
+                    {course.fee && (
+                      <div className="flex items-center gap-2">
+                        <PoundSterling className="h-3.5 w-3.5 shrink-0" />
+                        <span>£{course.fee}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Link href="/education">
+                    <Button variant="outline" size="sm" className="w-full" data-testid={`button-home-course-info-${course.id}`}>
+                      More Info
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-10 rounded-xl bg-primary text-primary-foreground px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm font-medium flex items-center gap-2">
+            <Users className="h-4 w-4 text-secondary shrink-0" />
+            Registration is now open for all classes. Limited spaces available.
+          </p>
+          <Link href="/education" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2" data-testid="button-register-classes">
+              Register For Classes <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
