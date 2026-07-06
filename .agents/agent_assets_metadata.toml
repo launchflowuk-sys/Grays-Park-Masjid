@@ -24,6 +24,48 @@ uri = "file://attached_assets/generated_images/mosque_construction.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "l8OOiLO5TRlOpma4fQSPt"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-prayer-hall.png"
+type = "image"
+title = "mosque prayer hall interior"
+
+[[generated]]
+id = "9Jdii9Y8otV8x6OlZP0TF"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-iftar.png"
+type = "image"
+title = "community iftar dinner"
+
+[[generated]]
+id = "HmA6vQvSXpWCstE4QlM_K"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-madrassah.png"
+type = "image"
+title = "madrassah quran class"
+
+[[generated]]
+id = "yG6fIact0iwZtUVEpZ2O7"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-eid.png"
+type = "image"
+title = "eid celebration outdoors"
+
+[[generated]]
+id = "DGwpqORYQj1xLIvv2O_Db"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-foodbank.png"
+type = "image"
+title = "volunteers food bank"
+
+[[generated]]
+id = "I6SJxnz3a7K7jF-3RKPL8"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-sisters.png"
+type = "image"
+title = "sisters prayer hall"
+
+[[generated]]
+id = "f6U-eLjXzctrvt18jPwgb"
+uri = "file://artifacts/mockup-sandbox/src/assets/gallery-khutbah.png"
+type = "image"
+title = "jumuah khutbah sermon"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
