@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="admin@graysparkmasjid.org" data-testid="input-admin-email" {...field} />
+                      <Input type="email" placeholder="admin@graysparkmasjid.org" autoComplete="username" data-testid="input-admin-email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" data-testid="input-admin-password" {...field} />
+                      <Input type="password" placeholder="********" autoComplete="current-password" data-testid="input-admin-password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

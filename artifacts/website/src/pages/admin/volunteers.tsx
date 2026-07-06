@@ -57,6 +57,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Download } from "lucide-react";
+import { MASJID_WRITE, useCanWrite } from "@/lib/permissions";
 
 const opportunitySchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -201,6 +202,7 @@ function OpportunitiesTab() {
   const { data, isLoading } = useAdminListVolunteerOpportunities();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<VolunteerOpportunity | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -218,16 +220,18 @@ function OpportunitiesTab() {
   return (
     <div>
       <div className="flex items-center justify-end mb-4">
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-opportunity"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Opportunity
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-opportunity"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Opportunity
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -263,25 +267,31 @@ function OpportunitiesTab() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-opportunity-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-opportunity-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-opportunity-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-opportunity-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -325,6 +335,7 @@ function ApplicationsTab() {
   const { data, isLoading } = useAdminListVolunteerApplications();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
 
   const updateMutation = useAdminUpdateVolunteerApplication({
     mutation: {
@@ -392,6 +403,7 @@ function ApplicationsTab() {
                     <Select
                       value={row.status}
                       onValueChange={(status) => updateMutation.mutate({ id: row.id, data: { status } })}
+                      disabled={!canWrite}
                     >
                       <SelectTrigger className="w-32" data-testid={`select-application-status-${row.id}`}>
                         <SelectValue>

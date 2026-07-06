@@ -60,6 +60,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { CONTENT_WRITE, useCanWrite } from "@/lib/permissions";
 
 const albumSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -223,6 +224,7 @@ function AlbumsTab({ onManageMedia }: { onManageMedia: (album: GalleryAlbum) => 
   const { data, isLoading } = useAdminListGalleryAlbums();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(CONTENT_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GalleryAlbum | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -240,16 +242,18 @@ function AlbumsTab({ onManageMedia }: { onManageMedia: (album: GalleryAlbum) => 
   return (
     <div>
       <div className="flex items-center justify-end mb-4">
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-album"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Album
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-album"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Album
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -293,25 +297,31 @@ function AlbumsTab({ onManageMedia }: { onManageMedia: (album: GalleryAlbum) => 
                         >
                           Manage Media
                         </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                          data-testid={`button-edit-album-${row.id}`}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setDeleteId(row.id)}
-                          data-testid={`button-delete-album-${row.id}`}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {canWrite && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              }}
+                              data-testid={`button-edit-album-${row.id}`}
+                              aria-label={`Edit album ${row.title}`}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setDeleteId(row.id)}
+                              data-testid={`button-delete-album-${row.id}`}
+                              aria-label={`Delete album ${row.title}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -522,6 +532,7 @@ function MediaTab({ albums }: { albums: GalleryAlbum[] }) {
   const { data, isLoading } = useAdminListGalleryMedia();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(CONTENT_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GalleryMedia | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -557,17 +568,19 @@ function MediaTab({ albums }: { albums: GalleryAlbum[] }) {
             ))}
           </SelectContent>
         </Select>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          disabled={albums.length === 0}
-          data-testid="button-add-media"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Media
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            disabled={albums.length === 0}
+            data-testid="button-add-media"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Media
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -605,25 +618,31 @@ function MediaTab({ albums }: { albums: GalleryAlbum[] }) {
                       <TableCell>{row.caption ?? "—"}</TableCell>
                       <TableCell>{row.sortOrder}</TableCell>
                       <TableCell className="text-right space-x-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                          data-testid={`button-edit-media-${row.id}`}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setDeleteId(row.id)}
-                          data-testid={`button-delete-media-${row.id}`}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {canWrite && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              }}
+                              data-testid={`button-edit-media-${row.id}`}
+                              aria-label={`Edit media ${row.caption ?? row.id}`}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setDeleteId(row.id)}
+                              data-testid={`button-delete-media-${row.id}`}
+                              aria-label={`Delete media ${row.caption ?? row.id}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

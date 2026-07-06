@@ -208,7 +208,7 @@ function UserDialog({
                   <FormItem>
                     <FormLabel>New Password (optional)</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Leave blank to keep current password" data-testid="input-user-password" {...field} />
+                      <Input type="password" placeholder="Leave blank to keep current password" autoComplete="new-password" data-testid="input-user-password" {...field} />
                     </FormControl>
                     <FormDescription>Only fill this in to reset the user's password.</FormDescription>
                     <FormMessage />
@@ -304,7 +304,7 @@ function UserDialog({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" data-testid="input-user-password" {...field} />
+                    <Input type="password" autoComplete="new-password" data-testid="input-user-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -431,6 +431,7 @@ export default function AdminUsersPage() {
                           setDialogOpen(true);
                         }}
                         data-testid={`button-edit-user-${row.id}`}
+                        aria-label={`Edit ${row.name}`}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -440,6 +441,7 @@ export default function AdminUsersPage() {
                         disabled={row.id === currentAdmin?.id}
                         onClick={() => setDeleteId(row.id)}
                         data-testid={`button-delete-user-${row.id}`}
+                        aria-label={`Delete ${row.name}`}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>

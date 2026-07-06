@@ -45,6 +45,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { MASJID_WRITE, useCanWrite } from "@/lib/permissions";
 
 const serviceSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -218,6 +219,7 @@ export default function AdminServicesPage() {
   const { data, isLoading } = useAdminListServices();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -241,16 +243,18 @@ export default function AdminServicesPage() {
           <h1 className="font-serif text-3xl mb-2">Services</h1>
           <p className="text-muted-foreground">Manage services shown on the Services page.</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-service"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Service
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-service"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Service
+          </Button>
+        )}
       </div>
 
       <Card className="border-card-border">
@@ -285,25 +289,31 @@ export default function AdminServicesPage() {
                     <TableCell>{row.sortOrder}</TableCell>
                     <TableCell>{row.published ? "Yes" : "No"}</TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-service-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-service-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-service-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-service-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

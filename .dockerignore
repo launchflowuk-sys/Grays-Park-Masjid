@@ -1,0 +1,17 @@
+node_modules
+**/node_modules
+.git
+.local
+.agents
+attached_assets
+dist
+**/dist
+.cache
+**/.cache
+*.log
+.env
+.env.*
+!.env.example
+.replit
+.upm
+.config

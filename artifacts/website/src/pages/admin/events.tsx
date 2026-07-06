@@ -46,6 +46,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { CONTENT_WRITE, useCanWrite } from "@/lib/permissions";
 
 function toLocalInput(value?: string | null) {
   if (!value) return "";
@@ -259,6 +260,7 @@ export default function AdminEventsPage() {
   const { data, isLoading } = useAdminListEvents();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(CONTENT_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -284,16 +286,18 @@ export default function AdminEventsPage() {
           <h1 className="font-serif text-3xl mb-2">Events</h1>
           <p className="text-muted-foreground">Manage events shown on the public Events page.</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-event"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Event
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-event"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Event
+          </Button>
+        )}
       </div>
 
       <Card className="border-card-border">
@@ -332,25 +336,31 @@ export default function AdminEventsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-event-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-event-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-event-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-event-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

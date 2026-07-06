@@ -46,6 +46,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { CONTENT_WRITE, useCanWrite } from "@/lib/permissions";
 
 function slugify(value: string) {
   return value
@@ -261,6 +262,7 @@ export default function AdminNewsPage() {
   const { data, isLoading } = useAdminListNews();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(CONTENT_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<NewsPost | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -286,16 +288,18 @@ export default function AdminNewsPage() {
           <h1 className="font-serif text-3xl mb-2">News</h1>
           <p className="text-muted-foreground">Manage news posts shown on the public News &amp; Announcements page.</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-news"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Post
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-news"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Post
+          </Button>
+        )}
       </div>
 
       <Card className="border-card-border">
@@ -334,25 +338,31 @@ export default function AdminNewsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right space-x-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                          data-testid={`button-edit-news-${row.id}`}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setDeleteId(row.id)}
-                          data-testid={`button-delete-news-${row.id}`}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {canWrite && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              }}
+                              data-testid={`button-edit-news-${row.id}`}
+                              aria-label={`Edit ${row.title}`}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setDeleteId(row.id)}
+                              data-testid={`button-delete-news-${row.id}`}
+                              aria-label={`Delete ${row.title}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

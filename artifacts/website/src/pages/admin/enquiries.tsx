@@ -39,6 +39,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Eye, Trash2, Download } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { MASJID_WRITE, useCanWrite } from "@/lib/permissions";
 
 const STATUS_OPTIONS = ["new", "in_progress", "resolved"] as const;
 
@@ -57,6 +58,7 @@ function EnquiryDialog({
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const canWrite = useCanWrite(MASJID_WRITE);
 
   const updateMutation = useAdminUpdateEnquiry({
     mutation: {
@@ -98,6 +100,7 @@ function EnquiryDialog({
                 <Select
                   value={enquiry.status}
                   onValueChange={(status) => updateMutation.mutate({ id: enquiry.id, data: { status } })}
+                  disabled={!canWrite}
                 >
                   <SelectTrigger data-testid="select-enquiry-status">
                     <SelectValue />
@@ -128,6 +131,7 @@ export default function AdminEnquiriesPage() {
   const { data, isLoading } = useAdminListEnquiries();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
   const [viewing, setViewing] = useState<Enquiry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -199,17 +203,21 @@ export default function AdminEnquiriesPage() {
                         variant="ghost"
                         onClick={() => setViewing(row)}
                         data-testid={`button-view-enquiry-${row.id}`}
+                        aria-label={`View enquiry from ${row.name}`}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-enquiry-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setDeleteId(row.id)}
+                          data-testid={`button-delete-enquiry-${row.id}`}
+                          aria-label={`Delete enquiry from ${row.name}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

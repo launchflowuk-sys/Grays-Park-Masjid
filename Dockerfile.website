@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+
+FROM node:24-bookworm-slim AS builder
+WORKDIR /app
+
+RUN corepack enable
+
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY artifacts/api-server/package.json artifacts/api-server/package.json
+COPY artifacts/website/package.json artifacts/website/package.json
+COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+COPY lib lib
+COPY scripts scripts
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+# BASE_PATH/PORT only affect the build-time Vite config; the built assets are
+# static and served by nginx afterwards. Override BASE_PATH at build time if
+# the site will be hosted under a sub-path instead of the domain root.
+ARG BASE_PATH=/
+ARG VITE_BUILD_PORT=5173
+ENV NODE_ENV=production
+ENV BASE_PATH=${BASE_PATH}
+ENV PORT=${VITE_BUILD_PORT}
+
+RUN pnpm run typecheck:libs
+RUN pnpm --filter @workspace/website run build
+
+FROM nginx:1.27-alpine AS runtime
+
+COPY --from=builder /app/artifacts/website/dist/public /usr/share/nginx/html
+COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+
+ENV PORT=80
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

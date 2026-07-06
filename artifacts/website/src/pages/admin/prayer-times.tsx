@@ -53,6 +53,7 @@ import { Plus, Pencil, Trash2, Upload, FileText } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { ObjectUploader } from "@workspace/object-storage-web";
 import type { UppyFile, UploadResult } from "@uppy/core";
+import { MASJID_WRITE, useCanWrite } from "@/lib/permissions";
 
 const prayerTimeSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -284,6 +285,7 @@ function PrayerTimesTab() {
   const { data, isLoading } = useAdminListPrayerTimes();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<PrayerTime | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -303,16 +305,18 @@ function PrayerTimesTab() {
   return (
     <div>
       <div className="flex justify-end mb-4">
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-prayer-time"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Prayer Time
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-prayer-time"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Prayer Time
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -352,25 +356,31 @@ function PrayerTimesTab() {
                     <TableCell>{row.maghribIqamah}</TableCell>
                     <TableCell>{row.ishaIqamah}</TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-${row.id}`}
+                            aria-label={`Edit prayer time for ${row.date}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-${row.id}`}
+                            aria-label={`Delete prayer time for ${row.date}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -609,6 +619,7 @@ function TimetablePdfsTab() {
   const { data, isLoading } = useAdminListTimetablePdfs();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TimetablePdf | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -628,16 +639,18 @@ function TimetablePdfsTab() {
   return (
     <div>
       <div className="flex justify-end mb-4">
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-pdf"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add PDF
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-pdf"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add PDF
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -671,25 +684,31 @@ function TimetablePdfsTab() {
                     <TableCell>{row.monthLabel}</TableCell>
                     <TableCell>{row.active ? "Yes" : "No"}</TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-pdf-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-pdf-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-pdf-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-pdf-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

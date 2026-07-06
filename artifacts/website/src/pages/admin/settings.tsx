@@ -164,6 +164,7 @@ function SettingField({
           onClick={() => mutation.mutate({ key: settingKey, data: { value } })}
           disabled={mutation.isPending}
           data-testid={`button-save-setting-${settingKey}`}
+          aria-label={`Save ${label}`}
         >
           <Save className="h-4 w-4" />
         </Button>

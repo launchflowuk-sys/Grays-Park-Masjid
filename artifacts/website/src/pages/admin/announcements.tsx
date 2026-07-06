@@ -46,6 +46,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Pin } from "lucide-react";
+import { CONTENT_WRITE, useCanWrite } from "@/lib/permissions";
 
 const announcementSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -207,6 +208,7 @@ export default function AdminAnnouncementsPage() {
   const { data, isLoading } = useAdminListAnnouncements();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(CONTENT_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Announcement | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -232,16 +234,18 @@ export default function AdminAnnouncementsPage() {
           <h1 className="font-serif text-3xl mb-2">Announcements</h1>
           <p className="text-muted-foreground">Manage announcements shown on the public site.</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-announcement"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Announcement
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-announcement"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Announcement
+          </Button>
+        )}
       </div>
 
       <Card className="border-card-border">
@@ -280,25 +284,31 @@ export default function AdminAnnouncementsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-announcement-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-announcement-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-announcement-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-announcement-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

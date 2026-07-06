@@ -57,6 +57,7 @@ import {
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Download } from "lucide-react";
+import { EDUCATION_WRITE, useCanWrite } from "@/lib/permissions";
 
 const courseSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -282,6 +283,7 @@ function CoursesTab() {
   const { data, isLoading } = useAdminListCourses();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(EDUCATION_WRITE);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Course | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -299,16 +301,18 @@ function CoursesTab() {
   return (
     <div>
       <div className="flex items-center justify-end mb-4">
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-          data-testid="button-add-course"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Course
-        </Button>
+        {canWrite && (
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+            data-testid="button-add-course"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Course
+          </Button>
+        )}
       </div>
       <Card className="border-card-border">
         <CardContent className="p-0">
@@ -346,25 +350,31 @@ function CoursesTab() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(row);
-                          setDialogOpen(true);
-                        }}
-                        data-testid={`button-edit-course-${row.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                        data-testid={`button-delete-course-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {canWrite && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            data-testid={`button-edit-course-${row.id}`}
+                            aria-label={`Edit ${row.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDeleteId(row.id)}
+                            data-testid={`button-delete-course-${row.id}`}
+                            aria-label={`Delete ${row.title}`}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -409,6 +419,7 @@ function RegistrationsTab() {
   const { data, isLoading } = useAdminListCourseRegistrations();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canWrite = useCanWrite(EDUCATION_WRITE);
 
   const updateMutation = useAdminUpdateCourseRegistration({
     mutation: {
@@ -478,6 +489,7 @@ function RegistrationsTab() {
                     <Select
                       value={row.status}
                       onValueChange={(status) => updateMutation.mutate({ id: row.id, data: { status } })}
+                      disabled={!canWrite}
                     >
                       <SelectTrigger className="w-36" data-testid={`select-registration-status-${row.id}`}>
                         <SelectValue>
