@@ -12,6 +12,7 @@
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
     "check-db": "node --experimental-strip-types src/check-connection.ts",
     "seed": "node --experimental-strip-types src/seed.ts",
+    "export-content-sql": "node --experimental-strip-types src/export-content-sql.ts",
     "reset-admin-password": "node --experimental-strip-types src/reset-admin-password.ts"
   },
   "dependencies": {
