@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Menu } from "lucide-react";
+import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 
 const NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
@@ -54,6 +55,11 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
+      <div className="bg-primary/5 border-b border-border/60">
+        <div className="mx-auto max-w-6xl px-6 py-1.5 flex justify-center md:justify-end">
+          <PrayerTimesWidget variant="compact" />
+        </div>
+      </div>
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-lg">

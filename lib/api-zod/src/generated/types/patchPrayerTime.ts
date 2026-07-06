@@ -24,4 +24,5 @@ export interface PatchPrayerTime {
   jummahIqamah?: string | null;
   /** @nullable */
   sunrise?: string | null;
+  isManualOverride?: boolean;
 }

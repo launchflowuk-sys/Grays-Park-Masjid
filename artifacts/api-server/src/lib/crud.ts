@@ -10,7 +10,7 @@ type AnyTable = PgTableWithColumns<any>;
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
-function coerceDates(value: unknown): unknown {
+export function coerceDates(value: unknown): unknown {
   if (typeof value === "string" && ISO_DATE_RE.test(value)) {
     return new Date(value);
   }
@@ -27,7 +27,7 @@ function coerceDates(value: unknown): unknown {
   return value;
 }
 
-function serialize(row: Record<string, unknown>) {
+export function serialize(row: Record<string, unknown>) {
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(row)) {
     out[key] = value instanceof Date ? value.toISOString() : value;

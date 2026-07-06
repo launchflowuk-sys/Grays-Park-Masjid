@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import PrayerTimesPage from "@/pages/prayer-times";
+import PrayerTimesDisplayPage from "@/pages/prayer-times-display";
 import TimetablePage from "@/pages/timetable";
 import AboutPage from "@/pages/about";
 import ServicesPage from "@/pages/services";
@@ -55,6 +56,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/prayer-times" component={PrayerTimesPage} />
+      <Route path="/prayer-times/display" component={PrayerTimesDisplayPage} />
       <Route path="/timetable" component={TimetablePage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/services" component={ServicesPage} />

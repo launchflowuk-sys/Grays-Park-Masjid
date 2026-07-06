@@ -1,20 +1,16 @@
+import { Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useListPrayerTimesPublic } from "@workspace/api-client-react";
-import { Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PrayerTimesWidget, usePrayerTimesToday } from "@/components/prayer-times-widget";
+import { Clock, Maximize2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 export default function PrayerTimesPage() {
-  const { data, isLoading } = useListPrayerTimesPublic();
-  const today = todayIso();
+  const { data, isLoading, today, todayRow } = usePrayerTimesToday();
   const sorted = [...(data ?? [])].sort((a, b) => a.date.localeCompare(b.date));
-  const todayRow = sorted.find((p) => p.date === today);
   const upcoming = sorted.filter((p) => p.date >= today);
 
   return (
@@ -28,6 +24,18 @@ export default function PrayerTimesPage() {
             <p className="mt-3 text-primary-foreground/80 max-w-xl mx-auto">
               Daily Adhan and Iqamah times for Grays Park Masjid.
             </p>
+            <div className="mt-6">
+              <Link href="/prayer-times/display">
+                <Button
+                  variant="outline"
+                  className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10"
+                  data-testid="button-kiosk-display"
+                >
+                  <Maximize2 className="h-4 w-4 mr-2" />
+                  Full-Screen Display
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -39,6 +47,9 @@ export default function PrayerTimesPage() {
               <h2 className="font-serif text-2xl mb-6 text-center">
                 Today &mdash; {format(parseISO(todayRow.date), "EEEE d MMMM yyyy")}
               </h2>
+              <div className="mb-16">
+                <PrayerTimesWidget variant="full" />
+              </div>
               <div className="overflow-x-auto mb-16">
                 <Table>
                   <TableHeader>

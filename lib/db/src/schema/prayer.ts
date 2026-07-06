@@ -18,6 +18,7 @@ export const prayerTimesTable = pgTable("prayer_times", {
   jummahKhutbah: text("jummah_khutbah"),
   jummahIqamah: text("jummah_iqamah"),
   sunrise: text("sunrise"),
+  isManualOverride: boolean("is_manual_override").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

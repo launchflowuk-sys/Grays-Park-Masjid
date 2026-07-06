@@ -24,4 +24,5 @@ export interface InsertPrayerTime {
   jummahIqamah?: string | null;
   /** @nullable */
   sunrise?: string | null;
+  isManualOverride?: boolean;
 }

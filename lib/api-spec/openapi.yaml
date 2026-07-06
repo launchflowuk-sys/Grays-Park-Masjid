@@ -465,6 +465,77 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /admin/prayer-times/generate:
+    post:
+      operationId: adminGeneratePrayerTimes
+      tags: [prayer]
+      summary: Generate/regenerate calculated prayer times for a date range (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneratePrayerTimesRequest"
+      responses:
+        "200":
+          description: Generation summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratePrayerTimesResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/prayer-calculation-settings:
+    get:
+      operationId: adminGetPrayerCalculationSettings
+      tags: [prayer]
+      summary: Get prayer time calculation settings (admin)
+      responses:
+        "200":
+          description: The calculation settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerCalculationSettings"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdatePrayerCalculationSettings
+      tags: [prayer]
+      summary: Update prayer time calculation settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchPrayerCalculationSettings"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerCalculationSettings"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /timetable-pdfs:
     get:
       operationId: listTimetablePdfsPublic
@@ -2645,6 +2716,8 @@ components:
           type: ["string", "null"]
         sunrise:
           type: ["string", "null"]
+        isManualOverride:
+          type: boolean
         createdAt:
           type: string
       required:
@@ -2660,6 +2733,7 @@ components:
         - maghribIqamah
         - ishaAdhan
         - ishaIqamah
+        - isManualOverride
         - createdAt
     InsertPrayerTime:
       type: object
@@ -2692,6 +2766,8 @@ components:
           type: ["string", "null"]
         sunrise:
           type: ["string", "null"]
+        isManualOverride:
+          type: boolean
       required:
         - date
         - fajrAdhan
@@ -2735,6 +2811,170 @@ components:
           type: ["string", "null"]
         sunrise:
           type: ["string", "null"]
+        isManualOverride:
+          type: boolean
+    PrayerCalculationSettings:
+      type: object
+      properties:
+        id:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        timezone:
+          type: string
+        calculationMethod:
+          type: string
+          enum:
+            [
+              MuslimWorldLeague,
+              Egyptian,
+              Karachi,
+              UmmAlQura,
+              Dubai,
+              MoonsightingCommittee,
+              NorthAmerica,
+              Kuwait,
+              Qatar,
+              Singapore,
+              Tehran,
+              Turkey,
+              Other,
+            ]
+        madhab:
+          type: string
+          enum: [shafi, hanafi]
+        highLatitudeRule:
+          type: string
+          enum: [middleofthenight, seventhofthenight, twilightangle]
+        fajrAdjustment:
+          type: integer
+        sunriseAdjustment:
+          type: integer
+        dhuhrAdjustment:
+          type: integer
+        asrAdjustment:
+          type: integer
+        maghribAdjustment:
+          type: integer
+        ishaAdjustment:
+          type: integer
+        fajrIqamahOffset:
+          type: integer
+        dhuhrIqamahOffset:
+          type: integer
+        asrIqamahOffset:
+          type: integer
+        maghribIqamahOffset:
+          type: integer
+        ishaIqamahOffset:
+          type: integer
+        iqamahRoundingMinutes:
+          type: integer
+        updatedAt:
+          type: string
+      required:
+        - id
+        - latitude
+        - longitude
+        - timezone
+        - calculationMethod
+        - madhab
+        - highLatitudeRule
+        - fajrAdjustment
+        - sunriseAdjustment
+        - dhuhrAdjustment
+        - asrAdjustment
+        - maghribAdjustment
+        - ishaAdjustment
+        - fajrIqamahOffset
+        - dhuhrIqamahOffset
+        - asrIqamahOffset
+        - maghribIqamahOffset
+        - ishaIqamahOffset
+        - iqamahRoundingMinutes
+        - updatedAt
+    PatchPrayerCalculationSettings:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        timezone:
+          type: string
+        calculationMethod:
+          type: string
+          enum:
+            [
+              MuslimWorldLeague,
+              Egyptian,
+              Karachi,
+              UmmAlQura,
+              Dubai,
+              MoonsightingCommittee,
+              NorthAmerica,
+              Kuwait,
+              Qatar,
+              Singapore,
+              Tehran,
+              Turkey,
+              Other,
+            ]
+        madhab:
+          type: string
+          enum: [shafi, hanafi]
+        highLatitudeRule:
+          type: string
+          enum: [middleofthenight, seventhofthenight, twilightangle]
+        fajrAdjustment:
+          type: integer
+        sunriseAdjustment:
+          type: integer
+        dhuhrAdjustment:
+          type: integer
+        asrAdjustment:
+          type: integer
+        maghribAdjustment:
+          type: integer
+        ishaAdjustment:
+          type: integer
+        fajrIqamahOffset:
+          type: integer
+        dhuhrIqamahOffset:
+          type: integer
+        asrIqamahOffset:
+          type: integer
+        maghribIqamahOffset:
+          type: integer
+        ishaIqamahOffset:
+          type: integer
+        iqamahRoundingMinutes:
+          type: integer
+    GeneratePrayerTimesRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+        endDate:
+          type: string
+      required:
+        - startDate
+        - endDate
+    GeneratePrayerTimesResponse:
+      type: object
+      properties:
+        generated:
+          type: integer
+        skipped:
+          type: integer
+        total:
+          type: integer
+      required:
+        - generated
+        - skipped
+        - total
     TimetablePdf:
       type: object
       properties:

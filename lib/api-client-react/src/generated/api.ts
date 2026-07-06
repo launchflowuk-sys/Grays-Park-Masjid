@@ -36,6 +36,8 @@ import type {
   ForgotPasswordInput,
   GalleryAlbum,
   GalleryMedia,
+  GeneratePrayerTimesRequest,
+  GeneratePrayerTimesResponse,
   HealthStatus,
   InsertAnnouncement,
   InsertCourse,
@@ -71,12 +73,14 @@ import type {
   PatchMember,
   PatchNewsPost,
   PatchNotificationRecipientInput,
+  PatchPrayerCalculationSettings,
   PatchPrayerTime,
   PatchService,
   PatchStaffMember,
   PatchTimetablePdf,
   PatchVolunteerApplication,
   PatchVolunteerOpportunity,
+  PrayerCalculationSettings,
   PrayerTime,
   ResetPasswordInput,
   Service,
@@ -1568,6 +1572,223 @@ export const useAdminDeletePrayerTime = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getAdminDeletePrayerTimeMutationOptions(options));
+    }
+
+export const getAdminGeneratePrayerTimesUrl = () => {
+
+
+
+
+  return `/api/admin/prayer-times/generate`
+}
+
+/**
+ * @summary Generate/regenerate calculated prayer times for a date range (admin)
+ */
+export const adminGeneratePrayerTimes = async (generatePrayerTimesRequest: GeneratePrayerTimesRequest, options?: RequestInit): Promise<GeneratePrayerTimesResponse> => {
+
+  return customFetch<GeneratePrayerTimesResponse>(getAdminGeneratePrayerTimesUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(generatePrayerTimesRequest)
+  }
+);}
+
+
+
+
+export const getAdminGeneratePrayerTimesMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminGeneratePrayerTimes>>, TError,{data: BodyType<GeneratePrayerTimesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminGeneratePrayerTimes>>, TError,{data: BodyType<GeneratePrayerTimesRequest>}, TContext> => {
+
+const mutationKey = ['adminGeneratePrayerTimes'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminGeneratePrayerTimes>>, {data: BodyType<GeneratePrayerTimesRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminGeneratePrayerTimes(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminGeneratePrayerTimesMutationResult = NonNullable<Awaited<ReturnType<typeof adminGeneratePrayerTimes>>>
+    export type AdminGeneratePrayerTimesMutationBody = BodyType<GeneratePrayerTimesRequest>
+    export type AdminGeneratePrayerTimesMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Generate/regenerate calculated prayer times for a date range (admin)
+ */
+export const useAdminGeneratePrayerTimes = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminGeneratePrayerTimes>>, TError,{data: BodyType<GeneratePrayerTimesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminGeneratePrayerTimes>>,
+        TError,
+        {data: BodyType<GeneratePrayerTimesRequest>},
+        TContext
+      > => {
+      return useMutation(getAdminGeneratePrayerTimesMutationOptions(options));
+    }
+
+export const getAdminGetPrayerCalculationSettingsUrl = () => {
+
+
+
+
+  return `/api/admin/prayer-calculation-settings`
+}
+
+/**
+ * @summary Get prayer time calculation settings (admin)
+ */
+export const adminGetPrayerCalculationSettings = async ( options?: RequestInit): Promise<PrayerCalculationSettings> => {
+
+  return customFetch<PrayerCalculationSettings>(getAdminGetPrayerCalculationSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetPrayerCalculationSettingsQueryKey = () => {
+    return [
+    `/api/admin/prayer-calculation-settings`
+    ] as const;
+    }
+
+
+export const getAdminGetPrayerCalculationSettingsQueryOptions = <TData = Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetPrayerCalculationSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>> = ({ signal }) => adminGetPrayerCalculationSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetPrayerCalculationSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>>
+export type AdminGetPrayerCalculationSettingsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get prayer time calculation settings (admin)
+ */
+
+export function useAdminGetPrayerCalculationSettings<TData = Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetPrayerCalculationSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetPrayerCalculationSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdatePrayerCalculationSettingsUrl = () => {
+
+
+
+
+  return `/api/admin/prayer-calculation-settings`
+}
+
+/**
+ * @summary Update prayer time calculation settings (admin)
+ */
+export const adminUpdatePrayerCalculationSettings = async (patchPrayerCalculationSettings: PatchPrayerCalculationSettings, options?: RequestInit): Promise<PrayerCalculationSettings> => {
+
+  return customFetch<PrayerCalculationSettings>(getAdminUpdatePrayerCalculationSettingsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchPrayerCalculationSettings)
+  }
+);}
+
+
+
+
+export const getAdminUpdatePrayerCalculationSettingsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>, TError,{data: BodyType<PatchPrayerCalculationSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>, TError,{data: BodyType<PatchPrayerCalculationSettings>}, TContext> => {
+
+const mutationKey = ['adminUpdatePrayerCalculationSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>, {data: BodyType<PatchPrayerCalculationSettings>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminUpdatePrayerCalculationSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdatePrayerCalculationSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>>
+    export type AdminUpdatePrayerCalculationSettingsMutationBody = BodyType<PatchPrayerCalculationSettings>
+    export type AdminUpdatePrayerCalculationSettingsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update prayer time calculation settings (admin)
+ */
+export const useAdminUpdatePrayerCalculationSettings = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>, TError,{data: BodyType<PatchPrayerCalculationSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdatePrayerCalculationSettings>>,
+        TError,
+        {data: BodyType<PatchPrayerCalculationSettings>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdatePrayerCalculationSettingsMutationOptions(options));
     }
 
 export const getListTimetablePdfsPublicUrl = () => {

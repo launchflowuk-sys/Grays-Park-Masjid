@@ -268,6 +268,7 @@ export const ListPrayerTimesPublicResponseItem = zod.object({
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
   "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean(),
   "createdAt": zod.string()
 })
 export const ListPrayerTimesPublicResponse = zod.array(ListPrayerTimesPublicResponseItem)
@@ -292,6 +293,7 @@ export const AdminListPrayerTimesResponseItem = zod.object({
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
   "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean(),
   "createdAt": zod.string()
 })
 export const AdminListPrayerTimesResponse = zod.array(AdminListPrayerTimesResponseItem)
@@ -314,7 +316,8 @@ export const AdminCreatePrayerTimeBody = zod.object({
   "ishaIqamah": zod.string(),
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
-  "sunrise": zod.string().nullish()
+  "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean().optional()
 })
 
 export const AdminCreatePrayerTimeResponse = zod.object({
@@ -333,6 +336,7 @@ export const AdminCreatePrayerTimeResponse = zod.object({
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
   "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean(),
   "createdAt": zod.string()
 })
 
@@ -360,6 +364,7 @@ export const AdminGetPrayerTimeResponse = zod.object({
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
   "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean(),
   "createdAt": zod.string()
 })
 
@@ -385,7 +390,8 @@ export const AdminUpdatePrayerTimeBody = zod.object({
   "ishaIqamah": zod.string().optional(),
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
-  "sunrise": zod.string().nullish()
+  "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean().optional()
 })
 
 export const AdminUpdatePrayerTimeResponse = zod.object({
@@ -404,6 +410,7 @@ export const AdminUpdatePrayerTimeResponse = zod.object({
   "jummahKhutbah": zod.string().nullish(),
   "jummahIqamah": zod.string().nullish(),
   "sunrise": zod.string().nullish(),
+  "isManualOverride": zod.boolean(),
   "createdAt": zod.string()
 })
 
@@ -416,6 +423,96 @@ export const AdminDeletePrayerTimeParams = zod.object({
 })
 
 export const AdminDeletePrayerTimeResponse = zod.void()
+
+
+/**
+ * @summary Generate/regenerate calculated prayer times for a date range (admin)
+ */
+export const AdminGeneratePrayerTimesBody = zod.object({
+  "startDate": zod.string(),
+  "endDate": zod.string()
+})
+
+export const AdminGeneratePrayerTimesResponse = zod.object({
+  "generated": zod.number(),
+  "skipped": zod.number(),
+  "total": zod.number()
+})
+
+
+/**
+ * @summary Get prayer time calculation settings (admin)
+ */
+export const AdminGetPrayerCalculationSettingsResponse = zod.object({
+  "id": zod.string(),
+  "latitude": zod.number(),
+  "longitude": zod.number(),
+  "timezone": zod.string(),
+  "calculationMethod": zod.enum(['MuslimWorldLeague', 'Egyptian', 'Karachi', 'UmmAlQura', 'Dubai', 'MoonsightingCommittee', 'NorthAmerica', 'Kuwait', 'Qatar', 'Singapore', 'Tehran', 'Turkey', 'Other']),
+  "madhab": zod.enum(['shafi', 'hanafi']),
+  "highLatitudeRule": zod.enum(['middleofthenight', 'seventhofthenight', 'twilightangle']),
+  "fajrAdjustment": zod.number(),
+  "sunriseAdjustment": zod.number(),
+  "dhuhrAdjustment": zod.number(),
+  "asrAdjustment": zod.number(),
+  "maghribAdjustment": zod.number(),
+  "ishaAdjustment": zod.number(),
+  "fajrIqamahOffset": zod.number(),
+  "dhuhrIqamahOffset": zod.number(),
+  "asrIqamahOffset": zod.number(),
+  "maghribIqamahOffset": zod.number(),
+  "ishaIqamahOffset": zod.number(),
+  "iqamahRoundingMinutes": zod.number(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update prayer time calculation settings (admin)
+ */
+export const AdminUpdatePrayerCalculationSettingsBody = zod.object({
+  "latitude": zod.number().optional(),
+  "longitude": zod.number().optional(),
+  "timezone": zod.string().optional(),
+  "calculationMethod": zod.enum(['MuslimWorldLeague', 'Egyptian', 'Karachi', 'UmmAlQura', 'Dubai', 'MoonsightingCommittee', 'NorthAmerica', 'Kuwait', 'Qatar', 'Singapore', 'Tehran', 'Turkey', 'Other']).optional(),
+  "madhab": zod.enum(['shafi', 'hanafi']).optional(),
+  "highLatitudeRule": zod.enum(['middleofthenight', 'seventhofthenight', 'twilightangle']).optional(),
+  "fajrAdjustment": zod.number().optional(),
+  "sunriseAdjustment": zod.number().optional(),
+  "dhuhrAdjustment": zod.number().optional(),
+  "asrAdjustment": zod.number().optional(),
+  "maghribAdjustment": zod.number().optional(),
+  "ishaAdjustment": zod.number().optional(),
+  "fajrIqamahOffset": zod.number().optional(),
+  "dhuhrIqamahOffset": zod.number().optional(),
+  "asrIqamahOffset": zod.number().optional(),
+  "maghribIqamahOffset": zod.number().optional(),
+  "ishaIqamahOffset": zod.number().optional(),
+  "iqamahRoundingMinutes": zod.number().optional()
+})
+
+export const AdminUpdatePrayerCalculationSettingsResponse = zod.object({
+  "id": zod.string(),
+  "latitude": zod.number(),
+  "longitude": zod.number(),
+  "timezone": zod.string(),
+  "calculationMethod": zod.enum(['MuslimWorldLeague', 'Egyptian', 'Karachi', 'UmmAlQura', 'Dubai', 'MoonsightingCommittee', 'NorthAmerica', 'Kuwait', 'Qatar', 'Singapore', 'Tehran', 'Turkey', 'Other']),
+  "madhab": zod.enum(['shafi', 'hanafi']),
+  "highLatitudeRule": zod.enum(['middleofthenight', 'seventhofthenight', 'twilightangle']),
+  "fajrAdjustment": zod.number(),
+  "sunriseAdjustment": zod.number(),
+  "dhuhrAdjustment": zod.number(),
+  "asrAdjustment": zod.number(),
+  "maghribAdjustment": zod.number(),
+  "ishaAdjustment": zod.number(),
+  "fajrIqamahOffset": zod.number(),
+  "dhuhrIqamahOffset": zod.number(),
+  "asrIqamahOffset": zod.number(),
+  "maghribIqamahOffset": zod.number(),
+  "ishaIqamahOffset": zod.number(),
+  "iqamahRoundingMinutes": zod.number(),
+  "updatedAt": zod.string()
+})
 
 
 /**

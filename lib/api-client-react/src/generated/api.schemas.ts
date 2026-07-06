@@ -153,6 +153,7 @@ export interface PrayerTime {
   jummahIqamah?: string | null;
   /** @nullable */
   sunrise?: string | null;
+  isManualOverride: boolean;
   createdAt: string;
 }
 
@@ -174,6 +175,7 @@ export interface InsertPrayerTime {
   jummahIqamah?: string | null;
   /** @nullable */
   sunrise?: string | null;
+  isManualOverride?: boolean;
 }
 
 export interface PatchPrayerTime {
@@ -194,6 +196,134 @@ export interface PatchPrayerTime {
   jummahIqamah?: string | null;
   /** @nullable */
   sunrise?: string | null;
+  isManualOverride?: boolean;
+}
+
+export type PrayerCalculationSettingsCalculationMethod = typeof PrayerCalculationSettingsCalculationMethod[keyof typeof PrayerCalculationSettingsCalculationMethod];
+
+
+export const PrayerCalculationSettingsCalculationMethod = {
+  MuslimWorldLeague: 'MuslimWorldLeague',
+  Egyptian: 'Egyptian',
+  Karachi: 'Karachi',
+  UmmAlQura: 'UmmAlQura',
+  Dubai: 'Dubai',
+  MoonsightingCommittee: 'MoonsightingCommittee',
+  NorthAmerica: 'NorthAmerica',
+  Kuwait: 'Kuwait',
+  Qatar: 'Qatar',
+  Singapore: 'Singapore',
+  Tehran: 'Tehran',
+  Turkey: 'Turkey',
+  Other: 'Other',
+} as const;
+
+export type PrayerCalculationSettingsMadhab = typeof PrayerCalculationSettingsMadhab[keyof typeof PrayerCalculationSettingsMadhab];
+
+
+export const PrayerCalculationSettingsMadhab = {
+  shafi: 'shafi',
+  hanafi: 'hanafi',
+} as const;
+
+export type PrayerCalculationSettingsHighLatitudeRule = typeof PrayerCalculationSettingsHighLatitudeRule[keyof typeof PrayerCalculationSettingsHighLatitudeRule];
+
+
+export const PrayerCalculationSettingsHighLatitudeRule = {
+  middleofthenight: 'middleofthenight',
+  seventhofthenight: 'seventhofthenight',
+  twilightangle: 'twilightangle',
+} as const;
+
+export interface PrayerCalculationSettings {
+  id: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  calculationMethod: PrayerCalculationSettingsCalculationMethod;
+  madhab: PrayerCalculationSettingsMadhab;
+  highLatitudeRule: PrayerCalculationSettingsHighLatitudeRule;
+  fajrAdjustment: number;
+  sunriseAdjustment: number;
+  dhuhrAdjustment: number;
+  asrAdjustment: number;
+  maghribAdjustment: number;
+  ishaAdjustment: number;
+  fajrIqamahOffset: number;
+  dhuhrIqamahOffset: number;
+  asrIqamahOffset: number;
+  maghribIqamahOffset: number;
+  ishaIqamahOffset: number;
+  iqamahRoundingMinutes: number;
+  updatedAt: string;
+}
+
+export type PatchPrayerCalculationSettingsCalculationMethod = typeof PatchPrayerCalculationSettingsCalculationMethod[keyof typeof PatchPrayerCalculationSettingsCalculationMethod];
+
+
+export const PatchPrayerCalculationSettingsCalculationMethod = {
+  MuslimWorldLeague: 'MuslimWorldLeague',
+  Egyptian: 'Egyptian',
+  Karachi: 'Karachi',
+  UmmAlQura: 'UmmAlQura',
+  Dubai: 'Dubai',
+  MoonsightingCommittee: 'MoonsightingCommittee',
+  NorthAmerica: 'NorthAmerica',
+  Kuwait: 'Kuwait',
+  Qatar: 'Qatar',
+  Singapore: 'Singapore',
+  Tehran: 'Tehran',
+  Turkey: 'Turkey',
+  Other: 'Other',
+} as const;
+
+export type PatchPrayerCalculationSettingsMadhab = typeof PatchPrayerCalculationSettingsMadhab[keyof typeof PatchPrayerCalculationSettingsMadhab];
+
+
+export const PatchPrayerCalculationSettingsMadhab = {
+  shafi: 'shafi',
+  hanafi: 'hanafi',
+} as const;
+
+export type PatchPrayerCalculationSettingsHighLatitudeRule = typeof PatchPrayerCalculationSettingsHighLatitudeRule[keyof typeof PatchPrayerCalculationSettingsHighLatitudeRule];
+
+
+export const PatchPrayerCalculationSettingsHighLatitudeRule = {
+  middleofthenight: 'middleofthenight',
+  seventhofthenight: 'seventhofthenight',
+  twilightangle: 'twilightangle',
+} as const;
+
+export interface PatchPrayerCalculationSettings {
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  calculationMethod?: PatchPrayerCalculationSettingsCalculationMethod;
+  madhab?: PatchPrayerCalculationSettingsMadhab;
+  highLatitudeRule?: PatchPrayerCalculationSettingsHighLatitudeRule;
+  fajrAdjustment?: number;
+  sunriseAdjustment?: number;
+  dhuhrAdjustment?: number;
+  asrAdjustment?: number;
+  maghribAdjustment?: number;
+  ishaAdjustment?: number;
+  fajrIqamahOffset?: number;
+  dhuhrIqamahOffset?: number;
+  asrIqamahOffset?: number;
+  maghribIqamahOffset?: number;
+  ishaIqamahOffset?: number;
+  iqamahRoundingMinutes?: number;
+}
+
+export interface GeneratePrayerTimesRequest {
+  startDate: string;
+  endDate: string;
+}
+
+export interface GeneratePrayerTimesResponse {
+  generated: number;
+  skipped: number;
+  total: number;
 }
 
 export interface TimetablePdf {

@@ -43,13 +43,28 @@ import {
   useAdminCreateTimetablePdf,
   useAdminUpdateTimetablePdf,
   useAdminDeleteTimetablePdf,
+  useAdminGetPrayerCalculationSettings,
+  useAdminUpdatePrayerCalculationSettings,
+  useAdminGeneratePrayerTimes,
   getAdminListPrayerTimesQueryKey,
   getAdminListTimetablePdfsQueryKey,
+  getAdminGetPrayerCalculationSettingsQueryKey,
+  getListPrayerTimesPublicQueryKey,
+  PrayerCalculationSettingsCalculationMethod,
+  PrayerCalculationSettingsMadhab,
+  PrayerCalculationSettingsHighLatitudeRule,
   type PrayerTime,
   type TimetablePdf,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, FileText, Sparkles, Settings2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ObjectUploader } from "@workspace/object-storage-web";
 import type { UppyFile, UploadResult } from "@uppy/core";
@@ -330,19 +345,20 @@ function PrayerTimesTab() {
                 <TableHead>Asr</TableHead>
                 <TableHead>Maghrib</TableHead>
                 <TableHead>Isha</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : sorted.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                     No prayer times yet.
                   </TableCell>
                 </TableRow>
@@ -355,6 +371,18 @@ function PrayerTimesTab() {
                     <TableCell>{row.asrIqamah}</TableCell>
                     <TableCell>{row.maghribIqamah}</TableCell>
                     <TableCell>{row.ishaIqamah}</TableCell>
+                    <TableCell>
+                      {row.isManualOverride ? (
+                        <span
+                          className="inline-flex items-center rounded-full bg-secondary/20 px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                          data-testid={`badge-override-${row.id}`}
+                        >
+                          Manual
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Calculated</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right space-x-1">
                       {canWrite && (
                         <>
@@ -745,6 +773,367 @@ function TimetablePdfsTab() {
   );
 }
 
+const calculationSettingsSchema = z.object({
+  latitude: z.coerce.number().min(-90).max(90),
+  longitude: z.coerce.number().min(-180).max(180),
+  timezone: z.string().min(1, "Timezone is required"),
+  calculationMethod: z.nativeEnum(PrayerCalculationSettingsCalculationMethod),
+  madhab: z.nativeEnum(PrayerCalculationSettingsMadhab),
+  highLatitudeRule: z.nativeEnum(PrayerCalculationSettingsHighLatitudeRule),
+  fajrAdjustment: z.coerce.number(),
+  sunriseAdjustment: z.coerce.number(),
+  dhuhrAdjustment: z.coerce.number(),
+  asrAdjustment: z.coerce.number(),
+  maghribAdjustment: z.coerce.number(),
+  ishaAdjustment: z.coerce.number(),
+  fajrIqamahOffset: z.coerce.number(),
+  dhuhrIqamahOffset: z.coerce.number(),
+  asrIqamahOffset: z.coerce.number(),
+  maghribIqamahOffset: z.coerce.number(),
+  ishaIqamahOffset: z.coerce.number(),
+  iqamahRoundingMinutes: z.coerce.number().min(0),
+});
+type CalculationSettingsForm = z.infer<typeof calculationSettingsSchema>;
+
+const METHOD_OPTIONS = Object.values(PrayerCalculationSettingsCalculationMethod);
+const MADHAB_OPTIONS = Object.values(PrayerCalculationSettingsMadhab);
+const HIGH_LAT_OPTIONS = Object.values(PrayerCalculationSettingsHighLatitudeRule);
+
+function CalculationSettingsTab() {
+  const { data: settings, isLoading } = useAdminGetPrayerCalculationSettings();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const canWrite = useCanWrite(MASJID_WRITE);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const form = useForm<CalculationSettingsForm>({
+    resolver: zodResolver(calculationSettingsSchema),
+    values: settings
+      ? {
+          latitude: settings.latitude,
+          longitude: settings.longitude,
+          timezone: settings.timezone,
+          calculationMethod: settings.calculationMethod,
+          madhab: settings.madhab,
+          highLatitudeRule: settings.highLatitudeRule,
+          fajrAdjustment: settings.fajrAdjustment,
+          sunriseAdjustment: settings.sunriseAdjustment,
+          dhuhrAdjustment: settings.dhuhrAdjustment,
+          asrAdjustment: settings.asrAdjustment,
+          maghribAdjustment: settings.maghribAdjustment,
+          ishaAdjustment: settings.ishaAdjustment,
+          fajrIqamahOffset: settings.fajrIqamahOffset,
+          dhuhrIqamahOffset: settings.dhuhrIqamahOffset,
+          asrIqamahOffset: settings.asrIqamahOffset,
+          maghribIqamahOffset: settings.maghribIqamahOffset,
+          ishaIqamahOffset: settings.ishaIqamahOffset,
+          iqamahRoundingMinutes: settings.iqamahRoundingMinutes,
+        }
+      : undefined,
+  });
+
+  const updateMutation = useAdminUpdatePrayerCalculationSettings({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminGetPrayerCalculationSettingsQueryKey() });
+        toast({ title: "Calculation settings saved" });
+      },
+      onError: (error: unknown) =>
+        toast({ title: "Failed to save", description: error instanceof Error ? error.message : undefined, variant: "destructive" }),
+    },
+  });
+
+  const generateMutation = useAdminGeneratePrayerTimes({
+    mutation: {
+      onSuccess: (result) => {
+        queryClient.invalidateQueries({ queryKey: getAdminListPrayerTimesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListPrayerTimesPublicQueryKey() });
+        toast({
+          title: "Prayer times generated",
+          description: `${result.generated} generated, ${result.skipped} skipped (manual overrides), ${result.total} total.`,
+        });
+        setGenerateOpen(false);
+      },
+      onError: (error: unknown) =>
+        toast({ title: "Failed to generate", description: error instanceof Error ? error.message : undefined, variant: "destructive" }),
+    },
+  });
+
+  function onSubmit(values: CalculationSettingsForm) {
+    updateMutation.mutate({ data: values });
+  }
+
+  if (isLoading) {
+    return <p className="text-muted-foreground">Loading settings...</p>;
+  }
+
+  return (
+    <div className="space-y-8">
+      <Card className="border-card-border">
+        <CardContent className="pt-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="font-medium flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Generate Prayer Times
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Automatically calculate Adhan/Iqamah times for a date range using the settings below.
+              Dates with manual overrides are left untouched.
+            </p>
+          </div>
+          {canWrite && (
+            <Button onClick={() => setGenerateOpen(true)} data-testid="button-generate-prayer-times">
+              Generate / Regenerate
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="border-card-border">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-medium flex items-center gap-2">
+                <Settings2 className="h-4 w-4 text-primary" />
+                Location &amp; Method
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="latitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Latitude</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="any" data-testid="input-latitude" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="longitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Longitude</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="any" data-testid="input-longitude" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="timezone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Timezone (IANA)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Europe/London" data-testid="input-timezone" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="calculationMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Calculation Method</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-calculation-method">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {METHOD_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="madhab"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Madhab (Asr calculation)</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-madhab">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {MADHAB_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="highLatitudeRule"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>High Latitude Rule</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-high-latitude-rule">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {HIGH_LAT_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-card-border">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-medium">Adhan Time Adjustments (minutes)</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {(
+                  [
+                    ["fajrAdjustment", "Fajr"],
+                    ["sunriseAdjustment", "Sunrise"],
+                    ["dhuhrAdjustment", "Dhuhr"],
+                    ["asrAdjustment", "Asr"],
+                    ["maghribAdjustment", "Maghrib"],
+                    ["ishaAdjustment", "Isha"],
+                  ] as const
+                ).map(([name, label]) => (
+                  <FormField
+                    key={name}
+                    control={form.control}
+                    name={name}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{label}</FormLabel>
+                        <FormControl>
+                          <Input type="number" data-testid={`input-${name}`} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-card-border">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-medium">Iqamah Offsets (minutes after Adhan)</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {(
+                  [
+                    ["fajrIqamahOffset", "Fajr"],
+                    ["dhuhrIqamahOffset", "Dhuhr"],
+                    ["asrIqamahOffset", "Asr"],
+                    ["maghribIqamahOffset", "Maghrib"],
+                    ["ishaIqamahOffset", "Isha"],
+                    ["iqamahRoundingMinutes", "Round to nearest"],
+                  ] as const
+                ).map(([name, label]) => (
+                  <FormField
+                    key={name}
+                    control={form.control}
+                    name={name}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{label}</FormLabel>
+                        <FormControl>
+                          <Input type="number" min={0} data-testid={`input-${name}`} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {canWrite && (
+            <Button type="submit" disabled={updateMutation.isPending} data-testid="button-save-calculation-settings">
+              {updateMutation.isPending ? "Saving..." : "Save Settings"}
+            </Button>
+          )}
+        </form>
+      </Form>
+
+      <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate Prayer Times</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Choose a date range (max 400 days). Existing manual overrides will not be changed.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Start date</label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  data-testid="input-generate-start-date"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">End date</label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  data-testid="input-generate-end-date"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => generateMutation.mutate({ data: { startDate, endDate } })}
+              disabled={!startDate || !endDate || generateMutation.isPending}
+              data-testid="button-confirm-generate"
+            >
+              {generateMutation.isPending ? "Generating..." : "Generate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 export default function AdminPrayerTimesPage() {
   return (
     <AdminLayout>
@@ -753,10 +1142,14 @@ export default function AdminPrayerTimesPage() {
       <Tabs defaultValue="daily">
         <TabsList>
           <TabsTrigger value="daily" data-testid="tab-daily">Daily Times</TabsTrigger>
+          <TabsTrigger value="settings" data-testid="tab-settings">Calculation Settings</TabsTrigger>
           <TabsTrigger value="pdfs" data-testid="tab-pdfs">Timetable PDFs</TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className="mt-6">
           <PrayerTimesTab />
+        </TabsContent>
+        <TabsContent value="settings" className="mt-6">
+          <CalculationSettingsTab />
         </TabsContent>
         <TabsContent value="pdfs" className="mt-6">
           <TimetablePdfsTab />

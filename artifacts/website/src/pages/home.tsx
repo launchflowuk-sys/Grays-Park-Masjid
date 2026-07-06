@@ -4,25 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Clock, HandHeart, MapPin, GraduationCap, Users, BookOpen } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
-import { useListPrayerTimesPublic } from "@workspace/api-client-react";
-
-const PRAYER_ORDER = [
-  { key: "fajr", label: "Fajr" },
-  { key: "dhuhr", label: "Dhuhr" },
-  { key: "asr", label: "Asr" },
-  { key: "maghrib", label: "Maghrib" },
-  { key: "isha", label: "Isha" },
-] as const;
-
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
-}
+import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 
 export default function Home() {
-  const { data: prayerTimes, isLoading } = useListPrayerTimesPublic();
-  const today = todayIso();
-  const todayRow = prayerTimes?.find((p) => p.date === today);
-
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SiteHeader />
@@ -65,28 +49,7 @@ export default function Home() {
           <Clock className="h-5 w-5 text-primary" />
           <h2 className="font-serif text-2xl md:text-3xl text-center">Today's Prayer Times</h2>
         </div>
-        {isLoading ? (
-          <p className="text-center text-muted-foreground">Loading prayer times...</p>
-        ) : todayRow ? (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            {PRAYER_ORDER.map((prayer) => (
-              <Card key={prayer.key} className="text-center border-card-border" data-testid={`card-prayer-${prayer.key}`}>
-                <CardContent className="py-6">
-                  <p className="text-sm uppercase tracking-wide text-muted-foreground">
-                    {prayer.label}
-                  </p>
-                  <p className="mt-2 font-serif text-2xl text-primary">
-                    {todayRow[`${prayer.key}Iqamah` as keyof typeof todayRow] as string}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-muted-foreground">
-            Prayer times have not been published yet. Check back soon.
-          </p>
-        )}
+        <PrayerTimesWidget variant="full" />
         <div className="text-center mt-8">
           <Link href="/prayer-times" className="text-primary font-medium hover:underline" data-testid="link-full-prayer-times">
             View full prayer timetable &rarr;

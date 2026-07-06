@@ -1,6 +1,7 @@
 export * from "./admin-users";
 export * from "./password-reset-tokens";
 export * from "./prayer";
+export * from "./prayer-settings";
 export * from "./announcements";
 export * from "./events";
 export * from "./courses";
