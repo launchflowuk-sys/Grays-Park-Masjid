@@ -10,3 +10,4 @@
 - [drizzle-kit push schema sync in Docker Compose deploys](drizzle-push-based-schema-sync.md) — no migration files here; forgetting to re-run `drizzle-kit push` against prod after a schema change causes widespread unrelated-looking 500s.
 - [Express 5 route-param typing quirk](express5-route-param-typing.md) — literal route path strings can type `req.params.id` as `string|string[]`, breaking drizzle `eq()`; extract to a `const id: string` first.
 - [Public settings endpoint uses an allowlist](public-settings-allowlist.md) — new site_settings keys need adding to PUBLIC_SETTING_KEYS server-side or the public GET returns 404 even with a valid row.
+- [Coolify external Postgres access from the agent workspace](coolify-external-postgres-access.md) — external connection strings can fail auth even when correct; run one-off data loads via a heredoc pasted into Coolify's own container terminal instead.
