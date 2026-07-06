@@ -1,5 +1,7 @@
 # Grays Park Masjid
 
+> **Production source of truth: the user's self-hosted Coolify deployment (external server).** Replit Deployments/Publish is NOT used for this project and must be treated as irrelevant — do not check, reference, or suggest Replit's Publish flow, its "overwrite data" option, or its managed production database for schema or data sync. Production schema/data changes must go through the user's own Coolify-hosted Postgres (see `PROD_DATABASE_URL` / Docker Compose setup below). Do not re-ask the user which deployment is "real" production.
+
 A public website and admin CMS for Grays Park Masjid: membership applications, donations, prayer times, announcements, events, and gallery management.
 
 ## Run & Operate
