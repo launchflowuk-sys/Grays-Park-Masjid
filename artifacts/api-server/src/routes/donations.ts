@@ -15,7 +15,7 @@ import {
 } from "../lib/crud";
 import { ALL_ROLES, DONATION_WRITE } from "../lib/roles";
 import { requireAuth, requireRole } from "../middlewares/auth";
-import { createSquarePayment, squareConfig, SquarePaymentError } from "../lib/square";
+import { createSquarePayment, getSquareConfig, SquarePaymentError } from "../lib/square";
 import { logger } from "../lib/logger";
 import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
 import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "../lib/email-templates";
@@ -53,8 +53,15 @@ function serializeTransaction(row: typeof donationTransactionsTable.$inferSelect
   };
 }
 
-router.get("/donations/square-config", (_req: Request, res: Response) => {
-  res.json(squareConfig);
+router.get("/donations/square-config", async (_req: Request, res: Response) => {
+  const config = await getSquareConfig();
+
+  if (!config) {
+    res.status(503).json({ error: "Square is not configured yet" });
+    return;
+  }
+
+  res.json(config);
 });
 
 router.post("/donations/checkout", async (req: Request, res: Response) => {

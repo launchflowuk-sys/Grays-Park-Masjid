@@ -6,12 +6,41 @@ import { SUPER_ADMIN_ONLY, ALL_ROLES } from "../lib/roles";
 
 const router: IRouter = Router();
 
+// Only these keys may be read via the unauthenticated public endpoint below.
+// Anything not explicitly listed here (e.g. Square API credentials) stays
+// admin-only, even if a row for it exists in site_settings.
+const PUBLIC_SETTING_KEYS = new Set([
+  "site_phone",
+  "site_email",
+  "site_address",
+  "site_announcement",
+  "donation_bank_details",
+  "madrassah_content",
+  "sisters_facilities_content",
+  "youth_programmes_content",
+  "jumuah_content",
+  "funeral_content",
+  "nikah_content",
+  "ramadan_content",
+  "eid_content",
+  "zakat_content",
+  "safeguarding_content",
+  "policies_content",
+  "faqs_content",
+]);
+
 function serializeSetting(row: typeof siteSettingsTable.$inferSelect) {
   return { ...row, updatedAt: row.updatedAt.toISOString() };
 }
 
 router.get("/settings/:key", async (req: Request, res: Response) => {
   const key = String(req.params.key);
+
+  if (!PUBLIC_SETTING_KEYS.has(key)) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
   const [row] = await db
     .select()
     .from(siteSettingsTable)

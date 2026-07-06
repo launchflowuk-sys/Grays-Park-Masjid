@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
 
-const KNOWN_SETTINGS: { key: string; label: string; description: string; multiline?: boolean }[] = [
+const KNOWN_SETTINGS: { key: string; label: string; description: string; multiline?: boolean; secret?: boolean }[] = [
   { key: "site_phone", label: "Phone Number", description: "Displayed on the contact page." },
   { key: "site_email", label: "Contact Email", description: "Displayed on the contact page." },
   { key: "site_address", label: "Address", description: "Full postal address of the masjid." },
@@ -102,6 +102,22 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
       'Advanced: JSON array of {"question","answer"} objects shown on the public FAQs page. Leave blank to use the default FAQs.',
     multiline: true,
   },
+  {
+    key: "square_access_token",
+    label: "Square Access Token",
+    description: "Secret access token from your Square developer dashboard. Required to accept donations.",
+    secret: true,
+  },
+  {
+    key: "square_application_id",
+    label: "Square Application ID",
+    description: "Application ID from your Square developer dashboard (starts with \"sandbox-\" for test mode).",
+  },
+  {
+    key: "square_location_id",
+    label: "Square Location ID",
+    description: "The Square Location ID that donation payments should be recorded against.",
+  },
 ];
 
 function SettingField({
@@ -109,11 +125,13 @@ function SettingField({
   label,
   description,
   multiline,
+  secret,
 }: {
   settingKey: string;
   label: string;
   description: string;
   multiline?: boolean;
+  secret?: boolean;
 }) {
   const { data } = useAdminListSettings();
   const queryClient = useQueryClient();
@@ -154,6 +172,8 @@ function SettingField({
           />
         ) : (
           <Input
+            type={secret ? "password" : "text"}
+            autoComplete="off"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             data-testid={`input-setting-${settingKey}`}
@@ -173,19 +193,42 @@ function SettingField({
   );
 }
 
+const SQUARE_SETTING_KEYS = new Set(["square_access_token", "square_application_id", "square_location_id"]);
+const CONTENT_SETTINGS = KNOWN_SETTINGS.filter((s) => !SQUARE_SETTING_KEYS.has(s.key));
+const PAYMENT_SETTINGS = KNOWN_SETTINGS.filter((s) => SQUARE_SETTING_KEYS.has(s.key));
+
 export default function AdminSettingsPage() {
   return (
     <AdminLayout>
       <h1 className="font-serif text-3xl mb-2">Site Settings</h1>
       <p className="text-muted-foreground mb-6">Manage key content values shown across the public site.</p>
       <div className="space-y-4 max-w-2xl">
-        {KNOWN_SETTINGS.map((setting) => (
+        {CONTENT_SETTINGS.map((setting) => (
           <SettingField
             key={setting.key}
             settingKey={setting.key}
             label={setting.label}
             description={setting.description}
             multiline={setting.multiline}
+            secret={setting.secret}
+          />
+        ))}
+      </div>
+
+      <h2 className="font-serif text-2xl mt-10 mb-2">Payment Integration (Square)</h2>
+      <p className="text-muted-foreground mb-6">
+        Credentials used to accept donations. These are stored securely and are never exposed to visitors of the
+        public site.
+      </p>
+      <div className="space-y-4 max-w-2xl">
+        {PAYMENT_SETTINGS.map((setting) => (
+          <SettingField
+            key={setting.key}
+            settingKey={setting.key}
+            label={setting.label}
+            description={setting.description}
+            multiline={setting.multiline}
+            secret={setting.secret}
           />
         ))}
       </div>

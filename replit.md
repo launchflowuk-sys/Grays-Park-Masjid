@@ -71,11 +71,12 @@ This repo ships with everything needed for a Coolify (or any Docker-Compose-base
    - `JWT_SECRET` (required — a long random string)
    - `APP_BASE_URL` (public URL of the deployed app)
    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
-   - `SQUARE_ACCESS_TOKEN`, `SQUARE_APPLICATION_ID`, `SQUARE_LOCATION_ID` (if donations are enabled)
    - `DEFAULT_OBJECT_STORAGE_BUCKET_ID`, `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS` (if object storage/gallery uploads are used)
    - Optionally override `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` for the bundled Postgres service, and `LOG_LEVEL`.
+   - Do **not** set Square credentials here — see below.
 4. Deploy. Coolify will build both Docker images and start all three services; the api-server waits for Postgres to report healthy before starting.
 5. After first deploy, run the DB schema push against the production `DATABASE_URL` (`pnpm --filter @workspace/db run push`) or apply it as a one-off job, since the compose stack does not auto-migrate on boot.
+6. Log in to `/admin/settings` and enter the Square Access Token, Application ID, and Location ID under "Payment Integration (Square)". These are stored in the database (not env vars) and are only ever readable by authenticated admins — the public site never exposes them.
 
 ## Pointers
 
