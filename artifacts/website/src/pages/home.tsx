@@ -23,6 +23,7 @@ import {
   GraduationCap,
   CalendarClock,
   PoundSterling,
+  Images,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -36,6 +37,7 @@ import {
   useListEventsPublic,
   useListAnnouncementsPublic,
   useListCoursesPublic,
+  useListGalleryAlbumsPublic,
 } from "@workspace/api-client-react";
 import heroImage from "@assets/Home_Hero_1783357048983.png";
 import mosqueConstructionImage from "@assets/generated_images/mosque_construction.png";
@@ -178,6 +180,8 @@ export default function Home() {
       <ThisWeekSection />
 
       <IslamicEducationSection />
+
+      <GallerySection />
 
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-4xl px-6 py-16 text-center">
@@ -635,6 +639,58 @@ function IslamicEducationSection() {
             </Button>
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function GallerySection() {
+  const { data, isLoading } = useListGalleryAlbumsPublic();
+  const albums = [...(data ?? [])].slice(0, 8);
+
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <SectionOrnamentHeading eyebrow="Gallery" title="Gallery &amp; Masjid Progress" />
+      <p className="text-center text-sm text-muted-foreground -mt-8 mb-10">
+        Moments of faith, community and our new masjid journey
+      </p>
+
+      {isLoading ? (
+        <p className="text-center text-muted-foreground">Loading gallery...</p>
+      ) : albums.length === 0 ? (
+        <p className="text-center text-muted-foreground">No gallery albums published yet.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+          {albums.map((album) => (
+            <Link key={album.id} href="/gallery" data-testid={`link-home-gallery-album-${album.id}`}>
+              <div className="group relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer">
+                {album.coverImageUrl ? (
+                  <img
+                    src={album.coverImageUrl}
+                    alt={album.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <Images className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
+                <p className="absolute bottom-2.5 left-3 right-3 text-xs md:text-sm font-medium text-white leading-snug">
+                  {album.title}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="text-center mt-10">
+        <Link href="/gallery">
+          <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" data-testid="button-view-full-gallery">
+            View Full Gallery <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
       </div>
     </section>
   );
