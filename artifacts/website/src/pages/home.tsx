@@ -32,7 +32,7 @@ export default function Home() {
       <SiteHeader />
 
       <section className="relative">
-        <div className="relative min-h-[620px] md:min-h-[680px] flex items-center overflow-hidden">
+        <div className="relative overflow-hidden md:min-h-[740px]">
           <div className="absolute inset-0">
             <img
               src={heroImage}
@@ -43,8 +43,8 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
 
-          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full">
-            <div className="max-w-2xl">
+          <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col gap-12 md:h-full md:justify-between py-10 md:py-12">
+            <div className="max-w-3xl pt-2 md:pt-4">
               <span className="inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 uppercase tracking-[0.15em] text-xs md:text-sm text-secondary font-semibold mb-5">
                 In the name of Allah, the Most Gracious, the Most Merciful
               </span>
@@ -58,30 +58,30 @@ export default function Home() {
                 Grays Park Masjid is a welcoming center for worship, education and
                 community service. All are welcome.
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Link href="/prayer-times">
+              <div className="mt-9 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
+                <Link href="/prayer-times" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="h-14 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
                     data-testid="button-hero-prayer-times"
                   >
                     View Prayer Times <Clock className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/donate">
+                <Link href="/donate" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="h-14 px-8 text-base bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
                     data-testid="button-hero-donate"
                   >
                     Donate Now <HandHeart className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/about">
+                <Link href="/about" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-14 px-8 text-base border-2 border-primary-foreground/80 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
+                    className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base border-2 border-primary-foreground/80 text-primary-foreground hover:bg-primary-foreground/10 gap-2"
                     data-testid="button-hero-visit"
                   >
                     Visit Us <MapPin className="h-5 w-5" />
@@ -89,34 +89,33 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+
+            <div className="pb-2 md:pb-4">
+              <HeroPrayerCard />
+            </div>
           </div>
         </div>
 
-        <HeroPrayerCard />
-
-        <div className="bg-primary pt-20 pb-8 md:pt-24 md:pb-9">
-          <div className="mx-auto max-w-6xl px-6 flex flex-col md:flex-row md:items-center gap-6">
-            <div className="hidden md:block md:w-[calc(560px+1.5rem)] shrink-0" aria-hidden="true" />
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 flex-1">
-              {STATS.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
-                    <Icon className="w-5 h-5" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="text-primary-foreground text-[13px] font-semibold tracking-wide">
-                      {title}
-                    </p>
-                    <p className="text-primary-foreground/60 text-xs mt-0.5">{desc}</p>
-                  </div>
+        <div className="bg-primary pt-10 pb-10 md:pt-10 md:pb-10">
+          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
+            {STATS.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-primary-foreground/10 flex items-center justify-center text-secondary shrink-0">
+                  <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
-              ))}
-            </div>
+                <div>
+                  <p className="text-primary-foreground text-[13px] font-semibold tracking-wide">
+                    {title}
+                  </p>
+                  <p className="text-primary-foreground/60 text-xs mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pt-56 pb-16 md:pt-44 w-full">
+      <section className="mx-auto max-w-6xl px-6 py-16 w-full">
         <div className="flex items-center gap-2 mb-8 justify-center">
           <Clock className="h-5 w-5 text-primary" />
           <h2 className="font-serif text-2xl md:text-3xl text-center">Today's Prayer Times</h2>

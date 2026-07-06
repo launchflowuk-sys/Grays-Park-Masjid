@@ -44,11 +44,8 @@ export function HeroPrayerCard() {
   }
 
   return (
-    <div
-      className="absolute left-6 md:left-[calc((100vw-72rem)/2+24px)] -bottom-32 md:-bottom-36 z-20 w-[calc(100%-3rem)] max-w-[560px]"
-      data-testid="hero-prayer-card"
-    >
-      <div className="bg-card rounded-2xl shadow-2xl shadow-black/20 border border-card-border p-7">
+    <div className="w-full max-w-[560px]" data-testid="hero-prayer-card">
+      <div className="bg-card rounded-2xl shadow-2xl shadow-black/20 border border-card-border p-5 md:p-7">
         {current && (
           <div className="flex items-center justify-between gap-4">
             <div>
