@@ -14,6 +14,7 @@ import AnnouncementsPage from "@/pages/announcements";
 import EventsPage from "@/pages/events";
 import EducationPage from "@/pages/education";
 import VolunteerPage from "@/pages/volunteer";
+import JoinPage from "@/pages/join";
 import GalleryPage from "@/pages/gallery";
 import MadrassahPage from "@/pages/madrassah";
 import SistersFacilitiesPage from "@/pages/sisters-facilities";
@@ -41,6 +42,7 @@ import AdminAnnouncementsPage from "@/pages/admin/announcements";
 import AdminEventsPage from "@/pages/admin/events";
 import AdminCoursesPage from "@/pages/admin/courses";
 import AdminVolunteersPage from "@/pages/admin/volunteers";
+import AdminMembersPage from "@/pages/admin/members";
 import AdminGalleryPage from "@/pages/admin/gallery";
 import AdminNewsPage from "@/pages/admin/news";
 import AdminStaffPage from "@/pages/admin/staff";
@@ -61,6 +63,7 @@ function Router() {
       <Route path="/events" component={EventsPage} />
       <Route path="/education" component={EducationPage} />
       <Route path="/volunteer" component={VolunteerPage} />
+      <Route path="/join" component={JoinPage} />
       <Route path="/gallery" component={GalleryPage} />
       <Route path="/madrassah" component={MadrassahPage} />
       <Route path="/sisters-facilities" component={SistersFacilitiesPage} />
@@ -86,6 +89,7 @@ function Router() {
       <Route path="/admin/events" component={AdminEventsPage} />
       <Route path="/admin/courses" component={AdminCoursesPage} />
       <Route path="/admin/volunteers" component={AdminVolunteersPage} />
+      <Route path="/admin/members" component={AdminMembersPage} />
       <Route path="/admin/gallery" component={AdminGalleryPage} />
       <Route path="/admin/news" component={AdminNewsPage} />
       <Route path="/admin/staff" component={AdminStaffPage} />

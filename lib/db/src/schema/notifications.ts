@@ -8,6 +8,7 @@ export const notificationModuleEnum = pgEnum("notification_module", [
   "enquiries",
   "courses",
   "volunteers",
+  "members",
 ]);
 
 export const notificationRecipientsTable = pgTable(

@@ -16,6 +16,7 @@ import {
 } from "../lib/crud";
 import { ALL_ROLES, MASJID_WRITE } from "../lib/roles";
 import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
+import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "../lib/email-templates";
 
 const router: IRouter = Router();
 
@@ -83,7 +84,19 @@ router.post("/volunteer-applications", async (req: Request, res: Response) => {
   void notifyModule("volunteers", {
     subject: `New volunteer application: ${opportunity.title}`,
     text: `A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).\n\nView in admin panel: ${adminUrl}`,
-    html: `<p>A new volunteer application was submitted for "${opportunity.title}" by ${row.name} (${row.email}).</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    html: renderEmailTemplate({
+      preheader: `A new volunteer application was submitted for "${opportunity.title}".`,
+      heading: "New volunteer application",
+      bodyHtml:
+        emailParagraphs([`A new volunteer application was submitted for "${escapeHtml(opportunity.title)}".`]) +
+        emailInfoBox([
+          { label: "Opportunity", value: escapeHtml(opportunity.title) },
+          { label: "Name", value: escapeHtml(row.name) },
+          { label: "Email", value: escapeHtml(row.email) },
+        ]),
+      ctaLabel: "View in admin panel",
+      ctaUrl: adminUrl,
+    }),
     smsBody: `New volunteer application for "${opportunity.title}" from ${row.name}. View: ${adminUrl}`,
   });
 
@@ -91,7 +104,14 @@ router.post("/volunteer-applications", async (req: Request, res: Response) => {
     to: row.email,
     subject: `Application received - ${opportunity.title}`,
     text: `Assalamu Alaikum ${row.name},\n\nThank you for applying to volunteer for "${opportunity.title}". We have received your application and will be in touch soon.`,
-    html: `<p>Assalamu Alaikum ${row.name},</p><p>Thank you for applying to volunteer for "${opportunity.title}". We have received your application and will be in touch soon.</p>`,
+    html: renderEmailTemplate({
+      preheader: `Your application to volunteer for "${opportunity.title}" has been received.`,
+      heading: "Application received",
+      bodyHtml: emailParagraphs([
+        `Assalamu Alaikum ${escapeHtml(row.name)},`,
+        `Thank you for applying to volunteer for "${escapeHtml(opportunity.title)}". We have received your application and will be in touch soon.`,
+      ]),
+    }),
   });
 });
 

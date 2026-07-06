@@ -26,6 +26,7 @@ const COMMUNITY_LINKS = [
   { href: "/youth-programmes", label: "Youth Programmes" },
   { href: "/gallery", label: "Gallery" },
   { href: "/volunteer", label: "Volunteer" },
+  { href: "/join", label: "Join the Masjid" },
 ];
 
 const SERVICES_LINKS = [

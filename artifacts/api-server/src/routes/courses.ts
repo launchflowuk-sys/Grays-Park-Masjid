@@ -16,6 +16,7 @@ import {
 } from "../lib/crud";
 import { ALL_ROLES, EDUCATION_WRITE } from "../lib/roles";
 import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
+import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "../lib/email-templates";
 
 const router: IRouter = Router();
 
@@ -69,7 +70,19 @@ router.post("/course-registrations", async (req: Request, res: Response) => {
   void notifyModule("courses", {
     subject: `New course registration: ${course.title}`,
     text: `A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).\n\nView in admin panel: ${adminUrl}`,
-    html: `<p>A new registration was submitted for "${course.title}" by ${row.studentName} (${row.email}).</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    html: renderEmailTemplate({
+      preheader: `A new registration was submitted for "${course.title}".`,
+      heading: "New course registration",
+      bodyHtml:
+        emailParagraphs([`A new registration was submitted for "${escapeHtml(course.title)}".`]) +
+        emailInfoBox([
+          { label: "Course", value: escapeHtml(course.title) },
+          { label: "Student", value: escapeHtml(row.studentName) },
+          { label: "Email", value: escapeHtml(row.email) },
+        ]),
+      ctaLabel: "View in admin panel",
+      ctaUrl: adminUrl,
+    }),
     smsBody: `New course registration for "${course.title}" from ${row.studentName}. View: ${adminUrl}`,
   });
 
@@ -77,7 +90,14 @@ router.post("/course-registrations", async (req: Request, res: Response) => {
     to: row.email,
     subject: `Registration received - ${course.title}`,
     text: `Assalamu Alaikum,\n\nThank you for registering ${row.studentName} for "${course.title}". We have received your registration and will be in touch soon.`,
-    html: `<p>Assalamu Alaikum,</p><p>Thank you for registering ${row.studentName} for "${course.title}". We have received your registration and will be in touch soon.</p>`,
+    html: renderEmailTemplate({
+      preheader: `Registration for "${course.title}" received.`,
+      heading: "Registration received",
+      bodyHtml: emailParagraphs([
+        "Assalamu Alaikum,",
+        `Thank you for registering ${escapeHtml(row.studentName)} for "${escapeHtml(course.title)}". We have received your registration and will be in touch soon.`,
+      ]),
+    }),
   });
 });
 

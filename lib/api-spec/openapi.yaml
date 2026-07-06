@@ -1859,6 +1859,110 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /members:
+    post:
+      operationId: createMemberPublic
+      tags: [engagement]
+      summary: Submit a new membership application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertMember"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/members:
+    get:
+      operationId: adminListMembers
+      tags: [engagement]
+      summary: List all membership applications (admin)
+      responses:
+        "200":
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/members/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: adminGetMember
+      tags: [engagement]
+      summary: Get a single membership application (admin)
+      responses:
+        "200":
+          description: Member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: adminUpdateMember
+      tags: [engagement]
+      summary: Update a membership application, including its review status (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchMember"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: adminDeleteMember
+      tags: [engagement]
+      summary: Delete a membership application (admin)
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /staff:
     get:
       operationId: listStaffPublic
@@ -3383,6 +3487,76 @@ components:
           type: ["string", "null"]
         status:
           type: string
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        membershipType:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        adminNotes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - fullName
+        - email
+        - membershipType
+        - status
+        - createdAt
+        - updatedAt
+    InsertMember:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        membershipType:
+          type: string
+        message:
+          type: ["string", "null"]
+      required:
+        - fullName
+        - email
+    PatchMember:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        membershipType:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        adminNotes:
+          type: ["string", "null"]
     StaffMember:
       type: object
       properties:

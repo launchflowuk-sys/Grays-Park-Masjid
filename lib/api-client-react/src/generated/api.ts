@@ -45,6 +45,7 @@ import type {
   InsertEvent,
   InsertGalleryAlbum,
   InsertGalleryMedia,
+  InsertMember,
   InsertNewsPost,
   InsertPrayerTime,
   InsertService,
@@ -54,6 +55,7 @@ import type {
   InsertVolunteerOpportunity,
   ListGalleryMediaPublicParams,
   LoginInput,
+  Member,
   NewsPost,
   NotificationRecipient,
   PatchAdminUserInput,
@@ -65,6 +67,7 @@ import type {
   PatchEvent,
   PatchGalleryAlbum,
   PatchGalleryMedia,
+  PatchMember,
   PatchNewsPost,
   PatchNotificationRecipientInput,
   PatchPrayerTime,
@@ -6644,6 +6647,371 @@ export const useAdminDeleteVolunteerApplication = <TError = ErrorType<ErrorRespo
         TContext
       > => {
       return useMutation(getAdminDeleteVolunteerApplicationMutationOptions(options));
+    }
+
+export const getCreateMemberPublicUrl = () => {
+
+
+
+
+  return `/api/members`
+}
+
+/**
+ * @summary Submit a new membership application
+ */
+export const createMemberPublic = async (insertMember: InsertMember, options?: RequestInit): Promise<Member> => {
+
+  return customFetch<Member>(getCreateMemberPublicUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(insertMember)
+  }
+);}
+
+
+
+
+export const getCreateMemberPublicMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMemberPublic>>, TError,{data: BodyType<InsertMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMemberPublic>>, TError,{data: BodyType<InsertMember>}, TContext> => {
+
+const mutationKey = ['createMemberPublic'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMemberPublic>>, {data: BodyType<InsertMember>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMemberPublic(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMemberPublicMutationResult = NonNullable<Awaited<ReturnType<typeof createMemberPublic>>>
+    export type CreateMemberPublicMutationBody = BodyType<InsertMember>
+    export type CreateMemberPublicMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Submit a new membership application
+ */
+export const useCreateMemberPublic = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMemberPublic>>, TError,{data: BodyType<InsertMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMemberPublic>>,
+        TError,
+        {data: BodyType<InsertMember>},
+        TContext
+      > => {
+      return useMutation(getCreateMemberPublicMutationOptions(options));
+    }
+
+export const getAdminListMembersUrl = () => {
+
+
+
+
+  return `/api/admin/members`
+}
+
+/**
+ * @summary List all membership applications (admin)
+ */
+export const adminListMembers = async ( options?: RequestInit): Promise<Member[]> => {
+
+  return customFetch<Member[]>(getAdminListMembersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListMembersQueryKey = () => {
+    return [
+    `/api/admin/members`
+    ] as const;
+    }
+
+
+export const getAdminListMembersQueryOptions = <TData = Awaited<ReturnType<typeof adminListMembers>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListMembers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListMembersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListMembers>>> = ({ signal }) => adminListMembers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListMembers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListMembersQueryResult = NonNullable<Awaited<ReturnType<typeof adminListMembers>>>
+export type AdminListMembersQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all membership applications (admin)
+ */
+
+export function useAdminListMembers<TData = Awaited<ReturnType<typeof adminListMembers>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListMembers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListMembersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminGetMemberUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/members/${id}`
+}
+
+/**
+ * @summary Get a single membership application (admin)
+ */
+export const adminGetMember = async (id: string, options?: RequestInit): Promise<Member> => {
+
+  return customFetch<Member>(getAdminGetMemberUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetMemberQueryKey = (id: string,) => {
+    return [
+    `/api/admin/members/${id}`
+    ] as const;
+    }
+
+
+export const getAdminGetMemberQueryOptions = <TData = Awaited<ReturnType<typeof adminGetMember>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetMember>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetMemberQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetMember>>> = ({ signal }) => adminGetMember(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetMember>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetMemberQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetMember>>>
+export type AdminGetMemberQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single membership application (admin)
+ */
+
+export function useAdminGetMember<TData = Awaited<ReturnType<typeof adminGetMember>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetMember>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetMemberQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminUpdateMemberUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/members/${id}`
+}
+
+/**
+ * @summary Update a membership application, including its review status (admin)
+ */
+export const adminUpdateMember = async (id: string,
+    patchMember: PatchMember, options?: RequestInit): Promise<Member> => {
+
+  return customFetch<Member>(getAdminUpdateMemberUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(patchMember)
+  }
+);}
+
+
+
+
+export const getAdminUpdateMemberMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateMember>>, TError,{id: string;data: BodyType<PatchMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateMember>>, TError,{id: string;data: BodyType<PatchMember>}, TContext> => {
+
+const mutationKey = ['adminUpdateMember'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateMember>>, {id: string;data: BodyType<PatchMember>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminUpdateMember(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateMemberMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateMember>>>
+    export type AdminUpdateMemberMutationBody = BodyType<PatchMember>
+    export type AdminUpdateMemberMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update a membership application, including its review status (admin)
+ */
+export const useAdminUpdateMember = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateMember>>, TError,{id: string;data: BodyType<PatchMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateMember>>,
+        TError,
+        {id: string;data: BodyType<PatchMember>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateMemberMutationOptions(options));
+    }
+
+export const getAdminDeleteMemberUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/members/${id}`
+}
+
+/**
+ * @summary Delete a membership application (admin)
+ */
+export const adminDeleteMember = async (id: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getAdminDeleteMemberUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getAdminDeleteMemberMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteMember>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteMember>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminDeleteMember'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteMember>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminDeleteMember(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteMemberMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteMember>>>
+
+    export type AdminDeleteMemberMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a membership application (admin)
+ */
+export const useAdminDeleteMember = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteMember>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteMember>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminDeleteMemberMutationOptions(options));
     }
 
 export const getListStaffPublicUrl = () => {

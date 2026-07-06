@@ -660,6 +660,51 @@ export interface PatchVolunteerApplication {
   status?: string;
 }
 
+export interface Member {
+  id: string;
+  fullName: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  address?: string | null;
+  membershipType: string;
+  /** @nullable */
+  message?: string | null;
+  status: string;
+  /** @nullable */
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InsertMember {
+  fullName: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  address?: string | null;
+  membershipType?: string;
+  /** @nullable */
+  message?: string | null;
+}
+
+export interface PatchMember {
+  fullName?: string;
+  email?: string;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  address?: string | null;
+  membershipType?: string;
+  /** @nullable */
+  message?: string | null;
+  status?: string;
+  /** @nullable */
+  adminNotes?: string | null;
+}
+
 export interface StaffMember {
   id: string;
   name: string;

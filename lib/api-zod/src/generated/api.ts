@@ -1718,6 +1718,117 @@ export const AdminDeleteVolunteerApplicationResponse = zod.void()
 
 
 /**
+ * @summary Submit a new membership application
+ */
+export const CreateMemberPublicBody = zod.object({
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string().optional(),
+  "message": zod.string().nullish()
+})
+
+export const CreateMemberPublicResponse = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string(),
+  "message": zod.string().nullish(),
+  "status": zod.string(),
+  "adminNotes": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary List all membership applications (admin)
+ */
+export const AdminListMembersResponseItem = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string(),
+  "message": zod.string().nullish(),
+  "status": zod.string(),
+  "adminNotes": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const AdminListMembersResponse = zod.array(AdminListMembersResponseItem)
+
+
+/**
+ * @summary Get a single membership application (admin)
+ */
+export const AdminGetMemberParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminGetMemberResponse = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string(),
+  "message": zod.string().nullish(),
+  "status": zod.string(),
+  "adminNotes": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update a membership application, including its review status (admin)
+ */
+export const AdminUpdateMemberParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminUpdateMemberBody = zod.object({
+  "fullName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string().optional(),
+  "message": zod.string().nullish(),
+  "status": zod.string().optional(),
+  "adminNotes": zod.string().nullish()
+})
+
+export const AdminUpdateMemberResponse = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "membershipType": zod.string(),
+  "message": zod.string().nullish(),
+  "status": zod.string(),
+  "adminNotes": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a membership application (admin)
+ */
+export const AdminDeleteMemberParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteMemberResponse = zod.void()
+
+
+/**
  * @summary List published staff
  */
 export const ListStaffPublicResponseItem = zod.object({

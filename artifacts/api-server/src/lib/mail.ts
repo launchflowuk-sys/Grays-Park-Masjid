@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { logger } from "./logger";
+import { renderEmailTemplate, emailParagraphs } from "./email-templates";
 
 const smtpHost = process.env.SMTP_HOST;
 const smtpPort = process.env.SMTP_PORT;
@@ -49,6 +50,15 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     to,
     subject: "Reset your Grays Park Masjid admin password",
     text: `You requested a password reset. Click the link below to set a new password. This link expires in 1 hour.\n\n${resetUrl}\n\nIf you did not request this, you can safely ignore this email.`,
-    html: `<p>You requested a password reset. Click the link below to set a new password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, you can safely ignore this email.</p>`,
+    html: renderEmailTemplate({
+      preheader: "Reset your admin password.",
+      heading: "Reset your password",
+      bodyHtml: emailParagraphs([
+        "You requested a password reset for your Grays Park Masjid admin account. Click the button below to set a new password. This link expires in 1 hour.",
+        "If you did not request this, you can safely ignore this email and your password will remain unchanged.",
+      ]),
+      ctaLabel: "Reset password",
+      ctaUrl: resetUrl,
+    }),
   });
 }

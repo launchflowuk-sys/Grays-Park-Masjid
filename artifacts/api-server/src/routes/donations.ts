@@ -18,6 +18,7 @@ import { requireAuth, requireRole } from "../middlewares/auth";
 import { createSquarePayment, squareConfig, SquarePaymentError } from "../lib/square";
 import { logger } from "../lib/logger";
 import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
+import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "../lib/email-templates";
 
 const router: IRouter = Router();
 
@@ -105,7 +106,21 @@ router.post("/donations/checkout", async (req: Request, res: Response) => {
     void notifyModule("donations", {
       subject: `New donation received: ${campaign.title}`,
       text: `A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.\n\nView in admin panel: ${adminUrl}`,
-      html: `<p>A new donation of £${amount} was received for "${campaign.title}"${donorName ? ` from ${donorName}` : ""}.</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+      html: renderEmailTemplate({
+        preheader: `A new donation of £${amount} was received.`,
+        heading: "New donation received",
+        bodyHtml:
+          emailParagraphs([
+            `A new donation was received for "${escapeHtml(campaign.title)}"${donorName ? ` from ${escapeHtml(donorName)}` : ""}.`,
+          ]) +
+          emailInfoBox([
+            { label: "Campaign", value: escapeHtml(campaign.title) },
+            { label: "Amount", value: `£${amount}` },
+            ...(donorName ? [{ label: "Donor", value: escapeHtml(donorName) }] : []),
+          ]),
+        ctaLabel: "View in admin panel",
+        ctaUrl: adminUrl,
+      }),
       smsBody: `New donation of £${amount} for "${campaign.title}". View: ${adminUrl}`,
     });
 
@@ -114,7 +129,19 @@ router.post("/donations/checkout", async (req: Request, res: Response) => {
         to: donorEmail,
         subject: `Thank you for your donation - Grays Park Masjid`,
         text: `Assalamu Alaikum${donorName ? ` ${donorName}` : ""},\n\nJazakAllah Khair for your donation of £${amount} to "${campaign.title}". May Allah reward you for your generosity.`,
-        html: `<p>Assalamu Alaikum${donorName ? ` ${donorName}` : ""},</p><p>JazakAllah Khair for your donation of £${amount} to "${campaign.title}". May Allah reward you for your generosity.</p>`,
+        html: renderEmailTemplate({
+          preheader: "JazakAllah Khair for your generous donation.",
+          heading: "Thank you for your donation",
+          bodyHtml:
+            emailParagraphs([
+              `Assalamu Alaikum${donorName ? ` ${escapeHtml(donorName)}` : ""},`,
+              `JazakAllah Khair for your donation to "${escapeHtml(campaign.title)}". May Allah reward you for your generosity.`,
+            ]) +
+            emailInfoBox([
+              { label: "Campaign", value: escapeHtml(campaign.title) },
+              { label: "Amount", value: `£${amount}` },
+            ]),
+        }),
       });
     }
   } catch (err) {

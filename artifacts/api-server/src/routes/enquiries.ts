@@ -7,6 +7,7 @@ import {
 } from "../lib/crud";
 import { ALL_ROLES, MASJID_WRITE } from "../lib/roles";
 import { notifyModule, sendUserConfirmationEmail } from "../lib/notifications";
+import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "../lib/email-templates";
 
 const router: IRouter = Router();
 
@@ -40,7 +41,18 @@ router.post("/enquiries", async (req: Request, res: Response) => {
   void notifyModule("enquiries", {
     subject: `New enquiry: ${row.subject}`,
     text: `A new enquiry was submitted by ${row.name} (${row.email}).\n\nSubject: ${row.subject}\n\nMessage:\n${row.message}\n\nView in admin panel: ${adminUrl}`,
-    html: `<p>A new enquiry was submitted by ${row.name} (${row.email}).</p><p><strong>Subject:</strong> ${row.subject}</p><p><strong>Message:</strong><br/>${row.message}</p><p><a href="${adminUrl}">View in admin panel</a></p>`,
+    html: renderEmailTemplate({
+      preheader: `New enquiry: ${row.subject}`,
+      heading: "New enquiry",
+      bodyHtml:
+        emailParagraphs([`A new enquiry was submitted by ${escapeHtml(row.name)} (${escapeHtml(row.email)}).`]) +
+        emailInfoBox([
+          { label: "Subject", value: escapeHtml(row.subject) },
+          { label: "Message", value: escapeHtml(row.message) },
+        ]),
+      ctaLabel: "View in admin panel",
+      ctaUrl: adminUrl,
+    }),
     smsBody: `New enquiry from ${row.name}: ${row.subject}. View: ${adminUrl}`,
   });
 
@@ -48,7 +60,15 @@ router.post("/enquiries", async (req: Request, res: Response) => {
     to: row.email,
     subject: "We received your enquiry - Grays Park Masjid",
     text: `Assalamu Alaikum ${row.name},\n\nThank you for contacting Grays Park Masjid. We have received your enquiry and will get back to you soon.\n\nYour message:\n${row.message}`,
-    html: `<p>Assalamu Alaikum ${row.name},</p><p>Thank you for contacting Grays Park Masjid. We have received your enquiry and will get back to you soon.</p><p><strong>Your message:</strong><br/>${row.message}</p>`,
+    html: renderEmailTemplate({
+      preheader: "We've received your enquiry.",
+      heading: "Enquiry received",
+      bodyHtml:
+        emailParagraphs([
+          `Assalamu Alaikum ${escapeHtml(row.name)},`,
+          "Thank you for contacting Grays Park Masjid. We have received your enquiry and will get back to you soon.",
+        ]) + emailInfoBox([{ label: "Your message", value: escapeHtml(row.message) }]),
+    }),
   });
 });
 
