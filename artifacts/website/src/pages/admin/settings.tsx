@@ -47,6 +47,61 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
     description: "Shown on the public Youth Programmes page.",
     multiline: true,
   },
+  {
+    key: "jumuah_content",
+    label: "Jumu'ah Page Content",
+    description: "Shown on the public Jumu'ah page.",
+    multiline: true,
+  },
+  {
+    key: "funeral_content",
+    label: "Funeral / Janazah Page Content",
+    description: "Shown on the public Funeral & Janazah page.",
+    multiline: true,
+  },
+  {
+    key: "nikah_content",
+    label: "Nikah Page Content",
+    description: "Shown on the public Nikah page.",
+    multiline: true,
+  },
+  {
+    key: "ramadan_content",
+    label: "Ramadan Page Content",
+    description: "Shown on the public Ramadan page.",
+    multiline: true,
+  },
+  {
+    key: "eid_content",
+    label: "Eid Page Content",
+    description: "Shown on the public Eid page.",
+    multiline: true,
+  },
+  {
+    key: "zakat_content",
+    label: "Zakat / Sadaqah / Lillah Page Content",
+    description: "Shown on the public Zakat page.",
+    multiline: true,
+  },
+  {
+    key: "safeguarding_content",
+    label: "Safeguarding Page Content",
+    description: "Shown on the public Safeguarding page.",
+    multiline: true,
+  },
+  {
+    key: "policies_content",
+    label: "Policies Page Content",
+    description: "Shown on the public Policies page.",
+    multiline: true,
+  },
+  {
+    key: "faqs_content",
+    label: "FAQs (JSON)",
+    description:
+      'Advanced: JSON array of {"question","answer"} objects shown on the public FAQs page. Leave blank to use the default FAQs.',
+    multiline: true,
+  },
 ];
 
 function SettingField({

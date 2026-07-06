@@ -18,6 +18,15 @@ import GalleryPage from "@/pages/gallery";
 import MadrassahPage from "@/pages/madrassah";
 import SistersFacilitiesPage from "@/pages/sisters-facilities";
 import YouthProgrammesPage from "@/pages/youth-programmes";
+import JumuahPage from "@/pages/jumuah";
+import FuneralPage from "@/pages/funeral";
+import NikahPage from "@/pages/nikah";
+import RamadanPage from "@/pages/ramadan";
+import EidPage from "@/pages/eid";
+import ZakatPage from "@/pages/zakat";
+import SafeguardingPage from "@/pages/safeguarding";
+import PoliciesPage from "@/pages/policies";
+import FaqsPage from "@/pages/faqs";
 import { AuthProvider } from "@/lib/auth-context";
 import AdminLoginPage from "@/pages/admin/login";
 import AdminDashboardPage from "@/pages/admin/dashboard";
@@ -33,6 +42,7 @@ import AdminCoursesPage from "@/pages/admin/courses";
 import AdminVolunteersPage from "@/pages/admin/volunteers";
 import AdminGalleryPage from "@/pages/admin/gallery";
 import AdminNewsPage from "@/pages/admin/news";
+import AdminStaffPage from "@/pages/admin/staff";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +64,15 @@ function Router() {
       <Route path="/madrassah" component={MadrassahPage} />
       <Route path="/sisters-facilities" component={SistersFacilitiesPage} />
       <Route path="/youth-programmes" component={YouthProgrammesPage} />
+      <Route path="/jumuah" component={JumuahPage} />
+      <Route path="/funeral" component={FuneralPage} />
+      <Route path="/nikah" component={NikahPage} />
+      <Route path="/ramadan" component={RamadanPage} />
+      <Route path="/eid" component={EidPage} />
+      <Route path="/zakat" component={ZakatPage} />
+      <Route path="/safeguarding" component={SafeguardingPage} />
+      <Route path="/policies" component={PoliciesPage} />
+      <Route path="/faqs" component={FaqsPage} />
       <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin/prayer-times" component={AdminPrayerTimesPage} />
       <Route path="/admin/donations" component={AdminDonationsPage} />
@@ -67,6 +86,7 @@ function Router() {
       <Route path="/admin/volunteers" component={AdminVolunteersPage} />
       <Route path="/admin/gallery" component={AdminGalleryPage} />
       <Route path="/admin/news" component={AdminNewsPage} />
+      <Route path="/admin/staff" component={AdminStaffPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>

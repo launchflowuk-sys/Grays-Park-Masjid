@@ -33,6 +33,7 @@ const NAV_ITEMS = [
   { href: "/admin/courses", label: "Courses", icon: GraduationCap },
   { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/volunteers", label: "Volunteers", icon: HandHeart },
+  { href: "/admin/staff", label: "Staff & Committee", icon: Users },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/admin/settings", label: "Site Settings", icon: Settings },
 ];
