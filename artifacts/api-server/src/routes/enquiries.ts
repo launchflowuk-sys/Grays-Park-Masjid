@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { enquiriesTable, insertEnquirySchema } from "@workspace/db";
+import { enquiriesTable, insertEnquirySchema, patchEnquirySchema } from "@workspace/db";
 import {
   registerAdminItemRoutes,
   registerAdminList,
@@ -16,7 +16,7 @@ registerAdminItemRoutes(
   "/admin/enquiries",
   enquiriesTable,
   enquiriesTable.id,
-  insertEnquirySchema.partial(),
+  patchEnquirySchema,
   MASJID_WRITE,
 );
 

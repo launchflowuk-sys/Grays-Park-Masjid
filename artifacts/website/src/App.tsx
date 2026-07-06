@@ -4,6 +4,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import PrayerTimesPage from "@/pages/prayer-times";
+import TimetablePage from "@/pages/timetable";
+import AboutPage from "@/pages/about";
+import ServicesPage from "@/pages/services";
+import DonatePage from "@/pages/donate";
+import ContactPage from "@/pages/contact";
+import { AuthProvider } from "@/lib/auth-context";
+import AdminLoginPage from "@/pages/admin/login";
+import AdminDashboardPage from "@/pages/admin/dashboard";
+import AdminPrayerTimesPage from "@/pages/admin/prayer-times";
+import AdminDonationsPage from "@/pages/admin/donations";
+import AdminServicesPage from "@/pages/admin/services";
+import AdminEnquiriesPage from "@/pages/admin/enquiries";
+import AdminSettingsPage from "@/pages/admin/settings";
 
 const queryClient = new QueryClient();
 
@@ -11,6 +25,19 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/prayer-times" component={PrayerTimesPage} />
+      <Route path="/timetable" component={TimetablePage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/services" component={ServicesPage} />
+      <Route path="/donate" component={DonatePage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/admin/login" component={AdminLoginPage} />
+      <Route path="/admin/prayer-times" component={AdminPrayerTimesPage} />
+      <Route path="/admin/donations" component={AdminDonationsPage} />
+      <Route path="/admin/services" component={AdminServicesPage} />
+      <Route path="/admin/enquiries" component={AdminEnquiriesPage} />
+      <Route path="/admin/settings" component={AdminSettingsPage} />
+      <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -21,7 +48,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <AuthProvider>
+            <Router />
+          </AuthProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

@@ -20,3 +20,9 @@ export const insertEnquirySchema = createInsertSchema(enquiriesTable)
   .extend({ email: z.string().email() });
 export type InsertEnquiry = z.infer<typeof insertEnquirySchema>;
 export type Enquiry = typeof enquiriesTable.$inferSelect;
+
+export const patchEnquirySchema = createInsertSchema(enquiriesTable)
+  .omit({ id: true, createdAt: true })
+  .extend({ email: z.string().email() })
+  .partial();
+export type PatchEnquiry = z.infer<typeof patchEnquirySchema>;

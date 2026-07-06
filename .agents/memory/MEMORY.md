@@ -1,0 +1,1 @@
+- [Drizzle-zod patch schemas must include all patchable fields](drizzle-patch-schema-status-field.md) — reusing `insertXSchema.partial()` as a PATCH schema silently drops fields the insert schema omits (e.g. `status`), causing "No values to set" 500s.
