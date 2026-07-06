@@ -9,5 +9,5 @@
     "types": ["node"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "src/seed.ts"]
+  "exclude": ["node_modules", "dist", "src/seed.ts", "src/reset-admin-password.ts"]
 }
