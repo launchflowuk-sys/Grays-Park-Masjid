@@ -1,0 +1,25 @@
+Grays Park Masjid
+
+
+Grays Park Masjid — Full Website + Admin System: Detailed Build Plan
+Key adjustments per your feedback
+* No Replit-specific services. Everything runs on plain Node/Express/Postgres/React — fully portable to Coolify. No Clerk, no Replit Auth, no Replit Object Storage.
+* Auth: custom email + password login, hashed with bcrypt, sessions/JWT in httpOnly cookies, and a proper "forgot password" flow (emailed reset link with expiring token). Admin accounts are created by a Super Admin (not public self-signup) — standard practice for a staff-only panel.
+* File storage: uploaded images/PDFs saved to a local /uploadsvolume on the server, behind a small storage-service abstraction so it can be swapped for S3-compatible storage later with no code changes elsewhere.
+* Deployment target: Coolify — I'll avoid anything that only works inside Replit and keep config to standard env vars.
+Tech stack (all portable)
+* Frontend: React + Vite, React Router, Tailwind — new dedicated web-app artifact for the public site (separate from the mockup canvas), themed from your preferred Variant A design language with the new brand colors (#1A5C1A green, #C9A84C gold, #F8F5EE cream, #2A2A2A charcoal).
+* Backend: Express + Drizzle ORM + Postgres (already provisioned).
+* Email (for password reset + contact form confirmations): SMTP via nodemailer, configured with standard env vars.
+Database schema (one table/module each)
+admin_users, prayer_times, timetable_pdfs(monthly/yearly/Ramadan/Eid), announcements, events, courses + course_registrations, donation_campaigns, gallery_albums + gallery_media, services, enquiries, volunteer_opportunities + volunteer_applications, staff_members, news_posts, site_settings.
+Roles & permissions
+super_admin, masjid_admin, education_admin, donation_admin, content_editor, read_only — enforced via middleware on every admin API route, plus role-aware sidebar/UI in the admin panel.
+Phased build order
+Phase 0 — Foundation New web-app scaffold + reskinned design system; full DB schema/migrations; email/password auth with reset flow; API contracts (OpenAPI) for every module.
+Phase 1 — Core public pages + matching admin Pages: Home, Prayer Times, Full Year Timetable, About, Services, Donate/New Mosque Project, Contact. Admin: Prayer Times mgmt, Donation Campaigns mgmt, Services mgmt, Enquiries inbox, Site Settings.
+Phase 2 — Community & education Pages: Islamic Education, Madrassah, Sisters' Facilities, Youth Programmes, Events, News & Announcements, Gallery. Admin: Courses/Classes mgmt, Events mgmt, Announcements mgmt, Gallery/Media mgmt, News mgmt.
+Phase 3 — Remaining public pages + admin Pages: Jumu'ah Info, Funeral/Janazah, Nikah, Ramadan, Eid, Zakat/Sadaqah/Lillah, Volunteer, Safeguarding, Policies, FAQs. Admin: Volunteer mgmt, Staff/Committee/Teachers mgmt.
+Phase 4 — Admin platform completion Role-based dashboard widgets, CSV export (registrations/enquiries/volunteers/attendees), PDF upload/download, validation + delete-confirmation + success/error UX across every admin screen.
+Phase 5 — QA & hardening Accessibility pass, responsive QA, realistic seed content everywhere (no lorem ipsum), end-to-end test pass, Coolify deployment readiness (Dockerfile, env var doc).
+I'll build in that order and check in with working results at the end of each phase so you can track progress against this plan.
