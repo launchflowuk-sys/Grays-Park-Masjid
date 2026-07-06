@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "AjEZiaQ3Jb53Jd_VA9SyP"
@@ -24,3 +23,9 @@ id = "6FYKWr4Yr00kDp0Fbl8qw"
 uri = "file://attached_assets/generated_images/mosque_construction.png"
 type = "image"
 title = "generated_image"
+
+[[outputs]]
+id = "XAdGBGB8p0a7i6d64EpU2"
+uri = "file://.local/exports/production-content-seed.txt"
+type = "text"
+title = "Production content seed SQL"
