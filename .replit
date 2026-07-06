@@ -26,3 +26,4 @@ channel = "stable-25_05"
 
 [userenv.shared]
 JWT_SECRET = "0974c5e637cdde0b7cd9c7546bd3f491bb1101b8ba1e10dd4ebbe9ed6bba8f8de30b09fdb3cc7829ba0dad6c169b2b9e"
+APP_BASE_URL = "https://3b48db32-711a-4c12-a52c-8fc2f9da3a16-00-11bk3fo8ucxmc.riker.replit.dev"
