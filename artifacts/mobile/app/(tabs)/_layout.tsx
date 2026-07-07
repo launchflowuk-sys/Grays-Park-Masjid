@@ -1,154 +1,214 @@
 import { BlurView } from "expo-blur";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
+import { AppDrawer } from "@/components/AppDrawer";
 
-function NativeTabLayout() {
-  return (
-    <NativeTabs>
-      <NativeTabs.Trigger name="index">
-        <Icon sf={{ default: "moon.stars", selected: "moon.stars.fill" }} />
-        <Label>Prayer</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="quran">
-        <Icon sf={{ default: "book.pages", selected: "book.pages.fill" }} />
-        <Label>Qur'an</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="blog">
-        <Icon sf={{ default: "newspaper", selected: "newspaper.fill" }} />
-        <Label>Blog</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="events">
-        <Icon sf={{ default: "calendar", selected: "calendar.fill" } as never} />
-        <Label>Events</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="qibla">
-        <Icon sf={{ default: "location.north.line", selected: "location.north.line.fill" }} />
-        <Label>Qibla</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <Icon sf={{ default: "bell", selected: "bell.fill" }} />
-        <Label>Alerts</Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
-  );
-}
-
-function ClassicTabLayout() {
+export default function TabLayout() {
   const colors = useColors();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const TAB_H = isWeb ? 84 : 64;
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.tabBarActive,
-        tabBarInactiveTintColor: colors.tabBarInactive,
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: isIOS ? colors.tabBar + "E8" : colors.tabBar,
-          borderTopWidth: 0,
-          elevation: 0,
-          ...(isWeb ? { height: 84 } : {}),
-        },
-        tabBarBackground: () =>
-          isIOS ? (
-            <BlurView
-              intensity={60}
-              tint="dark"
-              style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar + "CC" }]}
-            />
-          ) : isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar }]} />
-          ) : null,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Prayer",
-          tabBarIcon: ({ color, focused }) =>
+    <>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: colors.tabBarActive,
+          tabBarInactiveTintColor: colors.tabBarInactive,
+          tabBarStyle: {
+            position: "absolute",
+            backgroundColor: isIOS ? colors.tabBar + "E8" : colors.tabBar,
+            borderTopWidth: 0,
+            elevation: 0,
+            height: TAB_H,
+          },
+          tabBarBackground: () =>
             isIOS ? (
-              <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={23} />
-            ) : (
-              <MaterialCommunityIcons name="mosque" size={22} color={color} />
-            ),
+              <BlurView
+                intensity={60}
+                tint="dark"
+                style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar + "CC" }]}
+              />
+            ) : isWeb ? (
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar }]} />
+            ) : null,
         }}
-      />
-      <Tabs.Screen
-        name="quran"
-        options={{
-          title: "Qur'an",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="book.pages" tintColor={color} size={23} />
-            ) : (
-              <Feather name="book-open" size={21} color={color} />
+      >
+        {/* ── Prayer ── */}
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Prayer",
+            tabBarIcon: ({ color, focused }) =>
+              isIOS ? (
+                <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={23} />
+              ) : (
+                <MaterialCommunityIcons name="mosque" size={22} color={color} />
+              ),
+          }}
+        />
+
+        {/* ── Qur'an ── */}
+        <Tabs.Screen
+          name="quran"
+          options={{
+            title: "Qur'an",
+            tabBarIcon: ({ color }) =>
+              isIOS ? (
+                <SymbolView name="book.pages" tintColor={color} size={23} />
+              ) : (
+                <Feather name="book-open" size={21} color={color} />
+              ),
+          }}
+        />
+
+        {/* ── Qibla — elevated centre button ── */}
+        <Tabs.Screen
+          name="qibla"
+          options={{
+            title: "Qibla",
+            tabBarButton: (props) => {
+              const selected = props.accessibilityState?.selected ?? false;
+              return (
+                <TouchableOpacity
+                  onPress={props.onPress ?? undefined}
+                  onLongPress={props.onLongPress ?? undefined}
+                  style={styles.qiblaWrapper}
+                  accessibilityRole="button"
+                  accessibilityLabel="Qibla"
+                  accessibilityState={{ selected }}
+                >
+                  {/* Raised circle — floats above the bar */}
+                  <View
+                    style={[
+                      styles.qiblaCircle,
+                      {
+                        backgroundColor: selected ? colors.accent : colors.secondary,
+                        borderColor: colors.accent,
+                        shadowColor: colors.accent,
+                      },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name="compass"
+                      size={28}
+                      color={selected ? colors.primary : colors.accent}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.qiblaLabel,
+                      { color: selected ? colors.tabBarActive : colors.tabBarInactive },
+                    ]}
+                  >
+                    Qibla
+                  </Text>
+                </TouchableOpacity>
+              );
+            },
+          }}
+        />
+
+        {/* ── Events ── */}
+        <Tabs.Screen
+          name="events"
+          options={{
+            title: "Events",
+            tabBarIcon: ({ color }) =>
+              isIOS ? (
+                <SymbolView name="calendar" tintColor={color} size={23} />
+              ) : (
+                <Feather name="calendar" size={21} color={color} />
+              ),
+          }}
+        />
+
+        {/* ── More — opens AppDrawer, never navigates ── */}
+        <Tabs.Screen
+          name="more"
+          options={{
+            title: "More",
+            tabBarButton: () => (
+              <TouchableOpacity
+                style={styles.moreWrapper}
+                onPress={() => setDrawerOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel="More options"
+              >
+                <Feather name="menu" size={22} color={colors.tabBarInactive} />
+                <Text style={[styles.moreLabel, { color: colors.tabBarInactive }]}>More</Text>
+              </TouchableOpacity>
             ),
-        }}
-      />
-      <Tabs.Screen
-        name="blog"
-        options={{
-          title: "Blog",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="newspaper" tintColor={color} size={23} />
-            ) : (
-              <Feather name="file-text" size={21} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
-        name="events"
-        options={{
-          title: "Events",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="calendar" tintColor={color} size={23} />
-            ) : (
-              <Feather name="calendar" size={21} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
-        name="qibla"
-        options={{
-          title: "Qibla",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="location.north.line" tintColor={color} size={23} />
-            ) : (
-              <MaterialCommunityIcons name="compass" size={22} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Alerts",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="bell" tintColor={color} size={23} />
-            ) : (
-              <Feather name="bell" size={21} color={color} />
-            ),
-        }}
-      />
-    </Tabs>
+          }}
+        />
+
+        {/* ── Blog — hidden from bar; navigable via AppDrawer ── */}
+        <Tabs.Screen
+          name="blog"
+          options={{
+            title: "Blog",
+            tabBarButton: () => null,
+          }}
+        />
+
+        {/* ── Settings/Alerts — hidden from bar; navigable via AppDrawer ── */}
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Alerts",
+            tabBarButton: () => null,
+          }}
+        />
+      </Tabs>
+
+      <AppDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
+    </>
   );
 }
 
-export default function TabLayout() {
-  if (isLiquidGlassAvailable()) {
-    return <NativeTabLayout />;
-  }
-  return <ClassicTabLayout />;
-}
+const styles = StyleSheet.create({
+  qiblaWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: 6,
+  },
+  qiblaCircle: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ translateY: -14 }],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    elevation: 12,
+  },
+  qiblaLabel: {
+    fontSize: 10,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.2,
+    marginTop: -2,
+  },
+  moreWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 3,
+  },
+  moreLabel: {
+    fontSize: 10,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.2,
+  },
+});
