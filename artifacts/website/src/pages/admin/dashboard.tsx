@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SupportRequestModal } from "@/components/admin/support-request-modal";
 import { Link } from "wouter";
 import {
   useAdminListPrayerTimes,
@@ -29,6 +31,7 @@ import {
   Sunrise,
   TrendingUp,
   Users,
+  LifeBuoy,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { AdminRole } from "@workspace/api-client-react";
@@ -83,6 +86,7 @@ const CHART_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--c
 export default function AdminDashboardPage() {
   const { admin } = useAuth();
   const role = admin?.role;
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const { data: prayerTimes } = useAdminListPrayerTimes();
   const { data: campaigns } = useAdminListDonationCampaigns();
@@ -247,14 +251,27 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl mb-2">
-          Assalamu Alaikum{admin?.name ? `, ${admin.name.split(" ")[0]}` : ""}
-        </h1>
-        <p className="text-muted-foreground">
-          {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          {" — "}Here's the full snapshot of Grays Park Masjid.
-        </p>
+      <SupportRequestModal open={supportOpen} onOpenChange={setSupportOpen} />
+
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-3xl mb-2">
+            Assalamu Alaikum{admin?.name ? `, ${admin.name.split(" ")[0]}` : ""}
+          </h1>
+          <p className="text-muted-foreground">
+            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            {" — "}Here's the full snapshot of Grays Park Masjid.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setSupportOpen(true)}
+          className="gap-2 shrink-0"
+          data-testid="button-open-support-modal"
+        >
+          <LifeBuoy className="h-4 w-4" />
+          Request Support
+        </Button>
       </div>
 
       {canSeeMasjid && (

@@ -18,6 +18,7 @@ import storageRouter from "./storage";
 import notificationRecipientsRouter from "./notification-recipients";
 import membersRouter from "./members";
 import quranRouter from "./quran";
+import supportRouter from "./support";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(storageRouter);
 router.use(notificationRecipientsRouter);
 router.use(membersRouter);
 router.use(quranRouter);
+router.use(supportRouter);
 
 export default router;

@@ -54,6 +54,7 @@ import QuranSurahPage from "@/pages/quran-surah";
 import AdminQuranSettingsPage from "@/pages/admin/quran-settings";
 import AdminQuranFeaturedAyahPage from "@/pages/admin/quran-featured-ayah";
 import AdminQuranReflectionsPage from "@/pages/admin/quran-reflections";
+import AdminHelpPage from "@/pages/admin/help";
 import { QuranAudioProvider } from "@/lib/quran-audio-player";
 import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
 
@@ -110,6 +111,7 @@ function Router() {
       <Route path="/admin/quran-settings" component={AdminQuranSettingsPage} />
       <Route path="/admin/quran-featured-ayah" component={AdminQuranFeaturedAyahPage} />
       <Route path="/admin/quran-reflections" component={AdminQuranReflectionsPage} />
+      <Route path="/admin/help" component={AdminHelpPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>
