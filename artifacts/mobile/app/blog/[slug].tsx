@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Platform,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -32,11 +33,7 @@ type BlogPost = {
 
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function BlogPostScreen() {
@@ -44,6 +41,7 @@ export default function BlogPostScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useColors();
+  const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data: post, isLoading, isError } = useGetBlogPostBySlug(slug ?? "") as {
     data: BlogPost | undefined;
@@ -51,22 +49,42 @@ export default function BlogPostScreen() {
     isError: boolean;
   };
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-
   const contentText = post ? htmlToText(post.content) : "";
   const paragraphs = contentText.split("\n\n").filter(Boolean);
+
+  async function handleShare() {
+    if (!post) return;
+    try {
+      await Share.share({
+        title: post.title,
+        message: `${post.title}\n\n${post.excerpt ?? contentText.slice(0, 200)}…\n\nRead more at Grays Park Masjid`,
+      });
+    } catch {}
+  }
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
-      <TouchableOpacity
-        style={[styles.backBtn, { top: topPad + 8, backgroundColor: colors.card + "F0" }]}
-        onPress={() => router.back()}
-        testID="back-btn"
-      >
-        <Ionicons name="chevron-back" size={22} color={colors.foreground} />
-      </TouchableOpacity>
+      {/* Floating header buttons */}
+      <View style={[styles.floatingHeader, { top: topPad + 8 }]}>
+        <TouchableOpacity
+          style={[styles.floatingBtn, { backgroundColor: colors.card + "F0" }]}
+          onPress={() => router.back()}
+          testID="back-btn"
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.foreground} />
+        </TouchableOpacity>
+        {post && (
+          <TouchableOpacity
+            style={[styles.floatingBtn, { backgroundColor: colors.card + "F0" }]}
+            onPress={handleShare}
+            testID="share-btn"
+          >
+            <Ionicons name="share-outline" size={22} color={colors.foreground} />
+          </TouchableOpacity>
+        )}
+      </View>
 
       {isLoading && (
         <View style={[styles.centerFlex, { paddingTop: topPad + 60 }]}>
@@ -86,19 +104,13 @@ export default function BlogPostScreen() {
       )}
 
       {!isLoading && !isError && post && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
-        >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}>
+          {/* Hero */}
           {post.coverImage ? (
-            <Image
-              source={{ uri: post.coverImage }}
-              style={styles.coverImage}
-              contentFit="cover"
-            />
+            <Image source={{ uri: post.coverImage }} style={styles.coverImage} contentFit="cover" />
           ) : (
             <View style={[styles.coverPlaceholder, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.coverPlaceholderText, { color: colors.accent }]}>بسم الله</Text>
+              <Text style={[styles.coverArabic, { color: colors.accent }]}>بسم الله</Text>
             </View>
           )}
 
@@ -121,27 +133,32 @@ export default function BlogPostScreen() {
                   <Text style={[styles.metaDot, { color: colors.border }]}>·</Text>
                 </>
               )}
-              <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
-                {formatDate(post.publishedAt)}
-              </Text>
+              <Text style={[styles.metaText, { color: colors.mutedForeground }]}>{formatDate(post.publishedAt)}</Text>
             </View>
 
-            <View style={[styles.divider, { backgroundColor: colors.accent + "40" }]} />
+            <View style={[styles.divider, { backgroundColor: colors.accent }]} />
 
             {post.excerpt && (
-              <Text style={[styles.excerpt, { color: colors.foreground, fontFamily: "PlayfairDisplay_400Regular" }]}>
+              <Text style={[styles.excerpt, { color: colors.foreground, fontFamily: "PlayfairDisplay_400Regular_Italic" }]}>
                 {post.excerpt}
               </Text>
             )}
 
             {paragraphs.map((para, idx) => (
-              <Text
-                key={idx}
-                style={[styles.paragraph, { color: para.startsWith("•") ? colors.foreground : colors.foreground }]}
-              >
+              <Text key={idx} style={[styles.paragraph, { color: colors.foreground }]}>
                 {para}
               </Text>
             ))}
+
+            {/* Share CTA at bottom */}
+            <TouchableOpacity
+              onPress={handleShare}
+              style={[styles.shareRow, { borderColor: colors.border }]}
+              testID="share-btn-bottom"
+            >
+              <Ionicons name="share-outline" size={18} color={colors.primary} />
+              <Text style={[styles.shareText, { color: colors.primary }]}>Share this article</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       )}
@@ -152,10 +169,15 @@ export default function BlogPostScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   centerFlex: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
-  backBtn: {
+  floatingHeader: {
     position: "absolute",
     left: 16,
+    right: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
     zIndex: 10,
+  },
+  floatingBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -167,30 +189,30 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   scrollContent: {},
-  coverImage: { width: "100%", height: 260 },
-  coverPlaceholder: {
-    width: "100%",
-    height: 200,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  coverPlaceholderText: { fontSize: 36, fontWeight: "400" },
+  coverImage: { width: "100%", height: 280 },
+  coverPlaceholder: { width: "100%", height: 200, alignItems: "center", justifyContent: "center" },
+  coverArabic: { fontSize: 36 },
   articleBody: { padding: 20, gap: 12 },
-  categoryBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-  },
+  categoryBadge: { alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1 },
   categoryText: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
   articleTitle: { fontSize: 26, fontWeight: "700", lineHeight: 36 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   metaText: { fontSize: 13 },
   metaDot: { fontSize: 13 },
-  divider: { height: 2, borderRadius: 1, marginVertical: 4 },
+  divider: { height: 2, borderRadius: 1, marginVertical: 4, opacity: 0.4 },
   excerpt: { fontSize: 17, lineHeight: 26, fontStyle: "italic" },
   paragraph: { fontSize: 16, lineHeight: 26 },
+  shareRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+    marginTop: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  shareText: { fontSize: 15, fontWeight: "600" },
   loadingText: { fontSize: 15, marginTop: 8 },
   errorText: { fontSize: 15 },
   retryBtn: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },

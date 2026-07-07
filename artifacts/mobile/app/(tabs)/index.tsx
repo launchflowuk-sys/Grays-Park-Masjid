@@ -20,6 +20,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
+import { useAudio } from "@/context/AudioContext";
 import {
   formatDisplayDate,
   formatTime12,
@@ -29,6 +30,22 @@ import {
   findNextPrayer,
   type PrayerEntry,
 } from "@/utils/prayerUtils";
+
+type PrayerTime = {
+  id: string;
+  date: string;
+  fajrAdhan: string;
+  fajrIqamah: string;
+  sunrise: string;
+  dhuhrAdhan: string;
+  dhuhrIqamah: string;
+  asrAdhan: string;
+  asrIqamah: string;
+  maghribAdhan: string;
+  maghribIqamah: string;
+  ishaAdhan: string;
+  ishaIqamah: string;
+};
 
 async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
@@ -40,28 +57,38 @@ async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
-async function schedulePrayerNotifications(prayers: PrayerEntry[], date: string): Promise<void> {
+async function scheduleWeekNotifications(allTimes: PrayerTime[]): Promise<void> {
   if (Platform.OS === "web") return;
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     const now = new Date();
-    for (const prayer of prayers) {
-      if (!prayer.adhan || prayer.name === "Sunrise") continue;
-      const [h, m] = prayer.adhan.split(":").map(Number);
-      const trigger = new Date(date);
-      trigger.setHours(h, m, 0, 0);
-      if (trigger > now) {
-        const bodyMsg = prayer.name === "Fajr"
-          ? "الصلاة خير من النوم — Prayer is better than sleep"
-          : `Adhan for ${prayer.name} at Grays Park Masjid`;
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: `${prayer.name} · ${prayer.label}`,
-            body: bodyMsg,
-            sound: true,
-          },
-          trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: trigger },
-        });
+    const sevenDays = now.getTime() + 7 * 24 * 60 * 60 * 1000;
+    const todayStr = getTodayDateString();
+    const relevant = allTimes.filter((pt) => {
+      const d = new Date(pt.date + "T12:00:00").getTime();
+      return d >= new Date(todayStr + "T00:00:00").getTime() && d <= sevenDays;
+    });
+    for (const pt of relevant) {
+      const prayers = getPrayerEntries(pt);
+      for (const prayer of prayers) {
+        if (!prayer.adhan || prayer.name === "Sunrise") continue;
+        const [h, m] = prayer.adhan.split(":").map(Number);
+        const [y, mo, d] = pt.date.split("-").map(Number);
+        const trigger = new Date(y, mo - 1, d, h, m, 0, 0);
+        if (trigger > now) {
+          const bodyMsg =
+            prayer.name === "Fajr"
+              ? "الصلاة خير من النوم — Prayer is better than sleep"
+              : `Adhan for ${prayer.name} at Grays Park Masjid`;
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `${prayer.name} · ${prayer.label}`,
+              body: bodyMsg,
+              sound: true,
+            },
+            trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: trigger },
+          });
+        }
       }
     }
   } catch {}
@@ -70,6 +97,7 @@ async function schedulePrayerNotifications(prayers: PrayerEntry[], date: string)
 export default function PrayerTimesScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
+  const audio = useAudio();
   const [countdown, setCountdown] = useState("—");
   const [notifEnabled, setNotifEnabled] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -77,7 +105,8 @@ export default function PrayerTimesScreen() {
   const { data: allTimes, isLoading, isError, refetch } = useListPrayerTimesPublic();
 
   const today = getTodayDateString();
-  const todayPrayer = allTimes?.find((pt) => pt.date === today) ?? allTimes?.[0] ?? null;
+  const allPrayerTimes = allTimes as PrayerTime[] | undefined;
+  const todayPrayer = allPrayerTimes?.find((pt) => pt.date === today) ?? allPrayerTimes?.[0] ?? null;
   const prayers = todayPrayer ? getPrayerEntries(todayPrayer) : [];
   const nextInfo = prayers.length ? findNextPrayer(prayers) : null;
 
@@ -108,8 +137,8 @@ export default function PrayerTimesScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
       const granted = await requestNotificationPermission();
-      if (granted && prayers.length && todayPrayer) {
-        await schedulePrayerNotifications(prayers, todayPrayer.date);
+      if (granted && allPrayerTimes?.length) {
+        await scheduleWeekNotifications(allPrayerTimes);
         setNotifEnabled(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else if (!granted) {
@@ -124,10 +153,15 @@ export default function PrayerTimesScreen() {
     const isNext = nextInfo?.index === index;
     const isSunrise = item.name === "Sunrise";
     return (
-      <View style={[styles.prayerRow, {
-        backgroundColor: isNext ? colors.primary : colors.card,
-        borderColor: isNext ? colors.primary : colors.border,
-      }]}>
+      <View
+        style={[
+          styles.prayerRow,
+          {
+            backgroundColor: isNext ? colors.primary : colors.card,
+            borderColor: isNext ? colors.primary : colors.border,
+          },
+        ]}
+      >
         <View style={styles.prayerLeft}>
           <Text style={[styles.prayerLabel, { color: isNext ? colors.accent : colors.mutedForeground }]}>
             {item.label}
@@ -187,7 +221,9 @@ export default function PrayerTimesScreen() {
         </View>
 
         {nextInfo && (
-          <Animated.View style={[styles.nextPrayerCard, { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] }]}>
+          <Animated.View
+            style={[styles.nextPrayerCard, { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] }]}
+          >
             <Text style={[styles.nextLabel, { color: colors.accent }]}>Next Prayer</Text>
             <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
               {nextInfo.prayer.name}
@@ -208,6 +244,31 @@ export default function PrayerTimesScreen() {
             </Text>
           </View>
         )}
+
+        {/* Live Radio bar */}
+        <Pressable
+          style={[styles.audioBar, { backgroundColor: colors.secondary, borderColor: colors.accent + "30" }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            audio.toggle();
+          }}
+          testID="audio-bar"
+        >
+          <Ionicons
+            name={audio.isPlaying ? "pause-circle" : "play-circle-outline"}
+            size={26}
+            color={audio.isPlaying ? colors.accent : colors.primaryForeground}
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.audioTitle, { color: audio.isPlaying ? colors.accent : colors.primaryForeground }]}>
+              {audio.isLoading ? "Connecting…" : audio.isPlaying ? "Live Radio · Now Playing" : "Live Islamic Radio"}
+            </Text>
+            {audio.isPlaying && (
+              <Text style={[styles.audioSub, { color: colors.primaryForeground + "80" }]}>Tap to stop</Text>
+            )}
+          </View>
+          {audio.isLoading && <ActivityIndicator size="small" color={colors.accent} />}
+        </Pressable>
       </View>
       <Text style={[styles.sectionTitle, { color: colors.mutedForeground, backgroundColor: colors.background }]}>
         Today's Prayer Times
@@ -244,10 +305,7 @@ export default function PrayerTimesScreen() {
         keyExtractor={(item) => item.name}
         renderItem={renderPrayer}
         ListHeaderComponent={ListHeader}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: insets.bottom + 90 },
-        ]}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
         scrollEnabled={!!prayers.length}
         refreshControl={
           <RefreshControl
@@ -273,8 +331,13 @@ export default function PrayerTimesScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   centerFlex: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
-  header: { paddingHorizontal: 20, paddingBottom: 24 },
-  headerRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 },
+  header: { paddingHorizontal: 20, paddingBottom: 16 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
   masjidName: { fontSize: 22, fontWeight: "700", letterSpacing: 0.2 },
   headerDate: { fontSize: 13, marginTop: 3 },
   bellButton: { padding: 8, marginTop: -4 },
@@ -283,11 +346,22 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     gap: 4,
+    marginBottom: 14,
   },
   nextLabel: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 1 },
   nextPrayerName: { fontSize: 32, fontWeight: "700" },
   countdown: { fontSize: 22, fontWeight: "500" },
   nextTime: { fontSize: 14, marginTop: 2 },
+  audioBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  audioTitle: { fontSize: 14, fontWeight: "600" },
+  audioSub: { fontSize: 11, marginTop: 2 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",

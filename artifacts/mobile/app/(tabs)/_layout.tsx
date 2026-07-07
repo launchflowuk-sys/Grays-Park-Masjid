@@ -3,7 +3,7 @@ import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 
@@ -28,9 +28,9 @@ function NativeTabLayout() {
         <Icon sf={{ default: "calendar", selected: "calendar.fill" }} />
         <Label>Events</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="more">
-        <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
-        <Label>More</Label>
+      <NativeTabs.Trigger name="qibla">
+        <Icon sf={{ default: "location.north.line", selected: "location.north.line.fill" }} />
+        <Label>Qibla</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -74,7 +74,7 @@ function ClassicTabLayout() {
             isIOS ? (
               <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={23} />
             ) : (
-              <Ionicons name={focused ? "moon" : "moon-outline"} size={22} color={color} />
+              <MaterialCommunityIcons name="mosque" size={22} color={color} />
             ),
         }}
       />
@@ -82,9 +82,9 @@ function ClassicTabLayout() {
         name="quran"
         options={{
           title: "Qur'an",
-          tabBarIcon: ({ color, focused }) =>
+          tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name={focused ? "book.pages.fill" : "book.pages"} tintColor={color} size={23} />
+              <SymbolView name="book.pages" tintColor={color} size={23} />
             ) : (
               <Feather name="book-open" size={21} color={color} />
             ),
@@ -94,9 +94,9 @@ function ClassicTabLayout() {
         name="blog"
         options={{
           title: "Blog",
-          tabBarIcon: ({ color, focused }) =>
+          tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name={focused ? "newspaper.fill" : "newspaper"} tintColor={color} size={23} />
+              <SymbolView name="newspaper" tintColor={color} size={23} />
             ) : (
               <Feather name="file-text" size={21} color={color} />
             ),
@@ -106,23 +106,23 @@ function ClassicTabLayout() {
         name="events"
         options={{
           title: "Events",
-          tabBarIcon: ({ color, focused }) =>
+          tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name={focused ? "calendar.fill" : "calendar"} tintColor={color} size={23} />
+              <SymbolView name="calendar" tintColor={color} size={23} />
             ) : (
               <Feather name="calendar" size={21} color={color} />
             ),
         }}
       />
       <Tabs.Screen
-        name="more"
+        name="qibla"
         options={{
-          title: "More",
-          tabBarIcon: ({ color, focused }) =>
+          title: "Qibla",
+          tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name={focused ? "ellipsis.circle.fill" : "ellipsis.circle"} tintColor={color} size={23} />
+              <SymbolView name="location.north.line" tintColor={color} size={23} />
             ) : (
-              <Feather name="more-horizontal" size={22} color={color} />
+              <MaterialCommunityIcons name="compass" size={22} color={color} />
             ),
         }}
       />
