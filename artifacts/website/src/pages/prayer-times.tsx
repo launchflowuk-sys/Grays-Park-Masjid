@@ -10,7 +10,7 @@ import {
   PRAYER_ORDER,
 } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, Sunrise } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import type { PrayerTime } from "@workspace/api-client-react";
 
@@ -125,20 +125,52 @@ export default function PrayerTimesPage() {
                 </span>
               </div>
 
-              {/* Prayer grid */}
+              {/* Prayer grid — 5 prayer cards + 1 pale sunrise info card */}
               <div
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4"
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 items-start"
                 data-testid="prayer-grid-today"
               >
                 {PRAYER_ORDER.map((prayer) => {
-                  const adhan = todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined;
-                  const iqamah =
-                    prayer.key === "sunrise"
-                      ? null
-                      : (todayRow[`${prayer.key}Iqamah` as keyof PrayerTime] as string | null | undefined);
+                  const isSunrise = prayer.key === "sunrise";
+
+                  // Sunrise is stored as todayRow.sunrise, not sunriseAdhan
+                  const adhan = isSunrise
+                    ? (todayRow.sunrise as string | null | undefined)
+                    : (todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined);
+
+                  const iqamah = isSunrise
+                    ? null
+                    : (todayRow[`${prayer.key}Iqamah` as keyof PrayerTime] as string | null | undefined);
+
                   const isCurrent = current?.currentKey === prayer.key;
                   const isNext = current?.nextKey === prayer.key;
 
+                  // Sunrise: small, pale, dashed-border info card
+                  if (isSunrise) {
+                    return (
+                      <div
+                        key={prayer.key}
+                        data-testid="card-prayer-sunrise"
+                        className="flex flex-col items-center justify-center text-center rounded-xl border border-dashed border-muted-foreground/25 bg-muted/30 px-3 py-4 gap-0.5"
+                      >
+                        <Sunrise className="h-4 w-4 text-secondary/60 mb-1" />
+                        <p className="font-serif text-sm tracking-wide text-muted-foreground">
+                          {ARABIC_LABELS.sunrise}
+                        </p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                          Sunrise
+                        </p>
+                        <p className="font-serif text-lg font-medium tabular-nums text-muted-foreground mt-1.5">
+                          {formatTime12h(adhan)}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground/50 uppercase tracking-wide mt-0.5">
+                          No Prayer
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  // Regular prayer card
                   return (
                     <div
                       key={prayer.key}
@@ -182,7 +214,7 @@ export default function PrayerTimesPage() {
                       </p>
 
                       <div className="mt-2 space-y-1 w-full">
-                        {adhan && prayer.key !== "sunrise" && (
+                        {adhan && (
                           <p
                             className={`text-xs ${
                               isCurrent ? "text-secondary-foreground/60" : "text-muted-foreground"
@@ -200,26 +232,15 @@ export default function PrayerTimesPage() {
                                 : "text-foreground"
                           }`}
                         >
-                          {prayer.key === "sunrise"
-                            ? formatTime12h(adhan)
-                            : formatTime12h(iqamah)}
+                          {formatTime12h(iqamah)}
                         </p>
-                        {prayer.key !== "sunrise" && iqamah && (
+                        {iqamah && (
                           <p
                             className={`text-[10px] ${
                               isCurrent ? "text-secondary-foreground/60" : "text-muted-foreground"
                             }`}
                           >
                             Iqamah
-                          </p>
-                        )}
-                        {prayer.key === "sunrise" && (
-                          <p
-                            className={`text-[10px] ${
-                              isCurrent ? "text-secondary-foreground/60" : "text-muted-foreground"
-                            }`}
-                          >
-                            No Iqamah
                           </p>
                         )}
                       </div>

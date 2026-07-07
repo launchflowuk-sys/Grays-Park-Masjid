@@ -244,7 +244,10 @@ export function PrayerTimesWidget({
         className={`grid gap-4 ${variant === "kiosk" ? "grid-cols-3 md:grid-cols-6" : "grid-cols-2 sm:grid-cols-5"}`}
       >
         {cells.map((prayer) => {
-          const adhan = todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined;
+          const adhan =
+            prayer.key === "sunrise"
+              ? (todayRow.sunrise as string | null | undefined)
+              : (todayRow[`${prayer.key}Adhan` as keyof PrayerTime] as string | null | undefined);
           const iqamah =
             prayer.key === "sunrise"
               ? null
