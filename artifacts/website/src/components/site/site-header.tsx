@@ -39,6 +39,9 @@ import {
   HelpCircle,
   ArrowRight,
   Clock,
+  Star,
+  BookOpen,
+  PenLine,
 } from "lucide-react";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
@@ -56,6 +59,9 @@ const COMMUNITY_LINKS = [
   { href: "/events", label: "Events", icon: CalendarDays, desc: "What's on at the masjid" },
   { href: "/education", label: "Education", icon: GraduationCap, desc: "Islamic classes for all ages" },
   { href: "/announcements", label: "News", icon: Newspaper, desc: "Latest updates & notices" },
+  { href: "/blog", label: "Blog", icon: PenLine, desc: "Articles & Islamic content" },
+  { href: "/prophet", label: "Prophet Muhammad ﷺ", icon: Star, desc: "Life & legacy of the Prophet" },
+  { href: "/stories", label: "Islamic Stories", icon: BookOpen, desc: "Stories for all ages" },
   { href: "/madrassah", label: "Madrassah", icon: BookOpenCheck, desc: "Weekend Islamic school" },
   { href: "/sisters-facilities", label: "Sisters' Facilities", icon: HeartHandshake, desc: "Spaces for our sisters" },
   { href: "/youth-programmes", label: "Youth Programmes", icon: Sparkles, desc: "Activities for young people" },

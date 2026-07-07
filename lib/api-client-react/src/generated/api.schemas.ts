@@ -881,6 +881,57 @@ export interface PatchStaffMember {
   published?: boolean;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  /** @nullable */
+  excerpt?: string | null;
+  content: string;
+  /** @nullable */
+  featureImageUrl?: string | null;
+  category: string;
+  /** @nullable */
+  authorName?: string | null;
+  published: boolean;
+  /** @nullable */
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InsertBlogPost {
+  title: string;
+  slug: string;
+  /** @nullable */
+  excerpt?: string | null;
+  content: string;
+  /** @nullable */
+  featureImageUrl?: string | null;
+  category: string;
+  /** @nullable */
+  authorName?: string | null;
+  published: boolean;
+  /** @nullable */
+  publishedAt?: string | null;
+}
+
+export interface PatchBlogPost {
+  title?: string;
+  slug?: string;
+  /** @nullable */
+  excerpt?: string | null;
+  content?: string;
+  /** @nullable */
+  featureImageUrl?: string | null;
+  category?: string;
+  /** @nullable */
+  authorName?: string | null;
+  published?: boolean;
+  /** @nullable */
+  publishedAt?: string | null;
+}
+
 export interface NewsPost {
   id: string;
   title: string;
@@ -1100,6 +1151,10 @@ campaignId?: string;
 
 export type ListGalleryMediaPublicParams = {
 albumId?: string;
+};
+
+export type ListBlogPostsPublicParams = {
+category?: string;
 };
 
 export type GetQuranChapterVersesParams = {

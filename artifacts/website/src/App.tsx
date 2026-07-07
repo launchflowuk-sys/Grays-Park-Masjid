@@ -55,6 +55,12 @@ import AdminQuranSettingsPage from "@/pages/admin/quran-settings";
 import AdminQuranFeaturedAyahPage from "@/pages/admin/quran-featured-ayah";
 import AdminQuranReflectionsPage from "@/pages/admin/quran-reflections";
 import AdminHelpPage from "@/pages/admin/help";
+import AdminBlogPage from "@/pages/admin/blog";
+import AdminBlogEditorPage from "@/pages/admin/blog-editor";
+import BlogPage from "@/pages/blog";
+import BlogPostPage from "@/pages/blog-post";
+import ProphetPage from "@/pages/prophet";
+import StoriesPage from "@/pages/stories";
 import { QuranAudioProvider } from "@/lib/quran-audio-player";
 import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
 
@@ -92,6 +98,10 @@ function Router() {
       <Route path="/faqs" component={FaqsPage} />
       <Route path="/quran" component={QuranPage} />
       <Route path="/quran/:number" component={QuranSurahPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
+      <Route path="/prophet" component={ProphetPage} />
+      <Route path="/stories" component={StoriesPage} />
       <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin/prayer-times" component={AdminPrayerTimesPage} />
       <Route path="/admin/donations" component={AdminDonationsPage} />
@@ -112,6 +122,9 @@ function Router() {
       <Route path="/admin/quran-featured-ayah" component={AdminQuranFeaturedAyahPage} />
       <Route path="/admin/quran-reflections" component={AdminQuranReflectionsPage} />
       <Route path="/admin/help" component={AdminHelpPage} />
+      <Route path="/admin/blog/new" component={AdminBlogEditorPage} />
+      <Route path="/admin/blog/:id/edit" component={AdminBlogEditorPage} />
+      <Route path="/admin/blog" component={AdminBlogPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>

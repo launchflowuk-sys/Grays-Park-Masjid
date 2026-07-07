@@ -19,6 +19,7 @@ import notificationRecipientsRouter from "./notification-recipients";
 import membersRouter from "./members";
 import quranRouter from "./quran";
 import supportRouter from "./support";
+import blogRouter from "./blog";
 
 const router: IRouter = Router();
 
@@ -42,5 +43,6 @@ router.use(notificationRecipientsRouter);
 router.use(membersRouter);
 router.use(quranRouter);
 router.use(supportRouter);
+router.use(blogRouter);
 
 export default router;

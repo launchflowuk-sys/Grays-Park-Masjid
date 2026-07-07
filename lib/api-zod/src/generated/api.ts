@@ -2176,6 +2176,172 @@ export const AdminDeleteNewsPostResponse = zod.void()
 
 
 /**
+ * @summary List published blog posts
+ */
+export const ListBlogPostsPublicQueryParams = zod.object({
+  "category": zod.coerce.string().optional()
+})
+
+export const ListBlogPostsPublicResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListBlogPostsPublicResponse = zod.array(ListBlogPostsPublicResponseItem)
+
+
+/**
+ * @summary Get a single published blog post by slug
+ */
+export const GetBlogPostBySlugParams = zod.object({
+  "slug": zod.coerce.string()
+})
+
+export const GetBlogPostBySlugResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary List all blog posts (admin)
+ */
+export const AdminListBlogPostsResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const AdminListBlogPostsResponse = zod.array(AdminListBlogPostsResponseItem)
+
+
+/**
+ * @summary Create a new blog post (admin)
+ */
+export const AdminCreateBlogPostBody = zod.object({
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish()
+})
+
+export const AdminCreateBlogPostResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Get a single blog post (admin)
+ */
+export const AdminGetBlogPostParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminGetBlogPostResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update a blog post (admin)
+ */
+export const AdminUpdateBlogPostParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminUpdateBlogPostBody = zod.object({
+  "title": zod.string().optional(),
+  "slug": zod.string().optional(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string().optional(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string().optional(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean().optional(),
+  "publishedAt": zod.string().nullish()
+})
+
+export const AdminUpdateBlogPostResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "excerpt": zod.string().nullish(),
+  "content": zod.string(),
+  "featureImageUrl": zod.string().nullish(),
+  "category": zod.string(),
+  "authorName": zod.string().nullish(),
+  "published": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a blog post (admin)
+ */
+export const AdminDeleteBlogPostParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AdminDeleteBlogPostResponse = zod.void()
+
+
+/**
  * @summary List all site settings (admin)
  */
 export const AdminListSettingsResponseItem = zod.object({

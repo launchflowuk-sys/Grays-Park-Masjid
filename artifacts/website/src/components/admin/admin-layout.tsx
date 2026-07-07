@@ -41,6 +41,7 @@ const NAV_ITEMS = [
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/staff", label: "Staff & Committee", icon: Users },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
+  { href: "/admin/blog", label: "Blog & Content", icon: Newspaper },
   { href: "/admin/quran-settings", label: "Qur'an Settings", icon: BookOpen },
   { href: "/admin/quran-featured-ayah", label: "Featured Ayah", icon: Sparkles },
   { href: "/admin/quran-reflections", label: "Qur'an Reflections", icon: NotebookText },

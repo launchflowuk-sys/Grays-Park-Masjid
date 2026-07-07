@@ -36,9 +36,10 @@ const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
   { href: "/prayer-times", label: "Prayer Times" },
   { href: "/events", label: "Events" },
-  { href: "/education", label: "Islamic Education" },
+  { href: "/blog", label: "Blog" },
+  { href: "/prophet", label: "Prophet Muhammad ﷺ" },
+  { href: "/stories", label: "Islamic Stories" },
   { href: "/donate", label: "Donations" },
-  { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact Us" },
 ];
 
