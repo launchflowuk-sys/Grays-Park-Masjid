@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
@@ -14,12 +14,9 @@ export default function TabLayout() {
   const isIOS = Platform.OS === "ios";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Float the bar above the home indicator (or above the bottom edge on devices without one)
-  const bottomOffset = insets.bottom > 0 ? insets.bottom + 6 : 16;
-  const BAR_H = 62;
-
-  const ACTIVE = colors.accent;        // gold #C9A84C
-  const INACTIVE = "rgba(250,248,243,0.50)";
+  const ACTIVE = colors.accent;
+  const INACTIVE = "rgba(250,248,243,0.45)";
+  const BAR_HEIGHT = 56 + insets.bottom;
 
   return (
     <>
@@ -29,31 +26,22 @@ export default function TabLayout() {
           tabBarActiveTintColor: ACTIVE,
           tabBarInactiveTintColor: INACTIVE,
           tabBarStyle: {
-            position: "absolute",
-            bottom: bottomOffset,
-            left: 20,
-            right: 20,
-            height: BAR_H,
+            height: BAR_HEIGHT,
             backgroundColor: colors.primary,
-            borderRadius: 22,
-            borderTopWidth: 0,
-            elevation: 14,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.32,
-            shadowRadius: 18,
-            overflow: "visible",
+            borderTopWidth: 1,
+            borderTopColor: "rgba(201,168,76,0.25)",
+            elevation: 0,
+            shadowOpacity: 0,
           },
           tabBarLabelStyle: {
             fontSize: 10,
             fontFamily: "Inter_600SemiBold",
-            letterSpacing: 0.3,
-            marginBottom: 2,
+            letterSpacing: 0.2,
+            marginBottom: insets.bottom > 0 ? insets.bottom - 2 : 6,
           },
           tabBarItemStyle: {
             paddingTop: 8,
           },
-          tabBarBackground: () => null,
         }}
       >
         {/* ── Prayer ── */}
@@ -88,19 +76,13 @@ export default function TabLayout() {
           }}
         />
 
-        {/* ── Qibla — inline, no raised bubble ── */}
+        {/* ── Qibla ── */}
         <Tabs.Screen
           name="qibla"
           options={{
             title: "Qibla",
-            tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.qiblaIcon, focused && { backgroundColor: colors.accent + "22" }]}>
-                <MaterialCommunityIcons
-                  name="compass"
-                  size={24}
-                  color={color}
-                />
-              </View>
+            tabBarIcon: ({ color }) => (
+              <MaterialCommunityIcons name="compass" size={22} color={color} />
             ),
           }}
         />
@@ -126,19 +108,19 @@ export default function TabLayout() {
             title: "More",
             tabBarButton: () => (
               <TouchableOpacity
-                style={styles.moreBtn}
+                style={[styles.moreBtn, { paddingBottom: insets.bottom > 0 ? insets.bottom - 2 : 6 }]}
                 onPress={() => setDrawerOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="More options"
               >
                 <Feather name="menu" size={22} color={INACTIVE} />
-                <Text style={[styles.moreLabel, { color: INACTIVE }]}>More</Text>
+                <Text style={styles.moreLabel}>More</Text>
               </TouchableOpacity>
             ),
           }}
         />
 
-        {/* ── Hidden routes — removed from bar layout ── */}
+        {/* ── Hidden routes ── */}
         <Tabs.Screen name="blog" options={{ href: null }} />
         <Tabs.Screen name="settings" options={{ href: null }} />
       </Tabs>
@@ -149,25 +131,18 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  qiblaIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   moreBtn: {
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
     paddingTop: 8,
-    paddingBottom: 6,
-    gap: 2,
+    gap: 3,
   },
   moreLabel: {
     fontSize: 10,
     fontFamily: "Inter_600SemiBold",
-    letterSpacing: 0.3,
-    marginBottom: 2,
+    letterSpacing: 0.2,
+    color: "rgba(250,248,243,0.45)",
+    marginBottom: 0,
   },
 });
