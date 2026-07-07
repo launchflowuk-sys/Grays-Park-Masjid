@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Grays Park Masjid",
-    "slug": "mobile",
+    "slug": "grays-park-masjid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "graysparkmasjid",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -14,13 +14,19 @@
       "backgroundColor": "#1B3D2F"
     },
     "ios": {
+      "bundleIdentifier": "com.graysparkmasjid.app",
+      "buildNumber": "1",
+      "deploymentTarget": "16.0",
       "supportsTablet": false,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Grays Park Masjid uses your location to find the Qibla direction.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Grays Park Masjid uses your location to find the Qibla direction."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Grays Park Masjid uses your location to find the Qibla direction.",
+        "UIBackgroundModes": ["audio", "fetch", "remote-notification"]
       }
     },
     "android": {
+      "package": "com.graysparkmasjid.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#1B3D2F"
@@ -60,6 +66,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
     }
   }
 }

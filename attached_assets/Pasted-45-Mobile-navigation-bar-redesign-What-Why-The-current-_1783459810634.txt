@@ -1,0 +1,35 @@
+45 - Mobile navigation bar redesign
+
+What & Why
+
+The current bottom tab bar has 6 tabs which is cluttered on small screens. Redesign to show exactly 5 items: Prayer, Qur'an, Qibla (centre — promoted as the focal point with a larger decorative icon), Events, and a Burger/More button. The burger opens a slide-in drawer with Islamic decoration that houses the remaining items (Blog, Alerts/notifications settings, and any future items) — keeping the primary bar clean and the secondary navigation beautiful.
+
+Done looks like
+
+Bottom bar shows exactly: Prayer | Qur'an | Qibla (elevated centre button) | Events | ☰
+The Qibla button is visually distinct — larger, gold accent, slightly raised above the bar
+Tapping ☰ slides in a drawer from the right (or bottom sheet) with:
+A decorative Islamic geometric header in brand-green with gold accents
+Blog entry
+Alerts (notification settings) entry
+Each row has an icon and label, tapping navigates and closes the drawer
+Both iOS NativeTabs path and Android/web ClassicTabs path are updated
+No existing screens are removed — they all remain navigable
+Out of scope
+
+Redesigning the individual screens
+Adding new screens or features
+Web layout changes
+Steps
+
+Build an AppDrawer component — a Modal or Animated slide-in panel (bottom sheet style or right-slide). Render a decorative header: deep-green background, gold geometric Islamic star/pattern overlay, "Menu" title. Below it render rows for Blog and Alerts (each with icon + label). Tapping any row navigates via router.push(...) and closes the drawer. Use useSafeAreaInsets for safe area padding.
+Redesign ClassicTabLayout — reduce to 5 Tabs.Screen entries: index (Prayer), quran, qibla (centre), events, and a dummy "more" screen. Override the More tab icon with a hamburger icon. Intercept its tabBarButton press to open the AppDrawer instead of navigating — using a TouchableOpacity wrapper that sets drawer state. Hide the blog and settings Tabs.Screen entries from the bar (use tabBarItemStyle: { display: 'none' }) while keeping them navigable.
+Redesign NativeTabLayout — mirror the same 5-item order. Since NativeTabs doesn't support a fake tab, render a custom tabBar overlay button for the More slot that opens the AppDrawer. If that API is too limited, fall back to using ClassicTabLayout for all platforms so both paths use the same custom bar.
+Style the Qibla centre button — in ClassicTabLayout give the qibla tab a custom tabBarButton that renders a raised circular gold-bordered button slightly above the bar baseline. In NativeTabs, use a larger SF Symbol with the accent colour.
+Wire and test — confirm Blog and Alerts screens are still reachable via the drawer, deep-links still work, and the onboarding flow is unaffected.
+Relevant files
+
+artifacts/mobile/app/(tabs)/_layout.tsx
+artifacts/mobile/app/(tabs)/blog.tsx (still needs to be navigable)
+artifacts/mobile/app/(tabs)/settings.tsx (Alerts — still needs to be navigable)
+artifacts/mobile/hooks/useColors.ts
