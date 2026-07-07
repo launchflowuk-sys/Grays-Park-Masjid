@@ -15,6 +15,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.graysparkmasjid.app",
+      "appleTeamId": "6788555900",
       "buildNumber": "1",
       "deploymentTarget": "16.0",
       "supportsTablet": false,

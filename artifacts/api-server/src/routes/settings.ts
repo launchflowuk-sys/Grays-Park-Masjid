@@ -58,7 +58,9 @@ router.get("/settings/:key", async (req: Request, res: Response) => {
     .limit(1);
 
   if (!row) {
-    res.status(404).json({ error: "Not found" });
+    // Return a 200 with null value so the client doesn't treat an unset
+    // (but valid) setting as an error — avoids console floods and retries.
+    res.json({ key, value: null, updatedAt: new Date().toISOString() });
     return;
   }
 

@@ -65,7 +65,23 @@ import StoriesPage from "@/pages/stories";
 import { QuranAudioProvider } from "@/lib/quran-audio-player";
 import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Never retry on 4xx — a 404/403 is a definitive answer, not a transient failure.
+      // Only retry on 5xx (server errors) up to 1 time.
+      retry: (failureCount, error) => {
+        const status =
+          (error as { status?: number })?.status ??
+          (error as { response?: { status?: number } })?.response?.status;
+        if (typeof status === "number" && status >= 400 && status < 500) return false;
+        return failureCount < 1;
+      },
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function Router() {
   return (
