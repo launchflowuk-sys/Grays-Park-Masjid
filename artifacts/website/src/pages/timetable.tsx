@@ -23,28 +23,34 @@ function PrayerCell({
   adhan,
   iqamah,
   isToday,
+  isFri,
   fridayIqamah,
   last,
 }: {
   adhan: string | null | undefined;
   iqamah: string | null | undefined;
   isToday?: boolean;
+  isFri?: boolean;
   fridayIqamah?: boolean;
   last?: boolean;
 }) {
   return (
-    <td className={`text-center px-3 py-3 ${last ? "" : "border-r border-border/60"}`}>
-      <p className="text-[11px] text-muted-foreground tabular-nums leading-none">
+    <td className={`text-center px-3 py-3 ${last ? "" : isFri ? "border-r border-white/10" : "border-r border-border/60"}`}>
+      <p className={`text-[11px] tabular-nums leading-none ${isFri ? "text-white/55" : "text-muted-foreground"}`}>
         {formatTime12h(adhan)}
       </p>
       <p
         className={`text-sm font-semibold tabular-nums mt-1 leading-none ${
-          isToday ? "text-primary" : "text-foreground"
+          isFri
+            ? "text-secondary"
+            : isToday
+              ? "text-primary"
+              : "text-foreground"
         }`}
       >
         {formatTime12h(iqamah)}
         {fridayIqamah && (
-          <span className="ml-1 text-[9px] font-bold text-secondary/80 align-top">J</span>
+          <span className={`ml-1 text-[9px] font-bold align-top ${isFri ? "text-secondary/80" : "text-secondary/80"}`}>J</span>
         )}
       </p>
     </td>
@@ -269,7 +275,7 @@ export default function TimetablePage() {
                       const rowBg = isToday
                         ? "bg-secondary/20"
                         : isFri
-                          ? "bg-secondary/8"
+                          ? "bg-primary"
                           : idx % 2 === 0
                             ? "bg-background"
                             : "bg-muted/30";
@@ -279,7 +285,7 @@ export default function TimetablePage() {
                       const stickyBgStyle: React.CSSProperties = isToday
                         ? { backgroundColor: "color-mix(in srgb, hsl(var(--secondary)) 20%, hsl(var(--background)))" }
                         : isFri
-                          ? { backgroundColor: "color-mix(in srgb, hsl(var(--secondary)) 8%, hsl(var(--background)))" }
+                          ? { backgroundColor: "hsl(var(--primary))" }
                           : idx % 2 === 0
                             ? { backgroundColor: "hsl(var(--background))" }
                             : { backgroundColor: "color-mix(in srgb, hsl(var(--muted)) 30%, hsl(var(--background)))" };
@@ -288,16 +294,16 @@ export default function TimetablePage() {
                         <tr
                           key={row.id}
                           data-testid={`timetable-row-${row.date}`}
-                          className={`border-b border-border/60 last:border-b-0 transition-colors hover:brightness-95 ${rowBg}`}
+                          className={`last:border-b-0 transition-colors hover:brightness-95 ${isFri ? "border-b border-white/10" : "border-b border-border/60"} ${rowBg}`}
                         >
                           {/* Sticky date column — solid bg so scrolling cells don't bleed through */}
-                          <td className="sticky left-0 z-10 px-4 py-3 border-r border-border/60" style={stickyBgStyle}>
+                          <td className={`sticky left-0 z-10 px-4 py-3 ${isFri ? "border-r border-white/15" : "border-r border-border/60"}`} style={stickyBgStyle}>
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="min-w-0">
-                                <p className={`font-semibold tabular-nums leading-tight ${isToday ? "text-primary" : "text-foreground"}`}>
+                                <p className={`font-semibold tabular-nums leading-tight ${isFri ? "text-secondary" : isToday ? "text-primary" : "text-foreground"}`}>
                                   {format(parseISO(row.date), "d MMM")}
                                 </p>
-                                <p className="text-[11px] text-muted-foreground">
+                                <p className={`text-[11px] ${isFri ? "text-white/55" : "text-muted-foreground"}`}>
                                   {format(parseISO(row.date), "EEEE")}
                                 </p>
                               </div>
@@ -307,7 +313,7 @@ export default function TimetablePage() {
                                 </span>
                               )}
                               {isFri && !isToday && (
-                                <span className="shrink-0 text-[9px] font-semibold text-secondary/80 leading-none whitespace-nowrap">
+                                <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-primary bg-secondary px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
                                   Jumu'ah
                                 </span>
                               )}
@@ -319,11 +325,12 @@ export default function TimetablePage() {
                             adhan={row.fajrAdhan}
                             iqamah={row.fajrIqamah}
                             isToday={isToday}
+                            isFri={isFri}
                           />
 
                           {/* Sunrise — time only */}
-                          <td className="text-center px-3 py-3 border-r border-border/60">
-                            <p className="text-sm font-medium tabular-nums text-muted-foreground">
+                          <td className={`text-center px-3 py-3 ${isFri ? "border-r border-white/10" : "border-r border-border/60"}`}>
+                            <p className={`text-sm font-medium tabular-nums ${isFri ? "text-secondary" : "text-muted-foreground"}`}>
                               {formatTime12h(row.sunrise as string | null | undefined)}
                             </p>
                           </td>
@@ -333,6 +340,7 @@ export default function TimetablePage() {
                             adhan={row.dhuhrAdhan}
                             iqamah={isFri ? (row.jummahIqamah ?? row.dhuhrIqamah) : row.dhuhrIqamah}
                             isToday={isToday}
+                            isFri={isFri}
                             fridayIqamah={isFri && !!row.jummahIqamah}
                           />
 
@@ -341,6 +349,7 @@ export default function TimetablePage() {
                             adhan={row.asrAdhan}
                             iqamah={row.asrIqamah}
                             isToday={isToday}
+                            isFri={isFri}
                           />
 
                           {/* Maghrib */}
@@ -348,6 +357,7 @@ export default function TimetablePage() {
                             adhan={row.maghribAdhan}
                             iqamah={row.maghribIqamah}
                             isToday={isToday}
+                            isFri={isFri}
                           />
 
                           {/* Isha */}
@@ -355,6 +365,7 @@ export default function TimetablePage() {
                             adhan={row.ishaAdhan}
                             iqamah={row.ishaIqamah}
                             isToday={isToday}
+                            isFri={isFri}
                             last
                           />
                         </tr>
@@ -371,7 +382,7 @@ export default function TimetablePage() {
                   Today
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-secondary/10" />
+                  <span className="inline-block w-3 h-3 rounded-sm bg-primary" />
                   Friday / Jumu'ah
                 </span>
                 <span className="flex items-center gap-1.5">
