@@ -16,7 +16,7 @@ export default function OnboardingWelcome() {
   return (
     <View style={styles.root}>
       <ImageBackground
-        source={require("@/assets/images/splash.png")}
+        source={require("@/assets/images/splash-logo.png")}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
       />

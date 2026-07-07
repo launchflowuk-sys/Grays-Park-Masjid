@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { db, deviceTokensTable, insertDeviceTokenSchema, patchDeviceTokenSchema } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { ALL_ROLES } from "../lib/roles";
@@ -14,18 +14,46 @@ router.post("/device-tokens", async (req: Request, res: Response) => {
     return;
   }
 
-  const [row] = await db
-    .insert(deviceTokensTable)
-    .values(parsed.data as never)
-    .onConflictDoUpdate({
-      target: deviceTokensTable.deviceId,
-      set: {
-        token: parsed.data.token,
-        platform: parsed.data.platform ?? "unknown",
-        updatedAt: new Date(),
-      },
-    })
-    .returning();
+  const data = parsed.data;
+
+  // Look up by token OR deviceId so we handle all reinstall scenarios:
+  // - same device re-registers (same deviceId, possibly new token)
+  // - app data reset (new deviceId, same Expo token)
+  const [existing] = await db
+    .select()
+    .from(deviceTokensTable)
+    .where(
+      or(
+        eq(deviceTokensTable.token, data.token),
+        eq(deviceTokensTable.deviceId, data.deviceId),
+      ),
+    )
+    .limit(1);
+
+  let row: typeof deviceTokensTable.$inferSelect;
+
+  if (existing) {
+    const updates: Record<string, unknown> = {
+      deviceId: data.deviceId,
+      token: data.token,
+      platform: data.platform ?? existing.platform,
+      updatedAt: new Date(),
+    };
+    // Preserve existing memberId unless caller provides one
+    if (data.memberId !== undefined && data.memberId !== null) {
+      updates.memberId = data.memberId;
+    }
+    [row] = await db
+      .update(deviceTokensTable)
+      .set(updates as never)
+      .where(eq(deviceTokensTable.id, existing.id))
+      .returning();
+  } else {
+    [row] = await db
+      .insert(deviceTokensTable)
+      .values(data as never)
+      .returning();
+  }
 
   res.status(200).json(serialize(row));
 });
@@ -51,6 +79,7 @@ router.patch("/device-tokens/:deviceId", async (req: Request, res: Response) => 
 
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (parsed.data.token !== undefined) updates.token = parsed.data.token;
+  if (parsed.data.memberId !== undefined) updates.memberId = parsed.data.memberId;
   if (parsed.data.categories !== undefined) {
     const merged = { ...(existing.categories as object), ...parsed.data.categories };
     updates.categories = merged;

@@ -28,6 +28,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "calendar", selected: "calendar.fill" } as never} />
         <Label>Events</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="qibla">
+        <Icon sf={{ default: "location.north.line", selected: "location.north.line.fill" }} />
+        <Label>Qibla</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "bell", selected: "bell.fill" }} />
         <Label>Alerts</Label>

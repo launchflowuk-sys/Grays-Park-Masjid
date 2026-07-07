@@ -50,17 +50,19 @@ function RootLayoutNav() {
 
     const sub = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as {
+        url?: string;
         category?: string;
         refId?: string;
       };
       if (!data) return;
-      if (data.category === "blog" && data.refId) {
-        router.push(`/blog/${data.refId}`);
-      } else if (data.category === "events") {
-        router.push("/(tabs)/events");
-      } else if (data.category === "announcements") {
-        router.push("/(tabs)");
-      }
+      const target =
+        data.url ??
+        (data.category === "blog" && data.refId
+          ? `/blog/${data.refId}`
+          : data.category === "events"
+            ? "/(tabs)/events"
+            : "/(tabs)");
+      router.push(target as never);
     });
 
     return () => sub.remove();

@@ -5,12 +5,20 @@ const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 export type PushCategory = "announcements" | "events" | "blog";
 
+function resolveUrl(category: PushCategory, refId?: string): string {
+  if (category === "blog" && refId) return `/blog/${refId}`;
+  if (category === "events") return "/(tabs)/events";
+  return "/(tabs)";
+}
+
 export async function broadcastPush(
   title: string,
   body: string,
   category: PushCategory,
   refId?: string,
 ): Promise<number> {
+  const url = resolveUrl(category, refId);
+
   let allTokens: { token: string; categories: unknown }[] = [];
   try {
     allTokens = await db
@@ -33,7 +41,7 @@ export async function broadcastPush(
     to: t.token,
     title,
     body,
-    data: { category, refId },
+    data: { category, refId: refId ?? null, url },
     sound: "default",
   }));
 
