@@ -13,11 +13,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
+import RenderHtml, { defaultSystemFonts } from "react-native-render-html";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
-import { htmlToText } from "@/utils/htmlToText";
 
 type BlogPost = {
   id: string;
@@ -33,7 +34,11 @@ type BlogPost = {
 
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default function BlogPostScreen() {
@@ -41,7 +46,9 @@ export default function BlogPostScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useColors();
+  const { width } = useWindowDimensions();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const contentWidth = width - 40;
 
   const { data: post, isLoading, isError } = useGetBlogPostBySlug(slug ?? "") as {
     data: BlogPost | undefined;
@@ -49,15 +56,36 @@ export default function BlogPostScreen() {
     isError: boolean;
   };
 
-  const contentText = post ? htmlToText(post.content) : "";
-  const paragraphs = contentText.split("\n\n").filter(Boolean);
+  const tagsStyles = {
+    p: {
+      color: colors.foreground,
+      fontSize: 16,
+      lineHeight: 26,
+      marginBottom: 8,
+    },
+    h1: { color: colors.foreground, fontSize: 26, fontWeight: "700" as const, marginBottom: 8 },
+    h2: { color: colors.foreground, fontSize: 22, fontWeight: "700" as const, marginBottom: 6 },
+    h3: { color: colors.foreground, fontSize: 18, fontWeight: "600" as const, marginBottom: 4 },
+    a: { color: colors.primary },
+    strong: { color: colors.foreground, fontWeight: "700" as const },
+    em: { color: colors.foreground, fontStyle: "italic" as const },
+    li: { color: colors.foreground, fontSize: 16, lineHeight: 24 },
+    blockquote: {
+      borderLeftColor: colors.accent,
+      borderLeftWidth: 3,
+      paddingLeft: 12,
+      marginLeft: 0,
+      color: colors.mutedForeground,
+      fontStyle: "italic" as const,
+    },
+  };
 
   async function handleShare() {
     if (!post) return;
     try {
       await Share.share({
         title: post.title,
-        message: `${post.title}\n\n${post.excerpt ?? contentText.slice(0, 200)}…\n\nRead more at Grays Park Masjid`,
+        message: `${post.title}\n\n${post.excerpt ?? ""}${post.excerpt ? "…\n\n" : ""}Read more at Grays Park Masjid`,
       });
     } catch {}
   }
@@ -97,14 +125,20 @@ export default function BlogPostScreen() {
         <View style={[styles.centerFlex, { paddingTop: topPad + 60 }]}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.mutedForeground} />
           <Text style={[styles.errorText, { color: colors.mutedForeground }]}>Article not found</Text>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.retryBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+          >
             <Text style={[styles.retryText, { color: colors.primaryForeground }]}>Go Back</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {!isLoading && !isError && post && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
+        >
           {/* Hero */}
           {post.coverImage ? (
             <Image source={{ uri: post.coverImage }} style={styles.coverImage} contentFit="cover" />
@@ -116,12 +150,22 @@ export default function BlogPostScreen() {
 
           <View style={styles.articleBody}>
             {post.category && (
-              <View style={[styles.categoryBadge, { backgroundColor: colors.accent + "20", borderColor: colors.accent + "40" }]}>
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: colors.accent + "20", borderColor: colors.accent + "40" },
+                ]}
+              >
                 <Text style={[styles.categoryText, { color: colors.accent }]}>{post.category}</Text>
               </View>
             )}
 
-            <Text style={[styles.articleTitle, { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }]}>
+            <Text
+              style={[
+                styles.articleTitle,
+                { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" },
+              ]}
+            >
               {post.title}
             </Text>
 
@@ -133,22 +177,32 @@ export default function BlogPostScreen() {
                   <Text style={[styles.metaDot, { color: colors.border }]}>·</Text>
                 </>
               )}
-              <Text style={[styles.metaText, { color: colors.mutedForeground }]}>{formatDate(post.publishedAt)}</Text>
+              <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
+                {formatDate(post.publishedAt)}
+              </Text>
             </View>
 
             <View style={[styles.divider, { backgroundColor: colors.accent }]} />
 
             {post.excerpt && (
-              <Text style={[styles.excerpt, { color: colors.foreground, fontFamily: "PlayfairDisplay_400Regular_Italic" }]}>
+              <Text
+                style={[
+                  styles.excerpt,
+                  { color: colors.foreground, fontFamily: "PlayfairDisplay_400Regular_Italic" },
+                ]}
+              >
                 {post.excerpt}
               </Text>
             )}
 
-            {paragraphs.map((para, idx) => (
-              <Text key={idx} style={[styles.paragraph, { color: colors.foreground }]}>
-                {para}
-              </Text>
-            ))}
+            {/* HTML content rendered properly */}
+            <RenderHtml
+              contentWidth={contentWidth}
+              source={{ html: post.content }}
+              tagsStyles={tagsStyles}
+              systemFonts={[...defaultSystemFonts, "Inter_400Regular", "PlayfairDisplay_700Bold"]}
+              baseStyle={{ color: colors.foreground }}
+            />
 
             {/* Share CTA at bottom */}
             <TouchableOpacity
@@ -193,7 +247,13 @@ const styles = StyleSheet.create({
   coverPlaceholder: { width: "100%", height: 200, alignItems: "center", justifyContent: "center" },
   coverArabic: { fontSize: 36 },
   articleBody: { padding: 20, gap: 12 },
-  categoryBadge: { alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1 },
+  categoryBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
   categoryText: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
   articleTitle: { fontSize: 26, fontWeight: "700", lineHeight: 36 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 5 },
@@ -201,7 +261,6 @@ const styles = StyleSheet.create({
   metaDot: { fontSize: 13 },
   divider: { height: 2, borderRadius: 1, marginVertical: 4, opacity: 0.4 },
   excerpt: { fontSize: 17, lineHeight: 26, fontStyle: "italic" },
-  paragraph: { fontSize: 16, lineHeight: 26 },
   shareRow: {
     flexDirection: "row",
     alignItems: "center",

@@ -23,8 +23,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 
-const KAABA_LAT = 21.3891;
-const KAABA_LNG = 39.8579;
+const KAABA_LAT = 21.4225;
+const KAABA_LNG = 39.8262;
 
 function calculateQibla(lat: number, lng: number): number {
   const dLng = (KAABA_LNG - lng) * (Math.PI / 180);

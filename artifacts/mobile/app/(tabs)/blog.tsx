@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useListBlogPostsPublic } from "@workspace/api-client-react";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -19,7 +20,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
-import { truncateText } from "@/utils/htmlToText";
 
 type BlogPost = {
   id: string;
@@ -49,7 +49,6 @@ export default function BlogScreen() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const { data: posts, isLoading, isError, refetch } = useListBlogPostsPublic();
-
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const categories = Array.from(
@@ -62,62 +61,56 @@ export default function BlogScreen() {
 
   const renderPost = ({ item, index }: { item: BlogPost; index: number }) => {
     const isFeatured = index === 0 && !activeCategory;
-    const snippet =
-      item.excerpt ?? truncateText(item.content, isFeatured ? 140 : 80);
+    const cardHeight = isFeatured ? 280 : 210;
+
     return (
       <Pressable
-        style={({ pressed }) => [
-          styles.card,
-          isFeatured ? styles.featuredCard : styles.regularCard,
-          {
-            backgroundColor: pressed ? colors.muted : colors.card,
-            borderColor: colors.border,
-          },
-        ]}
+        style={({ pressed }) => [styles.card, { opacity: pressed ? 0.93 : 1 }]}
         onPress={() => router.push(`/blog/${item.slug}`)}
         testID={`blog-post-${item.id}`}
       >
-        {item.coverImage ? (
-          <Image
-            source={{ uri: item.coverImage }}
-            style={[styles.coverImage, isFeatured ? styles.featuredImage : styles.regularImage]}
-            contentFit="cover"
-          />
-        ) : (
-          <View
-            style={[
-              styles.coverImagePlaceholder,
-              isFeatured ? styles.featuredImage : styles.regularImage,
-              { backgroundColor: colors.primary },
-            ]}
-          >
-            <Text style={[styles.placeholderArabic, { color: colors.accent }]}>بسم الله</Text>
-          </View>
-        )}
-        <View style={styles.cardBody}>
-          {item.category && (
-            <View style={[styles.categoryBadge, { backgroundColor: colors.accent + "20", borderColor: colors.accent + "40" }]}>
-              <Text style={[styles.categoryText, { color: colors.accent }]}>{item.category}</Text>
+        <View style={[styles.imageContainer, { height: cardHeight }]}>
+          {item.coverImage ? (
+            <Image
+              source={{ uri: item.coverImage }}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+            />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" }]}>
+              <Text style={{ fontSize: 36, color: colors.accent }}>بسم الله</Text>
             </View>
           )}
-          <Text
-            style={[styles.postTitle, { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }, isFeatured && styles.featuredTitle]}
-            numberOfLines={isFeatured ? 3 : 2}
-          >
-            {item.title}
-          </Text>
-          {snippet ? (
-            <Text style={[styles.excerpt, { color: colors.mutedForeground }]} numberOfLines={isFeatured ? 3 : 2}>
-              {snippet}
-            </Text>
-          ) : null}
-          <View style={styles.meta}>
-            {item.author && (
-              <Text style={[styles.metaText, { color: colors.mutedForeground }]}>{item.author}</Text>
+
+          {/* Magazine gradient overlay — transparent top to dark green bottom */}
+          <LinearGradient
+            colors={["transparent", "rgba(27,61,47,0.55)", "rgba(27,61,47,0.94)"]}
+            locations={[0.3, 0.62, 1]}
+            style={StyleSheet.absoluteFill}
+          />
+
+          {/* Content overlaid on gradient */}
+          <View style={styles.cardOverlay}>
+            {item.category && (
+              <View style={styles.categoryPill}>
+                <Text style={styles.categoryPillText}>{item.category}</Text>
+              </View>
             )}
-            <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
-              {formatDate(item.publishedAt)}
+            <Text
+              style={[styles.cardTitle, isFeatured && styles.cardTitleFeatured]}
+              numberOfLines={isFeatured ? 3 : 2}
+            >
+              {item.title}
             </Text>
+            <View style={styles.cardMeta}>
+              {item.author && (
+                <Text style={styles.cardMetaText}>{item.author}</Text>
+              )}
+              {item.author && item.publishedAt && (
+                <Text style={styles.cardMetaDot}>·</Text>
+              )}
+              <Text style={styles.cardMetaText}>{formatDate(item.publishedAt)}</Text>
+            </View>
           </View>
         </View>
       </Pressable>
@@ -127,7 +120,12 @@ export default function BlogScreen() {
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <View
+        style={[
+          styles.header,
+          { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border },
+        ]}
+      >
         <Text style={[styles.title, { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }]}>
           From the Masjid
         </Text>
@@ -148,7 +146,12 @@ export default function BlogScreen() {
                   },
                 ]}
               >
-                <Text style={[styles.categoryChipText, { color: activeCategory === cat ? colors.primaryForeground : colors.foreground }]}>
+                <Text
+                  style={[
+                    styles.categoryChipText,
+                    { color: activeCategory === cat ? colors.primaryForeground : colors.foreground },
+                  ]}
+                >
                   {cat ?? "All"}
                 </Text>
               </TouchableOpacity>
@@ -168,7 +171,10 @@ export default function BlogScreen() {
         <View style={styles.centerFlex}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.mutedForeground} />
           <Text style={[styles.errorText, { color: colors.mutedForeground }]}>Unable to load blog posts</Text>
-          <TouchableOpacity onPress={() => refetch()} style={[styles.retryBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity
+            onPress={() => refetch()}
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+          >
             <Text style={[styles.retryText, { color: colors.primaryForeground }]}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -182,7 +188,12 @@ export default function BlogScreen() {
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
           scrollEnabled={filtered.length > 0}
           refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} colors={[colors.primary]} />
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
           }
           ListEmptyComponent={
             <View style={styles.centerFlex}>
@@ -212,29 +223,45 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryChipText: { fontSize: 13, fontWeight: "500" },
-  listContent: { paddingTop: 12, paddingHorizontal: 16, gap: 12 },
-  card: { borderRadius: 14, overflow: "hidden", borderWidth: 1 },
-  featuredCard: { marginBottom: 4 },
-  regularCard: {},
-  coverImage: { width: "100%" },
-  coverImagePlaceholder: { width: "100%", alignItems: "center", justifyContent: "center" },
-  featuredImage: { height: 220 },
-  regularImage: { height: 160 },
-  placeholderArabic: { fontSize: 28, fontWeight: "400" },
-  cardBody: { padding: 16, gap: 6 },
-  categoryBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
+  listContent: { paddingTop: 12, paddingHorizontal: 16, gap: 14 },
+  card: { borderRadius: 16, overflow: "hidden" },
+  imageContainer: { borderRadius: 16, overflow: "hidden", position: "relative" },
+  cardOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 16,
+    gap: 6,
   },
-  categoryText: { fontSize: 11, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
-  postTitle: { fontSize: 19, fontWeight: "700", lineHeight: 26 },
-  featuredTitle: { fontSize: 22, lineHeight: 30 },
-  excerpt: { fontSize: 14, lineHeight: 20 },
-  meta: { flexDirection: "row", justifyContent: "space-between", marginTop: 4 },
-  metaText: { fontSize: 12 },
+  categoryPill: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(201,168,76,0.25)",
+    borderWidth: 1,
+    borderColor: "rgba(201,168,76,0.5)",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 20,
+    marginBottom: 2,
+  },
+  categoryPillText: {
+    color: "#C9A84C",
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  cardTitle: {
+    color: "#FAF8F3",
+    fontSize: 18,
+    fontWeight: "700",
+    lineHeight: 25,
+    fontFamily: "PlayfairDisplay_700Bold",
+  },
+  cardTitleFeatured: { fontSize: 22, lineHeight: 30 },
+  cardMeta: { flexDirection: "row", alignItems: "center", gap: 5 },
+  cardMetaText: { color: "rgba(250,248,243,0.72)", fontSize: 12 },
+  cardMetaDot: { color: "rgba(250,248,243,0.5)", fontSize: 12 },
   loadingText: { fontSize: 15, marginTop: 8 },
   errorText: { fontSize: 15 },
   emptyText: { fontSize: 15 },

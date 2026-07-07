@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useListPrayerTimesPublic } from "@workspace/api-client-react";
+import { useListPrayerTimesPublic, useGetSettingPublic } from "@workspace/api-client-react";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,6 +13,7 @@ import {
   RefreshControl,
   StatusBar,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -47,6 +48,13 @@ type PrayerTime = {
   ishaIqamah: string;
 };
 
+const DEFAULT_ADHAN_URL =
+  "https://cdn.prayertimes.net/audio/adhan-masjid-al-haram.mp3";
+const DEFAULT_FAJR_ADHAN_URL =
+  "https://cdn.prayertimes.net/audio/adhan-fajr-masjid-al-haram.mp3";
+
+type ViewMode = "today" | "week";
+
 async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
   try {
@@ -66,7 +74,9 @@ async function scheduleWeekNotifications(allTimes: PrayerTime[]): Promise<void> 
     const todayStr = getTodayDateString();
     const relevant = allTimes.filter((pt) => {
       const d = new Date(pt.date + "T12:00:00").getTime();
-      return d >= new Date(todayStr + "T00:00:00").getTime() && d <= sevenDays;
+      return (
+        d >= new Date(todayStr + "T00:00:00").getTime() && d <= sevenDays
+      );
     });
     for (const pt of relevant) {
       const prayers = getPrayerEntries(pt);
@@ -86,7 +96,10 @@ async function scheduleWeekNotifications(allTimes: PrayerTime[]): Promise<void> 
               body: bodyMsg,
               sound: true,
             },
-            trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: trigger },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              date: trigger,
+            },
           });
         }
       }
@@ -100,16 +113,44 @@ export default function PrayerTimesScreen() {
   const audio = useAudio();
   const [countdown, setCountdown] = useState("—");
   const [notifEnabled, setNotifEnabled] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("today");
+  const [adhanPlaying, setAdhanPlaying] = useState(false);
+  const [adhanPrayerName, setAdhanPrayerName] = useState("");
+  const [useFajrForAll, setUseFajrForAll] = useState(false);
+  const adhanSoundRef = useRef<unknown>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Site-setting adhan URL overrides (fallback gracefully if setting doesn't exist)
+  const { data: adhanSetting } = useGetSettingPublic("adhan_audio_url");
+  const { data: adhanFajrSetting } = useGetSettingPublic("adhan_fajr_audio_url");
+  const regularAdhanUrl =
+    (adhanSetting as { value?: string } | undefined)?.value ?? DEFAULT_ADHAN_URL;
+  const fajrAdhanUrl =
+    (adhanFajrSetting as { value?: string } | undefined)?.value ?? DEFAULT_FAJR_ADHAN_URL;
+
   const { data: allTimes, isLoading, isError, refetch } = useListPrayerTimesPublic();
+  const allPrayerTimes = allTimes as PrayerTime[] | undefined;
 
   const today = getTodayDateString();
-  const allPrayerTimes = allTimes as PrayerTime[] | undefined;
-  const todayPrayer = allPrayerTimes?.find((pt) => pt.date === today) ?? allPrayerTimes?.[0] ?? null;
+  const todayPrayer =
+    allPrayerTimes?.find((pt) => pt.date === today) ?? allPrayerTimes?.[0] ?? null;
   const prayers = todayPrayer ? getPrayerEntries(todayPrayer) : [];
   const nextInfo = prayers.length ? findNextPrayer(prayers) : null;
 
+  // Next 7 days for week view
+  const weekDays = useMemo(() => {
+    if (!allPrayerTimes) return [];
+    const todayTs = new Date(today + "T00:00:00").getTime();
+    const sevenDaysTs = todayTs + 7 * 24 * 60 * 60 * 1000;
+    return allPrayerTimes
+      .filter((pt) => {
+        const d = new Date(pt.date + "T12:00:00").getTime();
+        return d >= todayTs && d <= sevenDaysTs;
+      })
+      .slice(0, 7);
+  }, [allPrayerTimes, today]);
+
+  // Countdown timer
   useEffect(() => {
     if (!nextInfo) return;
     const timer = setInterval(() => {
@@ -119,6 +160,7 @@ export default function PrayerTimesScreen() {
     return () => clearInterval(timer);
   }, [nextInfo?.prayer.adhan]);
 
+  // Pulse animation for next-prayer card
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -128,11 +170,85 @@ export default function PrayerTimesScreen() {
     ).start();
   }, [pulseAnim]);
 
+  // ── Adhan functions ──────────────────────────────────────────────────────────
+  const playAdhan = async (prayerName: string) => {
+    if (Platform.OS === "web") return;
+    try {
+      if (adhanSoundRef.current) {
+        const s = adhanSoundRef.current as {
+          stopAsync: () => Promise<void>;
+          unloadAsync: () => Promise<void>;
+        };
+        await s.stopAsync().catch(() => {});
+        await s.unloadAsync().catch(() => {});
+        adhanSoundRef.current = null;
+      }
+      const isFajr = prayerName === "Fajr" || useFajrForAll;
+      const url = isFajr ? fajrAdhanUrl : regularAdhanUrl;
+      const { Audio } = await import("expo-av");
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: url },
+        { shouldPlay: true }
+      );
+      adhanSoundRef.current = sound;
+      setAdhanPlaying(true);
+      setAdhanPrayerName(prayerName);
+      sound.setOnPlaybackStatusUpdate((status: unknown) => {
+        const st = status as { didJustFinish?: boolean; isLoaded?: boolean };
+        if (st.isLoaded && st.didJustFinish) {
+          adhanSoundRef.current = null;
+          setAdhanPlaying(false);
+        }
+      });
+    } catch {
+      setAdhanPlaying(false);
+    }
+  };
+
+  const stopAdhan = async () => {
+    if (adhanSoundRef.current) {
+      const s = adhanSoundRef.current as {
+        stopAsync: () => Promise<void>;
+        unloadAsync: () => Promise<void>;
+      };
+      await s.stopAsync().catch(() => {});
+      await s.unloadAsync().catch(() => {});
+      adhanSoundRef.current = null;
+    }
+    setAdhanPlaying(false);
+  };
+
+  // Notification received listener → play adhan in foreground
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      const title = notification.request.content.title ?? "";
+      const prayerName = title.split(" · ")[0];
+      if (prayerName) playAdhan(prayerName);
+    });
+    return () => subscription.remove();
+  }, [regularAdhanUrl, fajrAdhanUrl, useFajrForAll]);
+
+  // Cleanup adhan on unmount
+  useEffect(() => {
+    return () => {
+      if (adhanSoundRef.current) {
+        const s = adhanSoundRef.current as {
+          stopAsync: () => Promise<void>;
+          unloadAsync: () => Promise<void>;
+        };
+        s.stopAsync().catch(() => {});
+        s.unloadAsync().catch(() => {});
+      }
+    };
+  }, []);
+  // ────────────────────────────────────────────────────────────────────────────
+
   const toggleNotifications = async () => {
     if (notifEnabled) {
-      if (Platform.OS !== "web") {
+      if (Platform.OS !== "web")
         await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
-      }
       setNotifEnabled(false);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
@@ -142,13 +258,17 @@ export default function PrayerTimesScreen() {
         setNotifEnabled(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else if (!granted) {
-        Alert.alert("Permission Required", "Enable notifications in Settings to receive Adhan reminders.");
+        Alert.alert(
+          "Permission Required",
+          "Enable notifications in Settings to receive Adhan reminders."
+        );
       }
     }
   };
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
+  // ── Prayer row (today view) ──────────────────────────────────────────────────
   const renderPrayer = ({ item, index }: { item: PrayerEntry; index: number }) => {
     const isNext = nextInfo?.index === index;
     const isSunrise = item.name === "Sunrise";
@@ -199,9 +319,49 @@ export default function PrayerTimesScreen() {
     );
   };
 
+  // ── Week-day row ─────────────────────────────────────────────────────────────
+  const renderWeekDay = ({ item }: { item: PrayerTime }) => {
+    const dayPrayers = getPrayerEntries(item);
+    const isToday = item.date === today;
+    return (
+      <View
+        style={[
+          styles.weekCard,
+          {
+            backgroundColor: isToday ? colors.primary + "12" : colors.card,
+            borderColor: isToday ? colors.primary : colors.border,
+          },
+        ]}
+      >
+        <View style={[styles.weekDayHeader, { borderBottomColor: isToday ? colors.primary + "30" : colors.border }]}>
+          <Text style={[styles.weekDayLabel, { color: isToday ? colors.primary : colors.mutedForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
+            {isToday
+              ? "Today"
+              : new Date(item.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+          </Text>
+          {isToday && (
+            <View style={[styles.todayPill, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.todayPillText, { color: colors.primaryForeground }]}>Today</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.weekPrayerGrid}>
+          {dayPrayers.map((p) => (
+            <View key={p.name} style={styles.weekPrayerItem}>
+              <Text style={[styles.weekPrayerName, { color: colors.mutedForeground }]}>{p.name}</Text>
+              <Text style={[styles.weekPrayerTime, { color: colors.foreground }]}>{formatTime12(p.adhan)}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
+  // ── List header (shared) ─────────────────────────────────────────────────────
   const ListHeader = () => (
     <View>
       <View style={[styles.header, { paddingTop: topPad + 16, backgroundColor: colors.primary }]}>
+        {/* Title row */}
         <View style={styles.headerRow}>
           <View>
             <Text style={[styles.masjidName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
@@ -220,9 +380,57 @@ export default function PrayerTimesScreen() {
           </TouchableOpacity>
         </View>
 
-        {nextInfo && (
+        {/* Today/Week toggle */}
+        <View style={[styles.viewToggle, { backgroundColor: colors.secondary }]}>
+          {(["today", "week"] as ViewMode[]).map((mode) => (
+            <TouchableOpacity
+              key={mode}
+              onPress={() => {
+                setViewMode(mode);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              style={[
+                styles.viewToggleBtn,
+                viewMode === mode && { backgroundColor: colors.primary },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.viewToggleTxt,
+                  { color: viewMode === mode ? colors.primaryForeground : colors.primaryForeground + "80" },
+                ]}
+              >
+                {mode === "today" ? "Today" : "Week Timetable"}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Adhan now-playing banner */}
+        {adhanPlaying && (
+          <Pressable
+            style={[styles.adhanBanner, { backgroundColor: colors.accent }]}
+            onPress={stopAdhan}
+            testID="adhan-banner"
+          >
+            <Ionicons name="musical-notes" size={18} color={colors.primary} />
+            <Text style={[styles.adhanBannerText, { color: colors.primary }]}>
+              {adhanPrayerName ? `Adhan — ${adhanPrayerName}` : "Adhan is playing"}
+            </Text>
+            <View style={styles.adhanStopPill}>
+              <Ionicons name="stop-circle" size={16} color={colors.primary} />
+              <Text style={[styles.adhanStopText, { color: colors.primary }]}>Stop</Text>
+            </View>
+          </Pressable>
+        )}
+
+        {/* Next prayer card (only in today view) */}
+        {viewMode === "today" && nextInfo && (
           <Animated.View
-            style={[styles.nextPrayerCard, { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] }]}
+            style={[
+              styles.nextPrayerCard,
+              { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] },
+            ]}
           >
             <Text style={[styles.nextLabel, { color: colors.accent }]}>Next Prayer</Text>
             <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
@@ -236,7 +444,7 @@ export default function PrayerTimesScreen() {
             </Text>
           </Animated.View>
         )}
-        {!nextInfo && !isLoading && prayers.length > 0 && (
+        {viewMode === "today" && !nextInfo && !isLoading && prayers.length > 0 && (
           <View style={[styles.nextPrayerCard, { backgroundColor: colors.secondary }]}>
             <Text style={[styles.nextLabel, { color: colors.accent }]}>All prayers complete</Text>
             <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
@@ -270,8 +478,30 @@ export default function PrayerTimesScreen() {
           {audio.isLoading && <ActivityIndicator size="small" color={colors.accent} />}
         </Pressable>
       </View>
+
+      {/* Adhan settings row (Fajr toggle) — shown below header */}
+      {Platform.OS !== "web" && (
+        <View style={[styles.adhanSettingsRow, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.adhanSettingLabel, { color: colors.foreground }]}>
+              Use Fajr Adhan for all prayers
+            </Text>
+            <Text style={[styles.adhanSettingSubtext, { color: colors.mutedForeground }]}>
+              Off: Fajr plays Fajr adhan, others play standard
+            </Text>
+          </View>
+          <Switch
+            value={useFajrForAll}
+            onValueChange={setUseFajrForAll}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor={useFajrForAll ? colors.accent : colors.muted}
+            testID="fajr-toggle"
+          />
+        </View>
+      )}
+
       <Text style={[styles.sectionTitle, { color: colors.mutedForeground, backgroundColor: colors.background }]}>
-        Today's Prayer Times
+        {viewMode === "today" ? "Today's Prayer Times" : "7-Day Timetable"}
       </Text>
     </View>
   );
@@ -293,6 +523,30 @@ export default function PrayerTimesScreen() {
         <TouchableOpacity onPress={() => refetch()} style={[styles.retryBtn, { backgroundColor: colors.primary }]}>
           <Text style={[styles.retryText, { color: colors.primaryForeground }]}>Retry</Text>
         </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (viewMode === "week") {
+    return (
+      <View style={[styles.flex, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        <FlatList
+          data={weekDays}
+          keyExtractor={(item) => item.date}
+          renderItem={renderWeekDay}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
+          refreshControl={
+            <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} colors={[colors.primary]} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="calendar-outline" size={48} color={colors.mutedForeground} />
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>No timetable available</Text>
+            </View>
+          }
+        />
       </View>
     );
   }
@@ -336,11 +590,35 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   masjidName: { fontSize: 22, fontWeight: "700", letterSpacing: 0.2 },
   headerDate: { fontSize: 13, marginTop: 3 },
   bellButton: { padding: 8, marginTop: -4 },
+  viewToggle: {
+    flexDirection: "row",
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 14,
+  },
+  viewToggleBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 9,
+    alignItems: "center",
+  },
+  viewToggleTxt: { fontSize: 13, fontWeight: "600" },
+  adhanBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  adhanBannerText: { flex: 1, fontSize: 14, fontWeight: "600" },
+  adhanStopPill: { flexDirection: "row", alignItems: "center", gap: 4 },
+  adhanStopText: { fontSize: 13, fontWeight: "700" },
   nextPrayerCard: {
     borderRadius: 16,
     padding: 20,
@@ -362,6 +640,16 @@ const styles = StyleSheet.create({
   },
   audioTitle: { fontSize: 14, fontWeight: "600" },
   audioSub: { fontSize: 11, marginTop: 2 },
+  adhanSettingsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    gap: 12,
+  },
+  adhanSettingLabel: { fontSize: 14, fontWeight: "600" },
+  adhanSettingSubtext: { fontSize: 12, marginTop: 2 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: "600",
@@ -396,6 +684,43 @@ const styles = StyleSheet.create({
   prayerTimeCol: { alignItems: "flex-end" },
   timeLabel: { fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.5 },
   timeValue: { fontSize: 16, fontWeight: "600", marginTop: 2 },
+  weekCard: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  weekDayHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  weekDayLabel: { fontSize: 15, fontWeight: "600" },
+  todayPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  todayPillText: { fontSize: 11, fontWeight: "700", textTransform: "uppercase" },
+  weekPrayerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 6,
+  },
+  weekPrayerItem: {
+    width: "30%",
+    alignItems: "center",
+    paddingVertical: 6,
+    gap: 2,
+  },
+  weekPrayerName: { fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.3 },
+  weekPrayerTime: { fontSize: 15, fontWeight: "600" },
   listContent: { paddingTop: 0 },
   emptyContainer: { alignItems: "center", paddingTop: 40, gap: 12 },
   emptyText: { fontSize: 15, textAlign: "center" },

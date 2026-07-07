@@ -12,7 +12,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
+import RenderHtml, { defaultSystemFonts } from "react-native-render-html";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
@@ -40,10 +42,12 @@ export default function SurahScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useColors();
+  const { width } = useWindowDimensions();
   const surahNum = Number(number);
   const [playingKey, setPlayingKey] = useState<string | null>(null);
   const soundRef = useRef<unknown>(null);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const translationWidth = width - 28 - 32;
 
   const { data: chapter } = useGetQuranChapter(surahNum) as { data: QuranChapter | undefined };
   const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(
@@ -67,10 +71,7 @@ export default function SurahScreen() {
       setPlayingKey(key);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const { Audio } = await import("expo-av");
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: url },
-        { shouldPlay: true }
-      );
+      const { sound } = await Audio.Sound.createAsync({ uri: url }, { shouldPlay: true });
       soundRef.current = sound;
       sound.setOnPlaybackStatusUpdate((status: unknown) => {
         const s = status as { didJustFinish?: boolean; isLoaded?: boolean };
@@ -85,10 +86,13 @@ export default function SurahScreen() {
   }, [playingKey]);
 
   const renderVerse = ({ item }: { item: QuranVerse }) => {
-    const translation = item.translations?.[0]?.text ?? "";
-    const cleanTranslation = translation.replace(/<sup[^>]*>.*?<\/sup>/g, "").replace(/<[^>]*>/g, "");
+    const rawTranslation = item.translations?.[0]?.text ?? "";
     const isPlaying = playingKey === item.verse_key;
     const hasAudio = !!(item.audio?.url) && Platform.OS !== "web";
+
+    const translationHtml = rawTranslation
+      ? `<span style="font-size:15px;line-height:22px;color:${colors.mutedForeground}">${rawTranslation}</span>`
+      : "";
 
     return (
       <View style={[styles.verseCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -110,11 +114,22 @@ export default function SurahScreen() {
             </TouchableOpacity>
           )}
         </View>
+
         {item.text_uthmani && (
           <Text style={[styles.arabicText, { color: colors.foreground }]}>{item.text_uthmani}</Text>
         )}
-        {cleanTranslation ? (
-          <Text style={[styles.translationText, { color: colors.mutedForeground }]}>{cleanTranslation}</Text>
+
+        {translationHtml ? (
+          <RenderHtml
+            contentWidth={translationWidth}
+            source={{ html: translationHtml }}
+            systemFonts={[...defaultSystemFonts, "Inter_400Regular"]}
+            tagsStyles={{
+              sup: { fontSize: 10, color: colors.primary, lineHeight: 14 },
+              span: { color: colors.mutedForeground },
+            }}
+            baseStyle={{ color: colors.mutedForeground }}
+          />
         ) : null}
       </View>
     );
@@ -128,12 +143,19 @@ export default function SurahScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={[styles.headerArabic, { color: colors.accent }]}>{chapter?.name_arabic ?? ""}</Text>
-          <Text style={[styles.headerTitle, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
+          <Text
+            style={[
+              styles.headerTitle,
+              { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" },
+            ]}
+          >
             {chapter?.name_simple ?? `Surah ${number}`}
           </Text>
           <Text style={[styles.headerSub, { color: colors.primaryForeground + "BB" }]}>
             {chapter?.translated_name?.name ?? ""} · {chapter?.verses_count ?? "…"} verses
-            {chapter?.revelation_place ? ` · ${chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"}` : ""}
+            {chapter?.revelation_place
+              ? ` · ${chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"}`
+              : ""}
           </Text>
         </View>
         <View style={styles.headerBtn} />
@@ -200,7 +222,13 @@ export default function SurahScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   centerFlex: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 8, paddingBottom: 20 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingBottom: 20,
+  },
   headerCenter: { flex: 1, alignItems: "center", gap: 4 },
   headerArabic: { fontSize: 24 },
   headerTitle: { fontSize: 20, fontWeight: "700" },
@@ -209,13 +237,25 @@ const styles = StyleSheet.create({
   bismillah: { padding: 24, alignItems: "center" },
   bismillahText: { fontSize: 22, textAlign: "center" },
   listContent: {},
-  verseCard: { marginHorizontal: 14, marginBottom: 10, borderRadius: 12, borderWidth: 1, padding: 16, gap: 10 },
+  verseCard: {
+    marginHorizontal: 14,
+    marginBottom: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 16,
+    gap: 10,
+  },
   verseHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  verseNumber: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  verseNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   verseNumberText: { fontSize: 13, fontWeight: "700" },
   playBtn: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
   arabicText: { fontSize: 24, lineHeight: 42, textAlign: "right" },
-  translationText: { fontSize: 15, lineHeight: 22 },
   loadingText: { fontSize: 15, marginTop: 8 },
   errorText: { fontSize: 15 },
   emptyText: { fontSize: 15 },
