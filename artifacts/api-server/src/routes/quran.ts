@@ -118,7 +118,16 @@ router.get("/quran/ayah/:surah/:ayah", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    res.json(result);
+    res.json({
+      id: `${result.surahNumber}:${result.numberInSurah}`,
+      verse_key: `${result.surahNumber}:${result.numberInSurah}`,
+      verse_number: result.numberInSurah,
+      text_uthmani: result.arabic,
+      translations: [
+        { text: result.translation, resource_id: 0, resource_name: result.translationSource },
+      ],
+      audio: result.audioUrl ? { url: result.audioUrl } : null,
+    });
   } catch (err) {
     res.status(502).json({ error: "Failed to fetch ayah from Qur'an provider" });
   }
