@@ -53,7 +53,9 @@ export function IslamicPatternBg({
   const nativeDriver = Platform.OS !== "web";
 
   const breathOpacity = useRef(new Animated.Value(patternOpacity)).current;
-  const shimmerX = useRef(new Animated.Value(-(screenWidth * 0.6))).current;
+  // Start well off-screen left (large negative) so there is no first-frame flash
+  // if screenWidth hasn't resolved yet from useWindowDimensions.
+  const shimmerX = useRef(new Animated.Value(-1000)).current;
   const shimmerTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Each SVG instance needs a unique pattern ID so they don't clash on web DOM.

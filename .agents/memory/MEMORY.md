@@ -14,3 +14,4 @@
 - [Orval zod codegen barrel collision on multi-param endpoints](orval-zod-params-collision.md) — any operation with 2+ path/query params makes orval regenerate api-zod's index.ts with a duplicate-export TS2308; fixed via a postcodegen script, not a hand edit.
 - [Orval hook needs explicit queryKey with `enabled`](orval-hook-explicit-querykey-with-enabled.md) — overriding `query.enabled` on a param'd orval hook without also passing `queryKey: getXQueryKey(...)` fails TS2741.
 - [Expo mobile workflow name and notifications version](expo-mobile-workflow.md) — mobile workflow is `artifacts/mobile: expo`; expo-notifications must be ~0.32.x for Expo SDK 54 (not ^57).
+- [Expo Animated shimmer first-frame flash](expo-animated-shimmer-flash.md) — initialise shimmerX with a large fixed negative (-1000) not -(screenWidth*0.6); useWindowDimensions can return 0 on first render, making the band visible at left:0 for one frame.
