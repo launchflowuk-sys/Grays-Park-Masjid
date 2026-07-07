@@ -43,7 +43,9 @@ import {
   useGetQuranAyah,
   getGetQuranAyahQueryKey,
   useListQuranChapters,
+  useListBlogPostsPublic,
 } from "@workspace/api-client-react";
+import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
 import heroImage from "@/assets/Home_Hero_1783357048983.png";
 import masjidBuildingImage from "@/assets/generated_images/masjid_building.webp";
 import { format, parseISO } from "date-fns";
@@ -192,6 +194,8 @@ export default function Home() {
       <ThisWeekSection />
 
       <IslamicEducationSection />
+
+      <LatestBlogSection />
 
       <FeaturedAyahSection />
 
@@ -792,6 +796,94 @@ function FeaturedAyahSection() {
             </Link>
           </>
         ) : null}
+      </div>
+    </section>
+  );
+}
+
+function LatestBlogSection() {
+  const { data, isLoading } = useListBlogPostsPublic();
+  const posts = [...(data ?? [])]
+    .filter((p) => p.published)
+    .sort((a, b) => {
+      const aDate = a.publishedAt ?? a.createdAt;
+      const bDate = b.publishedAt ?? b.createdAt;
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    })
+    .slice(0, 3);
+
+  if (isLoading || posts.length === 0) return null;
+
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16 w-full">
+      <div className="flex items-end justify-between gap-4 mb-10 flex-wrap">
+        <div>
+          <span className="inline-block uppercase tracking-[0.15em] text-xs font-semibold text-secondary-foreground/80 mb-2">
+            Latest from the Blog
+          </span>
+          <h2 className="font-serif text-3xl">Stories, Reflections &amp; Community News</h2>
+        </div>
+        <Link href="/blog" className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+          View all posts <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => {
+          const categoryLabel =
+            BLOG_CATEGORY_LABELS[post.category as BlogCategory] ?? post.category;
+          const dateStr = post.publishedAt ?? post.createdAt;
+          return (
+            <Link
+              key={post.id}
+              href={`/blog/${post.slug}`}
+              className="group block bg-card border border-card-border overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+              style={{ borderRadius: "1.75rem 1.75rem 1.75rem 0.5rem" }}
+              data-testid={`card-home-blog-${post.id}`}
+            >
+              <div className="relative h-44 overflow-hidden bg-primary/10">
+                {post.featureImageUrl ? (
+                  <img
+                    src={post.featureImageUrl}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <BookOpen className="h-8 w-8 text-primary/30" />
+                  </div>
+                )}
+                <div className="absolute top-3 left-3">
+                  <Badge className="bg-secondary text-secondary-foreground text-[10px] font-semibold tracking-wide uppercase">
+                    {categoryLabel}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="font-serif text-base leading-snug mb-2 line-clamp-2">
+                  {post.title}
+                </h3>
+                {post.excerpt && (
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 mb-3">
+                    {post.excerpt}
+                  </p>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  {format(parseISO(dateStr), "d MMM yyyy")}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="mt-8 text-center md:hidden">
+        <Link href="/blog">
+          <Button variant="outline" className="rounded-full gap-2">
+            View all posts <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
       </div>
     </section>
   );
