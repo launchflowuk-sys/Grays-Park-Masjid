@@ -70,7 +70,7 @@ const TRANSLATION_ID_MAP: Record<string, number> = {
 // ── AlQuran.cloud reciter edition identifiers ─────────────────────────────────
 const AQ_RECITER_MAP: Record<string, string> = {
   "ar.alafasy": "ar.alafasy",
-  "ar.abdulbasitmurattal": "ar.abdulbasitmujawwad",
+  "ar.abdulbasitmurattal": "ar.abdulbasitmurattal",
   "ar.abdurrahmaansudais": "ar.abdurrahmaansudais",
   "ar.minshawi": "ar.minshawi",
   "ar.hudhaify": "ar.hudhaify",

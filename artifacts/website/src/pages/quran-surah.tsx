@@ -197,62 +197,85 @@ export default function QuranSurahPage() {
         </div>
       </section>
 
-      <div className="sticky top-[57px] z-30 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto max-w-4xl px-6 py-3 flex flex-wrap items-center gap-3 justify-between">
-          <div className="flex items-center gap-2">
+      {/* ── Filter bar ── */}
+      <div className="sticky top-[57px] z-30 bg-[#FAF8F3] border-b border-[#C9A84C]/30">
+        {/* gold shimmer line at top */}
+        <div className="h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent" />
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2 justify-between">
+
+          {/* Left: index + prev */}
+          <div className="flex items-center gap-1.5">
             <Link href="/quran" data-testid="link-all-surahs">
-              <Button size="sm" variant="outline" className="gap-1.5">
-                <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#1B3D2F] px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase text-[#C9A84C] hover:bg-[#1B3D2F]/85 transition-colors cursor-pointer select-none">
+                <LayoutGrid className="h-3 w-3" />
                 All Surahs
-              </Button>
+              </span>
             </Link>
             {prevChapter && (
-              <Link href={`/quran/${prevChapter.id}`} data-testid="link-prev-surah">
-                <Button size="sm" variant="ghost" className="gap-1 text-muted-foreground">
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                  {prevChapter.name_simple}
-                </Button>
-              </Link>
+              <>
+                <span className="w-px h-4 bg-[#1B3D2F]/15 mx-0.5" />
+                <Link href={`/quran/${prevChapter.id}`} data-testid="link-prev-surah">
+                  <span className="inline-flex items-center gap-1 text-[11px] text-[#1B3D2F]/60 hover:text-[#1B3D2F] transition-colors cursor-pointer select-none">
+                    <ChevronLeft className="h-3.5 w-3.5 text-[#C9A84C]" />
+                    {prevChapter.name_simple}
+                  </span>
+                </Link>
+              </>
             )}
           </div>
+
+          {/* Centre: selects */}
           <div className="flex items-center gap-2">
             <Select value={translation} onValueChange={setTranslation}>
-              <SelectTrigger className="h-8 w-[160px] text-xs" data-testid="select-translation">
+              <SelectTrigger
+                className="h-8 w-[150px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
+                data-testid="select-translation"
+              >
                 <SelectValue placeholder="Translation" />
               </SelectTrigger>
               <SelectContent>
                 {translations?.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
+                  <SelectItem key={t.id} value={t.id} className="text-xs">
                     {t.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+
+            {/* small diamond separator */}
+            <span className="text-[#C9A84C]/60 text-xs select-none">◆</span>
+
             <Select value={reciter} onValueChange={setReciter}>
-              <SelectTrigger className="h-8 w-[160px] text-xs" data-testid="select-reciter">
+              <SelectTrigger
+                className="h-8 w-[150px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
+                data-testid="select-reciter"
+              >
                 <SelectValue placeholder="Reciter" />
               </SelectTrigger>
               <SelectContent>
                 {reciters?.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
+                  <SelectItem key={r.id} value={r.id} className="text-xs">
                     {r.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Right: next */}
+          <div>
             {nextChapter ? (
               <Link href={`/quran/${nextChapter.id}`} data-testid="link-next-surah">
-                <Button size="sm" variant="outline" className="gap-1">
+                <span className="inline-flex items-center gap-1 text-[11px] text-[#1B3D2F]/60 hover:text-[#1B3D2F] transition-colors cursor-pointer select-none">
                   {nextChapter.name_simple}
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
+                  <ChevronRight className="h-3.5 w-3.5 text-[#C9A84C]" />
+                </span>
               </Link>
             ) : (
               <span />
             )}
           </div>
+
         </div>
       </div>
 
