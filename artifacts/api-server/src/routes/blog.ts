@@ -87,7 +87,7 @@ router.post(
         row.title,
         row.excerpt ?? "New article from the masjid",
         "blog",
-        row.id,
+        row.slug,
       ).catch((err: unknown) => console.error("[push] blog broadcast error:", err));
     }
   },

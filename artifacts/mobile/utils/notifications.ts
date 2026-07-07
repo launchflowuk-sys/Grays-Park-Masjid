@@ -15,6 +15,7 @@ export async function getOrCreateDeviceId(): Promise<string> {
 
 export async function requestAndRegisterPushToken(
   baseUrl: string,
+  memberId?: string | null,
 ): Promise<boolean> {
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -36,7 +37,12 @@ export async function requestAndRegisterPushToken(
     await fetch(`${baseUrl}/api/device-tokens`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deviceId, token, platform: Platform.OS }),
+      body: JSON.stringify({
+        deviceId,
+        token,
+        platform: Platform.OS,
+        ...(memberId ? { memberId } : {}),
+      }),
     });
 
     return true;

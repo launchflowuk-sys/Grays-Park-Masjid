@@ -69,7 +69,7 @@ export default function OnboardingFeatures() {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => router.push("/onboarding/permissions")}
+          onPress={() => router.push("/onboarding/signup")}
           activeOpacity={0.85}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>

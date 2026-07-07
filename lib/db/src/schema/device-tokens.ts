@@ -7,6 +7,7 @@ export const deviceTokensTable = pgTable("device_tokens", {
   deviceId: text("device_id").notNull().unique(),
   token: text("token").notNull().unique(),
   platform: text("platform").notNull().default("unknown"),
+  memberId: text("member_id"),
   categories: jsonb("categories").notNull().default({
     announcements: true,
     events: true,
@@ -20,6 +21,7 @@ export const insertDeviceTokenSchema = createInsertSchema(deviceTokensTable, {
   deviceId: z.string().min(1),
   token: z.string().min(1),
   platform: z.string().optional(),
+  memberId: z.string().optional().nullable(),
   categories: z
     .object({
       announcements: z.boolean().optional(),
@@ -31,6 +33,7 @@ export const insertDeviceTokenSchema = createInsertSchema(deviceTokensTable, {
 
 export const patchDeviceTokenSchema = z.object({
   token: z.string().min(1).optional(),
+  memberId: z.string().optional().nullable(),
   categories: z.object({
     announcements: z.boolean().optional(),
     events: z.boolean().optional(),

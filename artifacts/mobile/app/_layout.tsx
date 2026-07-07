@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setBaseUrl } from "@workspace/api-client-react";
 import { router, Stack } from "expo-router";
+import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -46,6 +47,23 @@ function RootLayoutNav() {
         router.replace("/onboarding");
       }
     });
+
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as {
+        category?: string;
+        refId?: string;
+      };
+      if (!data) return;
+      if (data.category === "blog" && data.refId) {
+        router.push(`/blog/${data.refId}`);
+      } else if (data.category === "events") {
+        router.push("/(tabs)/events");
+      } else if (data.category === "announcements") {
+        router.push("/(tabs)");
+      }
+    });
+
+    return () => sub.remove();
   }, []);
 
   return (

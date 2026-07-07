@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -16,10 +16,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { requestAndRegisterPushToken } from "@/utils/notifications";
 
 const ONBOARDED_KEY = "@grayspark/onboarded";
+const MEMBER_ID_KEY = "@grayspark/memberId";
 
 export default function OnboardingPermissions() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [memberId, setMemberId] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(MEMBER_ID_KEY).then((id) => setMemberId(id));
+  }, []);
 
   const complete = async () => {
     await AsyncStorage.setItem(ONBOARDED_KEY, "true");
@@ -30,7 +36,7 @@ export default function OnboardingPermissions() {
     setLoading(true);
     try {
       const baseUrl = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
-      await requestAndRegisterPushToken(baseUrl);
+      await requestAndRegisterPushToken(baseUrl, memberId);
     } finally {
       setLoading(false);
       await complete();

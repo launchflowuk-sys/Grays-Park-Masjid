@@ -21,6 +21,7 @@ import quranRouter from "./quran";
 import supportRouter from "./support";
 import blogRouter from "./blog";
 import deviceTokensRouter from "./device-tokens";
+import pushNotificationsRouter from "./push-notifications";
 
 const router: IRouter = Router();
 
@@ -46,5 +47,6 @@ router.use(quranRouter);
 router.use(supportRouter);
 router.use(blogRouter);
 router.use(deviceTokensRouter);
+router.use(pushNotificationsRouter);
 
 export default router;
