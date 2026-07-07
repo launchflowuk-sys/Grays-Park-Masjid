@@ -1036,12 +1036,12 @@ export interface QuranTranslation {
 }
 
 export interface QuranChapter {
-  number: number;
-  name: string;
-  englishName: string;
-  englishNameTranslation: string;
-  numberOfAyahs: number;
-  revelationType: string;
+  id: number;
+  name_simple: string;
+  name_arabic: string;
+  verses_count: number;
+  translated_name?: { name: string };
+  revelation_place?: string;
 }
 
 export interface QuranVerse {

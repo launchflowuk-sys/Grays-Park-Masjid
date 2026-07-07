@@ -28,14 +28,6 @@ type QuranVerse = {
   audio?: { url: string } | null;
 };
 
-type QuranChapter = {
-  id: number;
-  name_simple: string;
-  name_arabic: string;
-  verses_count: number;
-  revelation_place?: string;
-  translated_name?: { name: string };
-};
 
 export default function SurahScreen() {
   const { number } = useLocalSearchParams<{ number: string }>();
@@ -49,7 +41,7 @@ export default function SurahScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const translationWidth = width - 28 - 32;
 
-  const { data: chapter } = useGetQuranChapter(surahNum) as { data: QuranChapter | undefined };
+  const { data: chapter } = useGetQuranChapter(surahNum);
   const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(
     surahNum,
     { translation: "131", reciter: "7" } as Record<string, unknown>

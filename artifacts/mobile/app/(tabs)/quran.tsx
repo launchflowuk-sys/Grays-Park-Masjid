@@ -19,14 +19,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 
-type Chapter = {
-  id: number;
-  name_simple: string;
-  name_arabic: string;
-  verses_count: number;
-  translated_name?: { name: string };
-  revelation_place?: string;
-};
 
 type RevFilter = "all" | "makkah" | "madinah";
 
@@ -42,7 +34,7 @@ export default function QuranScreen() {
 
   const filtered = useMemo(() => {
     if (!chapters) return [];
-    let list = chapters as Chapter[];
+    let list = [...chapters];
     if (revFilter !== "all") {
       list = list.filter((c) => c.revelation_place === revFilter);
     }
@@ -56,13 +48,13 @@ export default function QuranScreen() {
     );
   }, [chapters, query, revFilter]);
 
-  const FILTERS: { key: RevFilter; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "makkah", label: "Meccan" },
-    { key: "madinah", label: "Medinan" },
+  const FILTERS: { key: RevFilter; label: string; icon: keyof typeof Ionicons.glyphMap; activeColor: string }[] = [
+    { key: "all", label: "All Surahs", icon: "book-outline", activeColor: colors.primary },
+    { key: "makkah", label: "Meccan", icon: "sunny-outline", activeColor: "#92400E" },
+    { key: "madinah", label: "Medinan", icon: "water-outline", activeColor: "#1B5E20" },
   ];
 
-  const renderItem = ({ item }: { item: Chapter }) => (
+  const renderItem = ({ item }: { item: (typeof filtered)[number] }) => (
     <Pressable
       style={({ pressed }) => [
         styles.surahRow,
@@ -130,25 +122,34 @@ export default function QuranScreen() {
           )}
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          {FILTERS.map((f) => (
-            <TouchableOpacity
-              key={f.key}
-              onPress={() => setRevFilter(f.key)}
-              style={[
-                styles.filterChip,
-                {
-                  backgroundColor: revFilter === f.key ? colors.primary : colors.muted,
-                  borderColor: revFilter === f.key ? colors.primary : colors.border,
-                },
-              ]}
-              testID={`filter-${f.key}`}
-            >
-              <Text style={[styles.filterChipText, { color: revFilter === f.key ? colors.primaryForeground : colors.foreground }]}>
-                {f.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={{ paddingRight: 8 }}>
+          {FILTERS.map((f) => {
+            const active = revFilter === f.key;
+            return (
+              <TouchableOpacity
+                key={f.key}
+                onPress={() => setRevFilter(f.key)}
+                style={[
+                  styles.filterChip,
+                  {
+                    backgroundColor: active ? f.activeColor : colors.card,
+                    borderColor: active ? f.activeColor : colors.border,
+                  },
+                ]}
+                testID={`filter-${f.key}`}
+              >
+                <Ionicons
+                  name={f.icon}
+                  size={15}
+                  color={active ? "#FFFFFF" : colors.mutedForeground}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.filterChipText, { color: active ? "#FFFFFF" : colors.foreground }]}>
+                  {f.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 },
   title: { fontSize: 28, fontWeight: "700" },
   subtitle: { fontSize: 18, marginTop: 2 },
-  searchIconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", marginTop: 4 },
+  searchIconBtn: { width: 44, height: 44, borderRadius: 8, alignItems: "center", justifyContent: "center", marginTop: 2 },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -213,14 +214,16 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, fontSize: 15, padding: 0 },
   filterScroll: { marginBottom: 4 },
   filterChip: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 11,
+    borderRadius: 8,
     borderWidth: 1,
     marginRight: 8,
     marginBottom: 4,
   },
-  filterChipText: { fontSize: 13, fontWeight: "600" },
+  filterChipText: { fontSize: 13, fontWeight: "700" },
   surahRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -229,9 +232,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   numberBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 8,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",

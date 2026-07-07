@@ -40,7 +40,16 @@ router.get("/quran/translations", async (_req: Request, res: Response) => {
 
 router.get("/quran/chapters", async (_req: Request, res: Response) => {
   const chapters = await fetchChapters();
-  res.json(chapters);
+  const transformed = chapters.map((c) => ({
+    id: c.number,
+    name_simple: c.englishName,
+    name_arabic: c.name,
+    verses_count: c.numberOfAyahs,
+    translated_name: { name: c.englishNameTranslation },
+    revelation_place:
+      c.revelationType.toLowerCase() === "meccan" ? "makkah" : "madinah",
+  }));
+  res.json(transformed);
 });
 
 router.get("/quran/chapters/:number", async (req: Request, res: Response) => {
@@ -54,7 +63,15 @@ router.get("/quran/chapters/:number", async (req: Request, res: Response) => {
     res.status(404).json({ error: "Not found" });
     return;
   }
-  res.json(chapter);
+  res.json({
+    id: chapter.number,
+    name_simple: chapter.englishName,
+    name_arabic: chapter.name,
+    verses_count: chapter.numberOfAyahs,
+    translated_name: { name: chapter.englishNameTranslation },
+    revelation_place:
+      chapter.revelationType.toLowerCase() === "meccan" ? "makkah" : "madinah",
+  });
 });
 
 router.get("/quran/chapters/:number/verses", async (req: Request, res: Response) => {

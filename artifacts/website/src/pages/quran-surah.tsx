@@ -87,7 +87,7 @@ export default function QuranSurahPage() {
     },
   );
 
-  const chapter = chapters?.find((c) => c.number === surahNumber);
+  const chapter = chapters?.find((c) => c.id === surahNumber);
   const { current, isPlaying, play, togglePlay } = useQuranAudio();
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export default function QuranSurahPage() {
         ayahNumber: v.ayahNumber,
         numberInSurah: v.numberInSurah,
         audioUrl: v.audioUrl as string,
-        surahName: chapter.englishName,
+        surahName: chapter.name_simple,
       }));
   }, [verses, chapter]);
 
@@ -124,7 +124,7 @@ export default function QuranSurahPage() {
   function shareAyah(ayahNumber: number) {
     const url = `${window.location.origin}${window.location.pathname}#ayah-${ayahNumber}`;
     if (navigator.share) {
-      navigator.share({ title: `${chapter?.englishName} ${surahNumber}:${ayahNumber}`, url }).catch(() => {});
+      navigator.share({ title: `${chapter?.name_simple} ${surahNumber}:${ayahNumber}`, url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
       toast({ title: "Link copied to clipboard" });
@@ -143,7 +143,7 @@ export default function QuranSurahPage() {
       ayahNumber,
       numberInSurah,
       audioUrl,
-      surahName: chapter.englishName,
+      surahName: chapter.name_simple,
     };
     if (current?.surahNumber === surahNumber && current?.ayahNumber === ayahNumber) {
       togglePlay();
@@ -152,8 +152,8 @@ export default function QuranSurahPage() {
     }
   }
 
-  const prevChapter = chapters?.find((c) => c.number === surahNumber - 1);
-  const nextChapter = chapters?.find((c) => c.number === surahNumber + 1);
+  const prevChapter = chapters?.find((c) => c.id === surahNumber - 1);
+  const nextChapter = chapters?.find((c) => c.id === surahNumber + 1);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -165,16 +165,16 @@ export default function QuranSurahPage() {
           {chapter ? (
             <>
               <p className="text-xs uppercase tracking-[0.15em] text-secondary font-semibold mb-3">
-                Surah {chapter.number} &middot; {chapter.revelationType} &middot; {chapter.numberOfAyahs} verses
+                Surah {chapter.id} &middot; {chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"} &middot; {chapter.verses_count} verses
               </p>
               <h1 className="font-serif text-3xl sm:text-4xl text-primary-foreground mb-2">
-                {chapter.englishName}
+                {chapter.name_simple}
                 <span className="block text-sm font-sans font-normal text-primary-foreground/70 mt-1">
-                  {chapter.englishNameTranslation}
+                  {chapter.translated_name?.name}
                 </span>
               </h1>
               <p dir="rtl" className="font-serif text-4xl text-secondary mt-4">
-                {chapter.name}
+                {chapter.name_arabic}
               </p>
               <div className="mt-6">
                 <Button
@@ -207,10 +207,10 @@ export default function QuranSurahPage() {
               </Button>
             </Link>
             {prevChapter && (
-              <Link href={`/quran/${prevChapter.number}`} data-testid="link-prev-surah">
+              <Link href={`/quran/${prevChapter.id}`} data-testid="link-prev-surah">
                 <Button size="sm" variant="ghost" className="gap-1 text-muted-foreground">
                   <ChevronLeft className="h-3.5 w-3.5" />
-                  {prevChapter.englishName}
+                  {prevChapter.name_simple}
                 </Button>
               </Link>
             )}
@@ -243,9 +243,9 @@ export default function QuranSurahPage() {
           </div>
           <div className="flex items-center gap-2">
             {nextChapter ? (
-              <Link href={`/quran/${nextChapter.number}`} data-testid="link-next-surah">
+              <Link href={`/quran/${nextChapter.id}`} data-testid="link-next-surah">
                 <Button size="sm" variant="outline" className="gap-1">
-                  {nextChapter.englishName}
+                  {nextChapter.name_simple}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>

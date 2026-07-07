@@ -755,7 +755,7 @@ function FeaturedAyahSection() {
     },
   );
   const loading = isLoading || (!!featured && verseLoading);
-  const chapter = chapters?.find((c) => c.number === featured?.surahNumber);
+  const chapter = chapters?.find((c) => c.id === featured?.surahNumber);
 
   if (settings && !settings.showOnHomepage) return null;
   if (!loading && (!featured || !verse)) return null;
@@ -787,7 +787,7 @@ function FeaturedAyahSection() {
               {verse.translation}
             </p>
             <p className="text-sm text-primary font-medium mb-8">
-              {chapter?.englishName ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber}
+              {chapter?.name_simple ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber}
             </p>
             <Link href={settings?.homepageButtonLink || "/quran"}>
               <Button className="rounded-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" data-testid="button-home-quran-cta">

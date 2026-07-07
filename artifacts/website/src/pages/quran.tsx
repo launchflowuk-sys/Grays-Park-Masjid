@@ -42,7 +42,7 @@ function FeaturedAyahBanner() {
   }
   if (!featured || !verse) return null;
 
-  const chapter = chapters?.find((c) => c.number === featured.surahNumber);
+  const chapter = chapters?.find((c) => c.id === featured.surahNumber);
 
   return (
     <Card className="relative overflow-hidden border-card-border bg-primary text-primary-foreground">
@@ -67,7 +67,7 @@ function FeaturedAyahBanner() {
           className="inline-flex text-sm font-semibold text-secondary hover:underline"
           data-testid="link-featured-ayah"
         >
-          {chapter?.englishName ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber} &rarr;
+          {chapter?.name_simple ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber} &rarr;
         </Link>
       </CardContent>
     </Card>
@@ -132,15 +132,12 @@ export default function QuranPage() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
 
-  const revelationFilter = useMemo(() => {
-    return { Meccan: "Meccan", Medinan: "Medinan" };
-  }, []);
-  const [filter, setFilter] = useState<"all" | "Meccan" | "Medinan">("all");
+  const [filter, setFilter] = useState<"all" | "makkah" | "madinah">("all");
 
   const filteredChapters = useMemo(() => {
     if (!chapters) return [];
     if (filter === "all") return chapters;
-    return chapters.filter((c) => c.revelationType === filter);
+    return chapters.filter((c) => c.revelation_place === filter);
   }, [chapters, filter]);
 
   return (
@@ -191,7 +188,7 @@ export default function QuranPage() {
             <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
               <h2 className="font-serif text-2xl">All Surahs</h2>
               <div className="flex gap-2">
-                {(["all", "Meccan", "Medinan"] as const).map((key) => (
+                {(["all", "makkah", "madinah"] as const).map((key) => (
                   <button
                     key={key}
                     onClick={() => setFilter(key)}
@@ -202,7 +199,7 @@ export default function QuranPage() {
                     }`}
                     data-testid={`button-filter-${key.toLowerCase()}`}
                   >
-                    {key === "all" ? "All" : key}
+                    {key === "all" ? "All" : key === "makkah" ? "Meccan" : "Medinan"}
                   </button>
                 ))}
               </div>
@@ -220,23 +217,23 @@ export default function QuranPage() {
                 data-testid="grid-chapters"
               >
                 {filteredChapters.map((chapter) => (
-                  <Link key={chapter.number} href={`/quran/${chapter.number}`} data-testid={`link-chapter-${chapter.number}`}>
+                  <Link key={chapter.id} href={`/quran/${chapter.id}`} data-testid={`link-chapter-${chapter.id}`}>
                     <Card className="border-card-border hover-elevate transition-colors h-full">
                       <CardContent className="p-4 sm:p-5 flex items-center gap-4">
                         <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-primary/10 text-primary font-serif font-semibold">
-                          {chapter.number}
+                          {chapter.id}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="font-serif text-base truncate">{chapter.englishName}</p>
+                          <p className="font-serif text-base truncate">{chapter.name_simple}</p>
                           <p className="text-xs text-muted-foreground truncate">
-                            {chapter.englishNameTranslation} &middot; {chapter.numberOfAyahs} verses
+                            {chapter.translated_name?.name} &middot; {chapter.verses_count} verses
                           </p>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <p dir="rtl" className="font-serif text-lg text-primary">{chapter.name}</p>
+                          <p dir="rtl" className="font-serif text-lg text-primary">{chapter.name_arabic}</p>
                           <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
                             <MapPin className="h-2.5 w-2.5" />
-                            {chapter.revelationType}
+                            {chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"}
                           </span>
                         </div>
                       </CardContent>

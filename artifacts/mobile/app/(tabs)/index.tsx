@@ -279,42 +279,55 @@ export default function PrayerTimesScreen() {
           styles.prayerRow,
           {
             backgroundColor: isNext ? colors.primary : colors.card,
-            borderColor: isNext ? colors.primary : colors.border,
+            shadowColor: colors.primary,
+            shadowOffset: { width: 0, height: isNext ? 6 : 2 },
+            shadowOpacity: isNext ? 0.22 : 0.07,
+            shadowRadius: isNext ? 14 : 8,
+            elevation: isNext ? 8 : 2,
           },
         ]}
       >
-        <View style={styles.prayerLeft}>
-          <Text style={[styles.prayerLabel, { color: isNext ? colors.accent : colors.mutedForeground }]}>
-            {item.label}
-          </Text>
-          <Text style={[styles.prayerName, { color: isNext ? colors.primaryForeground : colors.foreground }]}>
-            {item.name}
-          </Text>
-          {isNext && (
-            <View style={[styles.nextBadge, { backgroundColor: colors.accent }]}>
-              <Text style={[styles.nextBadgeText, { color: colors.primary }]}>Next</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.prayerTimes}>
-          <View style={styles.prayerTimeCol}>
-            <Text style={[styles.timeLabel, { color: isNext ? colors.primaryForeground + "99" : colors.mutedForeground }]}>
-              Adhan
+        {isNext && (
+          <IslamicPatternBg animatePattern={false} shimmer={false} color="#ffffff" patternOpacity={0.06} />
+        )}
+        <View style={[styles.accentStrip, { backgroundColor: isNext ? colors.accent : colors.primary + "45" }]} />
+        <View style={styles.prayerInner}>
+          <View style={styles.prayerLeft}>
+            <Text style={[styles.prayerLabel, { color: isNext ? colors.accent + "CC" : colors.mutedForeground }]}>
+              {item.label}
             </Text>
-            <Text style={[styles.timeValue, { color: isNext ? colors.accent : colors.foreground }]}>
-              {formatTime12(item.adhan)}
+            <Text style={[styles.prayerName, { color: isNext ? colors.primaryForeground : colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }]}>
+              {item.name}
             </Text>
+            {isNext && (
+              <View style={[styles.nextBadge, { backgroundColor: colors.accent }]}>
+                <Text style={[styles.nextBadgeText, { color: colors.primary }]}>Next</Text>
+              </View>
+            )}
           </View>
-          {!isSunrise && item.iqamah && (
+          <View style={styles.prayerTimes}>
             <View style={styles.prayerTimeCol}>
-              <Text style={[styles.timeLabel, { color: isNext ? colors.primaryForeground + "99" : colors.mutedForeground }]}>
-                Iqamah
+              <Text style={[styles.timeLabel, { color: isNext ? colors.primaryForeground + "80" : colors.mutedForeground }]}>
+                Adhan
               </Text>
-              <Text style={[styles.timeValue, { color: isNext ? colors.primaryForeground : colors.foreground }]}>
-                {formatTime12(item.iqamah)}
+              <Text style={[styles.timeValue, { color: isNext ? colors.accent : colors.primary }]}>
+                {formatTime12(item.adhan)}
               </Text>
             </View>
-          )}
+            {!isSunrise && item.iqamah && (
+              <>
+                <View style={[styles.timesDivider, { backgroundColor: isNext ? colors.primaryForeground + "25" : colors.border }]} />
+                <View style={styles.prayerTimeCol}>
+                  <Text style={[styles.timeLabel, { color: isNext ? colors.primaryForeground + "80" : colors.mutedForeground }]}>
+                    Iqamah
+                  </Text>
+                  <Text style={[styles.timeValue, { color: isNext ? colors.primaryForeground : colors.foreground }]}>
+                    {formatTime12(item.iqamah)}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
         </View>
       </View>
     );
@@ -324,33 +337,101 @@ export default function PrayerTimesScreen() {
   const renderWeekDay = ({ item }: { item: PrayerTime }) => {
     const dayPrayers = getPrayerEntries(item);
     const isToday = item.date === today;
+    const isFriday = new Date(item.date + "T12:00:00").getDay() === 5;
+    const dateObj = new Date(item.date + "T12:00:00");
+    const dayName = isToday
+      ? "Today"
+      : dateObj.toLocaleDateString("en-GB", { weekday: "long" });
+    const dateStr = dateObj.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
     return (
       <View
         style={[
           styles.weekCard,
           {
-            backgroundColor: isToday ? colors.primary + "12" : colors.card,
-            borderColor: isToday ? colors.primary : colors.border,
+            backgroundColor: isFriday ? colors.primary : isToday ? colors.muted : colors.card,
+            borderColor: isFriday ? colors.accent + "50" : isToday ? colors.primary + "40" : colors.border,
+            borderLeftWidth: isToday && !isFriday ? 3 : 1,
+            borderLeftColor: isToday && !isFriday ? colors.accent : isFriday ? colors.accent + "50" : colors.border,
+            shadowColor: isFriday ? colors.primary : "#000",
+            shadowOffset: { width: 0, height: isFriday ? 6 : 2 },
+            shadowOpacity: isFriday ? 0.2 : 0.06,
+            shadowRadius: isFriday ? 14 : 8,
+            elevation: isFriday ? 6 : isToday ? 3 : 1,
           },
         ]}
       >
-        <View style={[styles.weekDayHeader, { borderBottomColor: isToday ? colors.primary + "30" : colors.border }]}>
-          <Text style={[styles.weekDayLabel, { color: isToday ? colors.primary : colors.mutedForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
-            {isToday
-              ? "Today"
-              : new Date(item.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
-          </Text>
-          {isToday && (
+        {isFriday && (
+          <IslamicPatternBg animatePattern={false} shimmer={false} color="#ffffff" patternOpacity={0.07} />
+        )}
+        <View
+          style={[
+            styles.weekDayHeader,
+            { borderBottomColor: isFriday ? colors.accent + "35" : isToday ? colors.primary + "20" : colors.border },
+          ]}
+        >
+          <View style={{ flex: 1 }}>
+            <Text
+              style={[
+                styles.weekDayLabel,
+                {
+                  color: isFriday ? colors.accent : isToday ? colors.primary : colors.foreground,
+                  fontFamily: "PlayfairDisplay_700Bold",
+                },
+              ]}
+            >
+              {dayName}
+            </Text>
+            <Text
+              style={[
+                styles.weekDayDate,
+                { color: isFriday ? colors.primaryForeground + "80" : colors.mutedForeground },
+              ]}
+            >
+              {dateStr}
+            </Text>
+          </View>
+          {isFriday && isToday && (
+            <View style={{ flexDirection: "row", gap: 6 }}>
+              <View style={[styles.fridayBadge, { backgroundColor: colors.accent }]}>
+                <Text style={[styles.fridayBadgeText, { color: colors.primary }]}>Jumu'ah</Text>
+              </View>
+              <View style={[styles.todayPill, { backgroundColor: colors.primaryForeground + "20" }]}>
+                <Text style={[styles.todayPillText, { color: colors.primaryForeground }]}>Today</Text>
+              </View>
+            </View>
+          )}
+          {isFriday && !isToday && (
+            <View style={[styles.fridayBadge, { backgroundColor: colors.accent }]}>
+              <Text style={[styles.fridayBadgeText, { color: colors.primary }]}>Jumu'ah</Text>
+            </View>
+          )}
+          {isToday && !isFriday && (
             <View style={[styles.todayPill, { backgroundColor: colors.primary }]}>
               <Text style={[styles.todayPillText, { color: colors.primaryForeground }]}>Today</Text>
             </View>
           )}
         </View>
         <View style={styles.weekPrayerGrid}>
-          {dayPrayers.map((p) => (
-            <View key={p.name} style={styles.weekPrayerItem}>
-              <Text style={[styles.weekPrayerName, { color: colors.mutedForeground }]}>{p.name}</Text>
-              <Text style={[styles.weekPrayerTime, { color: colors.foreground }]}>{formatTime12(p.adhan)}</Text>
+          {dayPrayers.map((p, i) => (
+            <View
+              key={p.name}
+              style={[
+                styles.weekPrayerItem,
+                {
+                  borderRightWidth: i % 3 !== 2 ? 1 : 0,
+                  borderBottomWidth: i < 3 ? 1 : 0,
+                  borderRightColor: isFriday ? colors.accent + "30" : colors.border,
+                  borderBottomColor: isFriday ? colors.accent + "25" : colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.weekPrayerName, { color: isFriday ? colors.accent + "BB" : colors.mutedForeground }]}>
+                {p.name}
+              </Text>
+              <Text style={[styles.weekPrayerTime, { color: isFriday ? colors.primaryForeground : colors.foreground }]}>
+                {formatTime12(p.adhan)}
+              </Text>
             </View>
           ))}
         </View>
@@ -502,9 +583,13 @@ export default function PrayerTimesScreen() {
         </View>
       )}
 
-      <Text style={[styles.sectionTitle, { color: colors.mutedForeground, backgroundColor: colors.background }]}>
-        {viewMode === "today" ? "Today's Prayer Times" : "7-Day Timetable"}
-      </Text>
+      <View style={[styles.sectionDivider, { backgroundColor: colors.background }]}>
+        <View style={[styles.sectionLine, { backgroundColor: colors.border }]} />
+        <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
+          {viewMode === "today" ? "Today's Prayers" : "Weekly Timetable"}
+        </Text>
+        <View style={[styles.sectionLine, { backgroundColor: colors.border }]} />
+      </View>
     </View>
   );
 
@@ -533,6 +618,9 @@ export default function PrayerTimesScreen() {
     return (
       <View style={[styles.flex, { backgroundColor: colors.background }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        <View style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}>
+          <IslamicPatternBg color={colors.primary} patternOpacity={0.025} animatePattern={false} shimmer={false} />
+        </View>
         <FlatList
           data={weekDays}
           keyExtractor={(item) => item.date}
@@ -556,6 +644,9 @@ export default function PrayerTimesScreen() {
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <View style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}>
+        <IslamicPatternBg color={colors.primary} patternOpacity={0.025} animatePattern={false} shimmer={false} />
+      </View>
       <FlatList
         data={prayers}
         keyExtractor={(item) => item.name}
@@ -599,14 +690,14 @@ const styles = StyleSheet.create({
   bellButton: { padding: 8, marginTop: -4 },
   viewToggle: {
     flexDirection: "row",
-    borderRadius: 12,
-    padding: 4,
+    borderRadius: 8,
+    padding: 3,
     marginBottom: 14,
   },
   viewToggleBtn: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 9,
+    paddingVertical: 11,
+    borderRadius: 6,
     alignItems: "center",
   },
   viewToggleTxt: { fontSize: 13, fontWeight: "600" },
@@ -652,24 +743,42 @@ const styles = StyleSheet.create({
   },
   adhanSettingLabel: { fontSize: 14, fontWeight: "600" },
   adhanSettingSubtext: { fontSize: 12, marginTop: 2 },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+  sectionDivider: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 8,
+    paddingBottom: 10,
+    gap: 12,
+  },
+  sectionLine: { flex: 1, height: 1 },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
   },
   prayerRow: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+  accentStrip: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+    zIndex: 1,
+  },
+  prayerInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginHorizontal: 16,
-    marginBottom: 8,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingVertical: 14,
   },
   prayerLeft: { gap: 2 },
   prayerLabel: { fontSize: 18, fontWeight: "400" },
@@ -682,7 +791,8 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   nextBadgeText: { fontSize: 10, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
-  prayerTimes: { flexDirection: "row", gap: 20 },
+  prayerTimes: { flexDirection: "row", gap: 14, alignItems: "center" },
+  timesDivider: { width: 1, height: 28, alignSelf: "center" },
   prayerTimeCol: { alignItems: "flex-end" },
   timeLabel: { fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.5 },
   timeValue: { fontSize: 16, fontWeight: "600", marginTop: 2 },
@@ -692,6 +802,19 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     overflow: "hidden",
+  },
+  weekDayDate: { fontSize: 12, marginTop: 2 },
+  fridayBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+  },
+  fridayBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   weekDayHeader: {
     flexDirection: "row",
@@ -711,18 +834,16 @@ const styles = StyleSheet.create({
   weekPrayerGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 6,
   },
   weekPrayerItem: {
-    width: "30%",
+    width: "33.33%",
     alignItems: "center",
-    paddingVertical: 6,
-    gap: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    gap: 3,
   },
-  weekPrayerName: { fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.3 },
-  weekPrayerTime: { fontSize: 15, fontWeight: "600" },
+  weekPrayerName: { fontSize: 10, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
+  weekPrayerTime: { fontSize: 14, fontWeight: "700" },
   listContent: { paddingTop: 0 },
   emptyContainer: { alignItems: "center", paddingTop: 40, gap: 12 },
   emptyText: { fontSize: 15, textAlign: "center" },
