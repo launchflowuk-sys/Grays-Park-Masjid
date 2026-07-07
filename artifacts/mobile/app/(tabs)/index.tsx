@@ -844,6 +844,7 @@ export default function PrayerTimesScreen() {
           keyExtractor={(item) => item.date}
           renderItem={renderWeekDay}
           ListHeaderComponent={ListHeader}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
           refreshControl={
             <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} colors={[colors.primary]} />
@@ -871,6 +872,7 @@ export default function PrayerTimesScreen() {
         renderItem={renderPrayer}
         ListHeaderComponent={ListHeader}
         ListFooterComponent={TodayListFooter}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
         scrollEnabled={!!prayers.length}
         refreshControl={
