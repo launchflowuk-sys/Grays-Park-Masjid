@@ -96,7 +96,7 @@ export function formatCountdown(ms: number): string {
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
   if (h > 0) {
-    return `${h}h ${m}m`;
+    return `${h}h ${m}m ${s.toString().padStart(2, "0")}s`;
   }
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
