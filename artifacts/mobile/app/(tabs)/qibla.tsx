@@ -191,7 +191,7 @@ export default function QiblaScreen() {
           { paddingTop: topPad + 16, backgroundColor: colors.primary },
         ]}
       >
-        <IslamicPatternBg color="#ffffff" patternOpacity={0.07} shimmer={false} />
+        <IslamicPatternBg color="#ffffff" patternOpacity={0.07} shimmer={false} animatePattern={false} />
         <Text
           style={[
             styles.title,
