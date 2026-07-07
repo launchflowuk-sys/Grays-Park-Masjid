@@ -11,8 +11,9 @@ import {
   PlayfairDisplay_700Bold,
 } from "@expo-google-fonts/playfair-display";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setBaseUrl } from "@workspace/api-client-react";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -36,10 +37,21 @@ const queryClient = new QueryClient({
   },
 });
 
+const ONBOARDED_KEY = "@grayspark/onboarded";
+
 function RootLayoutNav() {
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDED_KEY).then((value) => {
+      if (!value) {
+        router.replace("/onboarding");
+      }
+    });
+  }, []);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="quran/[number]" options={{ headerShown: false }} />
       <Stack.Screen name="quran/search" options={{ headerShown: false }} />
       <Stack.Screen name="blog/[slug]" options={{ headerShown: false }} />

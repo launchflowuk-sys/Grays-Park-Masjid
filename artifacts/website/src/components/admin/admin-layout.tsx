@@ -25,6 +25,7 @@ import {
   Sparkles,
   NotebookText,
   HelpCircle,
+  Smartphone,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -52,6 +53,7 @@ const NAV_ITEMS = [
 const SUPER_ADMIN_NAV_ITEMS = [
   { href: "/admin/users", label: "Admin Users", icon: Users },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
+  { href: "/admin/push-notifications", label: "Push Notifications", icon: Smartphone },
 ];
 
 function SidebarNav({

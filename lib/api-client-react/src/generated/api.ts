@@ -10881,3 +10881,99 @@ export const useAdminDeleteQuranReflection = <TError = ErrorType<ErrorResponse>,
       return useMutation(getAdminDeleteQuranReflectionMutationOptions(options));
     }
 
+
+
+// ─── Device Tokens ────────────────────────────────────────────────────────────
+
+export type RegisterDeviceTokenBody = {
+  deviceId: string;
+  token: string;
+  platform?: string;
+};
+
+export type PatchDeviceTokenBody = {
+  token?: string;
+  categories?: {
+    announcements?: boolean;
+    events?: boolean;
+    blog?: boolean;
+  };
+};
+
+export type DeviceTokenStatsResponse = { count: number };
+
+export const registerDeviceToken = (
+  body: RegisterDeviceTokenBody,
+  options?: SecondParameter<typeof customFetch>,
+) =>
+  customFetch<void>(`/api/device-tokens`, {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(body),
+  });
+
+export const patchDeviceTokenCategories = (
+  deviceId: string,
+  body: PatchDeviceTokenBody,
+  options?: SecondParameter<typeof customFetch>,
+) =>
+  customFetch<void>(`/api/device-tokens/${deviceId}`, {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(body),
+  });
+
+export const deleteDeviceToken = (
+  deviceId: string,
+  options?: SecondParameter<typeof customFetch>,
+) =>
+  customFetch<void>(`/api/device-tokens/${deviceId}`, { ...options, method: "DELETE" });
+
+export const adminGetDeviceTokenStats = (
+  options?: SecondParameter<typeof customFetch>,
+) =>
+  customFetch<DeviceTokenStatsResponse>(`/api/admin/device-tokens/stats`, {
+    ...options,
+    method: "GET",
+  });
+
+export const getAdminDeviceTokenStatsQueryKey = () =>
+  [`/api/admin/device-tokens/stats`] as const;
+
+export const getAdminDeviceTokenStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getAdminDeviceTokenStatsQueryKey();
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>> = () =>
+    adminGetDeviceTokenStats(requestOptions);
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
+    TError,
+    TData
+  >;
+};
+
+export type AdminDeviceTokenStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminGetDeviceTokenStats>>
+>;
+export type AdminDeviceTokenStatsQueryError = ErrorType<ErrorResponse>;
+
+export function useAdminDeviceTokenStats<
+  TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminDeviceTokenStatsQueryOptions(options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  query.queryKey = queryOptions.queryKey;
+  return query;
+}

@@ -17,3 +17,5 @@ export * from "./notifications";
 export * from "./members";
 export * from "./quran";
 export * from "./blog";
+export * from "./device-tokens";
+export * from "./notification-broadcasts";

@@ -55,6 +55,7 @@ import AdminQuranSettingsPage from "@/pages/admin/quran-settings";
 import AdminQuranFeaturedAyahPage from "@/pages/admin/quran-featured-ayah";
 import AdminQuranReflectionsPage from "@/pages/admin/quran-reflections";
 import AdminHelpPage from "@/pages/admin/help";
+import AdminPushNotificationsPage from "@/pages/admin/push-notifications";
 import AdminBlogPage from "@/pages/admin/blog";
 import AdminBlogEditorPage from "@/pages/admin/blog-editor";
 import BlogPage from "@/pages/blog";
@@ -110,6 +111,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/users" component={AdminUsersPage} />
       <Route path="/admin/notifications" component={AdminNotificationsPage} />
+      <Route path="/admin/push-notifications" component={AdminPushNotificationsPage} />
       <Route path="/admin/announcements" component={AdminAnnouncementsPage} />
       <Route path="/admin/events" component={AdminEventsPage} />
       <Route path="/admin/courses" component={AdminCoursesPage} />

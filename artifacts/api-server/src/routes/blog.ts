@@ -3,12 +3,14 @@ import { eq, and } from "drizzle-orm";
 import sanitizeHtml from "sanitize-html";
 import { db, blogPostsTable, insertBlogPostSchema } from "@workspace/db";
 import {
-  registerAdminCreate,
   registerAdminItemRoutes,
   registerAdminList,
+  coerceDates,
   serialize,
 } from "../lib/crud";
+import { requireAuth, requireRole } from "../middlewares/auth";
 import { CONTENT_WRITE, ALL_ROLES } from "../lib/roles";
+import { broadcastPush } from "../lib/push";
 
 const ALLOWED_TAGS = [
   "h2", "h3", "h4", "p", "br", "strong", "em", "u", "s",
@@ -66,7 +68,31 @@ router.get("/blog-posts/:slug", async (req, res) => {
 });
 
 registerAdminList(router, "/admin/blog-posts", blogPostsTable, ALL_ROLES);
-registerAdminCreate(router, "/admin/blog-posts", blogPostsTable, insertBlogPostSchema, CONTENT_WRITE);
+
+router.post(
+  "/admin/blog-posts",
+  requireAuth,
+  requireRole(...CONTENT_WRITE),
+  sanitizeBlogBody,
+  async (req: Request, res: Response) => {
+    const parsed = insertBlogPostSchema.safeParse(coerceDates(req.body));
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+    const [row] = await db.insert(blogPostsTable).values(parsed.data as never).returning();
+    res.status(201).json(serialize(row));
+    if (row.published) {
+      broadcastPush(
+        row.title,
+        row.excerpt ?? "New article from the masjid",
+        "blog",
+        row.id,
+      ).catch((err: unknown) => console.error("[push] blog broadcast error:", err));
+    }
+  },
+);
+
 registerAdminItemRoutes(
   router,
   "/admin/blog-posts",

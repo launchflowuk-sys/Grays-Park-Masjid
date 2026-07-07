@@ -20,6 +20,7 @@ import membersRouter from "./members";
 import quranRouter from "./quran";
 import supportRouter from "./support";
 import blogRouter from "./blog";
+import deviceTokensRouter from "./device-tokens";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(membersRouter);
 router.use(quranRouter);
 router.use(supportRouter);
 router.use(blogRouter);
+router.use(deviceTokensRouter);
 
 export default router;

@@ -28,9 +28,9 @@ function NativeTabLayout() {
         <Icon sf={{ default: "calendar", selected: "calendar.fill" } as never} />
         <Label>Events</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="qibla">
-        <Icon sf={{ default: "location.north.line", selected: "location.north.line.fill" }} />
-        <Label>Qibla</Label>
+      <NativeTabs.Trigger name="settings">
+        <Icon sf={{ default: "bell", selected: "bell.fill" }} />
+        <Label>Alerts</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -123,6 +123,18 @@ function ClassicTabLayout() {
               <SymbolView name="location.north.line" tintColor={color} size={23} />
             ) : (
               <MaterialCommunityIcons name="compass" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Alerts",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="bell" tintColor={color} size={23} />
+            ) : (
+              <Feather name="bell" size={21} color={color} />
             ),
         }}
       />
