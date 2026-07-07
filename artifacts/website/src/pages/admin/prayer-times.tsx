@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
@@ -50,6 +50,9 @@ import {
   getAdminListTimetablePdfsQueryKey,
   getAdminGetPrayerCalculationSettingsQueryKey,
   getListPrayerTimesPublicQueryKey,
+  useAdminListSettings,
+  useAdminUpsertSetting,
+  getAdminListSettingsQueryKey,
   PrayerCalculationSettingsCalculationMethod,
   PrayerCalculationSettingsMadhab,
   PrayerCalculationSettingsHighLatitudeRule,
@@ -1134,6 +1137,203 @@ function CalculationSettingsTab() {
   );
 }
 
+const SLOT_LABELS = ["1st Jamah", "2nd Jamah", "3rd Jamah", "4th Jamah"];
+
+function JumuahEidTab() {
+  const { data: settings, isLoading } = useAdminListSettings();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const canWrite = useCanWrite(MASJID_WRITE);
+
+  const [jummahSlots, setJummahSlots] = useState<string[]>(["", "", "", ""]);
+  const [eidFitrDate, setEidFitrDate] = useState("");
+  const [eidFitrSlots, setEidFitrSlots] = useState<string[]>(["", "", "", ""]);
+  const [eidAdhaDate, setEidAdhaDate] = useState("");
+  const [eidAdhaSlots, setEidAdhaSlots] = useState<string[]>(["", "", "", ""]);
+  const [init, setInit] = useState(false);
+
+  useEffect(() => {
+    if (!settings || init) return;
+    const get = (key: string) => settings.find((s) => s.key === key)?.value ?? "";
+    const parseTimes = (key: string): string[] => {
+      try {
+        const v = get(key);
+        if (!v) return ["", "", "", ""];
+        const arr = JSON.parse(v) as string[];
+        return [...arr, "", "", "", ""].slice(0, 4);
+      } catch { return ["", "", "", ""]; }
+    };
+    setJummahSlots(parseTimes("jummah_times"));
+    setEidFitrDate(get("eid_al_fitr_date"));
+    setEidFitrSlots(parseTimes("eid_al_fitr_times"));
+    setEidAdhaDate(get("eid_al_adha_date"));
+    setEidAdhaSlots(parseTimes("eid_al_adha_times"));
+    setInit(true);
+  }, [settings, init]);
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: getAdminListSettingsQueryKey() });
+
+  const onErr = (error: unknown) =>
+    toast({ title: "Failed to save", description: error instanceof Error ? error.message : undefined, variant: "destructive" });
+
+  const jummahMut = useAdminUpsertSetting({ mutation: { onSuccess: () => { invalidate(); toast({ title: "Jumu'ah times saved" }); }, onError: onErr } });
+  const eidFitrDateMut = useAdminUpsertSetting({ mutation: { onSuccess: () => { invalidate(); toast({ title: "Eid ul-Fitr saved" }); }, onError: onErr } });
+  const eidFitrTimesMut = useAdminUpsertSetting({ mutation: { onSuccess: () => {}, onError: onErr } });
+  const eidAdhaDateMut = useAdminUpsertSetting({ mutation: { onSuccess: () => { invalidate(); toast({ title: "Eid ul-Adha saved" }); }, onError: onErr } });
+  const eidAdhaTimesMut = useAdminUpsertSetting({ mutation: { onSuccess: () => {}, onError: onErr } });
+
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+
+  return (
+    <div className="space-y-8">
+
+      {/* ── Jumu'ah Times ──────────────────────────────────────── */}
+      <Card className="border-secondary/30 bg-primary/3">
+        <CardHeader>
+          <CardTitle className="font-serif text-xl flex items-center gap-2">
+            <span className="text-secondary font-normal">الجمعة</span>
+            Jumu'ah Jamah Times
+          </CardTitle>
+          <CardDescription>
+            Set up to 4 weekly Friday Jamu'ah times. These display on the app and website every Friday.
+            Leave slots blank to omit them.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {SLOT_LABELS.map((label, i) => (
+              <div key={i}>
+                <label className="text-sm font-medium mb-1 block">{label}</label>
+                <Input
+                  type="time"
+                  value={jummahSlots[i] ?? ""}
+                  onChange={(e) => { const n = [...jummahSlots]; n[i] = e.target.value; setJummahSlots(n); }}
+                  data-testid={`input-jummah-slot-${i}`}
+                  disabled={!canWrite}
+                />
+              </div>
+            ))}
+          </div>
+          {canWrite && (
+            <Button
+              onClick={() => jummahMut.mutate({ key: "jummah_times", data: { value: JSON.stringify(jummahSlots.filter((t) => t.trim())) } })}
+              disabled={jummahMut.isPending}
+              data-testid="button-save-jummah-times"
+            >
+              {jummahMut.isPending ? "Saving…" : "Save Jumu'ah Times"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Eid ul-Fitr ────────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif text-xl flex items-center gap-2">
+            <span className="text-secondary font-normal">عيد الفطر</span>
+            Eid ul-Fitr Prayer Times
+          </CardTitle>
+          <CardDescription>
+            Set the date and up to 4 Jamah times. The Eid card appears on the app and website on that date only.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Eid ul-Fitr Date</label>
+            <Input
+              type="date"
+              value={eidFitrDate}
+              onChange={(e) => setEidFitrDate(e.target.value)}
+              className="max-w-xs"
+              data-testid="input-eid-fitr-date"
+              disabled={!canWrite}
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {SLOT_LABELS.map((label, i) => (
+              <div key={i}>
+                <label className="text-sm font-medium mb-1 block">{label}</label>
+                <Input
+                  type="time"
+                  value={eidFitrSlots[i] ?? ""}
+                  onChange={(e) => { const n = [...eidFitrSlots]; n[i] = e.target.value; setEidFitrSlots(n); }}
+                  data-testid={`input-eid-fitr-slot-${i}`}
+                  disabled={!canWrite}
+                />
+              </div>
+            ))}
+          </div>
+          {canWrite && (
+            <Button
+              onClick={() => {
+                eidFitrDateMut.mutate({ key: "eid_al_fitr_date", data: { value: eidFitrDate } });
+                eidFitrTimesMut.mutate({ key: "eid_al_fitr_times", data: { value: JSON.stringify(eidFitrSlots.filter((t) => t.trim())) } });
+              }}
+              disabled={eidFitrDateMut.isPending || eidFitrTimesMut.isPending}
+              data-testid="button-save-eid-fitr"
+            >
+              {(eidFitrDateMut.isPending || eidFitrTimesMut.isPending) ? "Saving…" : "Save Eid ul-Fitr"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Eid ul-Adha ────────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif text-xl flex items-center gap-2">
+            <span className="text-secondary font-normal">عيد الأضحى</span>
+            Eid ul-Adha Prayer Times
+          </CardTitle>
+          <CardDescription>
+            Set the date and up to 4 Jamah times. The Eid card appears on the app and website on that date only.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Eid ul-Adha Date</label>
+            <Input
+              type="date"
+              value={eidAdhaDate}
+              onChange={(e) => setEidAdhaDate(e.target.value)}
+              className="max-w-xs"
+              data-testid="input-eid-adha-date"
+              disabled={!canWrite}
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {SLOT_LABELS.map((label, i) => (
+              <div key={i}>
+                <label className="text-sm font-medium mb-1 block">{label}</label>
+                <Input
+                  type="time"
+                  value={eidAdhaSlots[i] ?? ""}
+                  onChange={(e) => { const n = [...eidAdhaSlots]; n[i] = e.target.value; setEidAdhaSlots(n); }}
+                  data-testid={`input-eid-adha-slot-${i}`}
+                  disabled={!canWrite}
+                />
+              </div>
+            ))}
+          </div>
+          {canWrite && (
+            <Button
+              onClick={() => {
+                eidAdhaDateMut.mutate({ key: "eid_al_adha_date", data: { value: eidAdhaDate } });
+                eidAdhaTimesMut.mutate({ key: "eid_al_adha_times", data: { value: JSON.stringify(eidAdhaSlots.filter((t) => t.trim())) } });
+              }}
+              disabled={eidAdhaDateMut.isPending || eidAdhaTimesMut.isPending}
+              data-testid="button-save-eid-adha"
+            >
+              {(eidAdhaDateMut.isPending || eidAdhaTimesMut.isPending) ? "Saving…" : "Save Eid ul-Adha"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminPrayerTimesPage() {
   return (
     <AdminLayout>
@@ -1144,6 +1344,7 @@ export default function AdminPrayerTimesPage() {
           <TabsTrigger value="daily" data-testid="tab-daily">Daily Times</TabsTrigger>
           <TabsTrigger value="settings" data-testid="tab-settings">Calculation Settings</TabsTrigger>
           <TabsTrigger value="pdfs" data-testid="tab-pdfs">Timetable PDFs</TabsTrigger>
+          <TabsTrigger value="jumuah" data-testid="tab-jumuah">Jumu'ah &amp; Eid</TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className="mt-6">
           <PrayerTimesTab />
@@ -1153,6 +1354,9 @@ export default function AdminPrayerTimesPage() {
         </TabsContent>
         <TabsContent value="pdfs" className="mt-6">
           <TimetablePdfsTab />
+        </TabsContent>
+        <TabsContent value="jumuah" className="mt-6">
+          <JumuahEidTab />
         </TabsContent>
       </Tabs>
     </AdminLayout>

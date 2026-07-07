@@ -32,6 +32,11 @@ const PUBLIC_SETTING_KEYS = new Set([
   "safeguarding_content",
   "policies_content",
   "faqs_content",
+  "jummah_times",
+  "eid_al_fitr_date",
+  "eid_al_fitr_times",
+  "eid_al_adha_date",
+  "eid_al_adha_times",
 ]);
 
 function serializeSetting(row: typeof siteSettingsTable.$inferSelect) {

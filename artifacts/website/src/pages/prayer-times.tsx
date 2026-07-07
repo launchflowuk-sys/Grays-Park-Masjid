@@ -12,6 +12,7 @@ import {
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 import { Maximize2, Sunrise } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useGetSettingPublic } from "@workspace/api-client-react";
 import type { PrayerTime } from "@workspace/api-client-react";
 
 const ARABIC_LABELS: Record<string, string> = {
@@ -78,6 +79,31 @@ export default function PrayerTimesPage() {
 
   const hasJumuah = todayRow?.jummahKhutbah || todayRow?.jummahIqamah;
   const isFriday = new Date().getDay() === 5;
+
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const { data: jummahTimesSetting } = useGetSettingPublic("jummah_times");
+  const { data: eidFitrDateSetting } = useGetSettingPublic("eid_al_fitr_date");
+  const { data: eidFitrTimesSetting } = useGetSettingPublic("eid_al_fitr_times");
+  const { data: eidAdhaDateSetting } = useGetSettingPublic("eid_al_adha_date");
+  const { data: eidAdhaTimesSetting } = useGetSettingPublic("eid_al_adha_times");
+
+  const parseTimes = (setting: unknown): string[] => {
+    try {
+      const v = (setting as { value?: string } | undefined)?.value;
+      return v ? (JSON.parse(v) as string[]) : [];
+    } catch { return []; }
+  };
+  const jummahTimesArr = parseTimes(jummahTimesSetting);
+  const eidFitrDate = (eidFitrDateSetting as { value?: string } | undefined)?.value ?? "";
+  const eidAdhaDate = (eidAdhaDateSetting as { value?: string } | undefined)?.value ?? "";
+  const eidFitrTimesArr = parseTimes(eidFitrTimesSetting);
+  const eidAdhaTimesArr = parseTimes(eidAdhaTimesSetting);
+  const isEidFitrToday = eidFitrDate === todayStr;
+  const isEidAdhaToday = eidAdhaDate === todayStr;
+  const eidTodayName = isEidFitrToday ? "Eid ul-Fitr" : isEidAdhaToday ? "Eid ul-Adha" : "";
+  const eidTodayTimes = isEidFitrToday ? eidFitrTimesArr : isEidAdhaToday ? eidAdhaTimesArr : [];
+  const ORDINALS = ["1st", "2nd", "3rd", "4th"];
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -277,40 +303,103 @@ export default function PrayerTimesPage() {
                 })}
               </div>
 
-              {/* Jumu'ah / Friday section */}
-              {(hasJumuah || isFriday) && (
-                <div className="mt-6">
+              {/* ── Jumu'ah / Friday section ── */}
+              {(hasJumuah || isFriday || jummahTimesArr.length > 0) && (
+                <div className="mt-6 space-y-4">
                   <div
-                    className="rounded-2xl border border-secondary/40 bg-secondary/10 px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4"
+                    className="relative overflow-hidden rounded-2xl border border-primary/30 bg-primary text-primary-foreground px-6 py-6"
                     data-testid="card-jumuah"
                   >
-                    <div className="flex-1">
-                      <p className="font-serif text-secondary text-lg">الجمعة</p>
-                      <p className="font-semibold text-foreground">Jumu'ah — Friday Prayer</p>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        Weekly Friday congregational prayer
-                      </p>
+                    <IslamicPattern className="absolute inset-0 w-full h-full text-white/5 [background-size:60px_60px]" />
+                    <div className="relative">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+                        <div className="flex-1">
+                          <p className="font-serif text-secondary text-2xl">الجمعة</p>
+                          <p className="font-semibold text-primary-foreground text-lg mt-0.5">Jumu'ah — Friday Prayer</p>
+                          <p className="text-sm text-primary-foreground/60 mt-1">
+                            Weekly Friday congregational prayer
+                          </p>
+                        </div>
+                        {/* Multi-slot Jummah times */}
+                        {jummahTimesArr.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {jummahTimesArr.map((t, i) => (
+                              <div
+                                key={i}
+                                className="flex flex-col items-center justify-center bg-white/10 rounded-xl px-4 py-3 border border-white/15 text-center"
+                                data-testid={`card-jummah-slot-${i}`}
+                              >
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-secondary/80">
+                                  {ORDINALS[i]} Jamah
+                                </p>
+                                <p className="font-serif text-xl font-semibold text-secondary mt-1 tabular-nums">
+                                  {formatTime12h(t)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          /* Fallback to per-day jummahKhutbah/jummahIqamah */
+                          <div className="flex gap-6 sm:gap-10">
+                            {todayRow.jummahKhutbah && (
+                              <div className="text-center">
+                                <p className="text-xs uppercase tracking-wide text-primary-foreground/50">Khutbah</p>
+                                <p className="font-serif text-xl font-semibold text-secondary mt-0.5">
+                                  {formatTime12h(todayRow.jummahKhutbah)}
+                                </p>
+                              </div>
+                            )}
+                            {todayRow.jummahIqamah && (
+                              <div className="text-center">
+                                <p className="text-xs uppercase tracking-wide text-primary-foreground/50">Iqamah</p>
+                                <p className="font-serif text-xl font-semibold text-secondary mt-0.5">
+                                  {formatTime12h(todayRow.jummahIqamah)}
+                                </p>
+                              </div>
+                            )}
+                            {!todayRow.jummahKhutbah && !todayRow.jummahIqamah && (
+                              <p className="text-sm text-primary-foreground/50 italic">Times not yet published</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-6 sm:gap-10">
-                      {todayRow.jummahKhutbah && (
-                        <div className="text-center">
-                          <p className="text-xs uppercase tracking-wide text-muted-foreground">Khutbah</p>
-                          <p className="font-serif text-xl font-semibold text-primary mt-0.5">
-                            {formatTime12h(todayRow.jummahKhutbah)}
-                          </p>
-                        </div>
-                      )}
-                      {todayRow.jummahIqamah && (
-                        <div className="text-center">
-                          <p className="text-xs uppercase tracking-wide text-muted-foreground">Iqamah</p>
-                          <p className="font-serif text-xl font-semibold text-primary mt-0.5">
-                            {formatTime12h(todayRow.jummahIqamah)}
-                          </p>
-                        </div>
-                      )}
-                      {!todayRow.jummahKhutbah && !todayRow.jummahIqamah && (
-                        <p className="text-sm text-muted-foreground italic">Times not yet published</p>
-                      )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Eid prayer card (shown on Eid day) ── */}
+              {eidTodayName && eidTodayTimes.length > 0 && (
+                <div className="mt-4">
+                  <div
+                    className="relative overflow-hidden rounded-2xl border border-secondary/40 bg-secondary text-secondary-foreground px-6 py-6"
+                    data-testid="card-eid"
+                  >
+                    <IslamicPattern className="absolute inset-0 w-full h-full text-white/5 [background-size:60px_60px]" />
+                    <div className="relative flex flex-col sm:flex-row sm:items-start gap-6">
+                      <div className="flex-1">
+                        <p className="font-serif text-2xl text-white/80">
+                          {eidTodayName === "Eid ul-Fitr" ? "عيد الفطر" : "عيد الأضحى"}
+                        </p>
+                        <p className="font-semibold text-lg mt-0.5">{eidTodayName} Prayer</p>
+                        <p className="text-sm text-secondary-foreground/60 mt-1">Eid congregational prayer times</p>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {eidTodayTimes.map((t, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col items-center justify-center bg-white/15 rounded-xl px-4 py-3 border border-white/20 text-center"
+                            data-testid={`card-eid-slot-${i}`}
+                          >
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                              {ORDINALS[i]} Jamah
+                            </p>
+                            <p className="font-serif text-xl font-semibold mt-1 tabular-nums">
+                              {formatTime12h(t)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

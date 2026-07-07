@@ -48,7 +48,11 @@ type PrayerTime = {
   maghribIqamah: string;
   ishaAdhan: string;
   ishaIqamah: string;
+  jummahKhutbah?: string;
+  jummahIqamah?: string;
 };
+
+const ORDINALS = ["1st", "2nd", "3rd", "4th"];
 
 const DEFAULT_ADHAN_URL =
   "https://cdn.prayertimes.net/audio/adhan-masjid-al-haram.mp3";
@@ -126,6 +130,11 @@ export default function PrayerTimesScreen() {
   // Site-setting adhan URL overrides (fallback gracefully if setting doesn't exist)
   const { data: adhanSetting } = useGetSettingPublic("adhan_audio_url");
   const { data: adhanFajrSetting } = useGetSettingPublic("adhan_fajr_audio_url");
+  const { data: jummahTimesSetting } = useGetSettingPublic("jummah_times");
+  const { data: eidFitrDateSetting } = useGetSettingPublic("eid_al_fitr_date");
+  const { data: eidFitrTimesSetting } = useGetSettingPublic("eid_al_fitr_times");
+  const { data: eidAdhaDateSetting } = useGetSettingPublic("eid_al_adha_date");
+  const { data: eidAdhaTimesSetting } = useGetSettingPublic("eid_al_adha_times");
   const regularAdhanUrl =
     (adhanSetting as { value?: string } | undefined)?.value ?? DEFAULT_ADHAN_URL;
   const fajrAdhanUrl =
@@ -152,6 +161,37 @@ export default function PrayerTimesScreen() {
       })
       .slice(0, 7);
   }, [allPrayerTimes, today]);
+
+  const isTodayFriday = new Date(today + "T12:00:00").getDay() === 5;
+
+  const jummahTimes = useMemo(() => {
+    try {
+      const v = (jummahTimesSetting as { value?: string } | undefined)?.value;
+      return v ? (JSON.parse(v) as string[]) : [];
+    } catch { return []; }
+  }, [jummahTimesSetting]);
+
+  const eidFitrDate = (eidFitrDateSetting as { value?: string } | undefined)?.value ?? "";
+  const eidAdhaDate = (eidAdhaDateSetting as { value?: string } | undefined)?.value ?? "";
+
+  const eidFitrTimes = useMemo(() => {
+    try {
+      const v = (eidFitrTimesSetting as { value?: string } | undefined)?.value;
+      return v ? (JSON.parse(v) as string[]) : [];
+    } catch { return []; }
+  }, [eidFitrTimesSetting]);
+
+  const eidAdhaTimes = useMemo(() => {
+    try {
+      const v = (eidAdhaTimesSetting as { value?: string } | undefined)?.value;
+      return v ? (JSON.parse(v) as string[]) : [];
+    } catch { return []; }
+  }, [eidAdhaTimesSetting]);
+
+  const isEidFitrToday = eidFitrDate === today;
+  const isEidAdhaToday = eidAdhaDate === today;
+  const eidTodayTimes = isEidFitrToday ? eidFitrTimes : isEidAdhaToday ? eidAdhaTimes : [];
+  const eidTodayName = isEidFitrToday ? "Eid ul-Fitr" : isEidAdhaToday ? "Eid ul-Adha" : "";
 
   // Countdown timer — always ticking, wraps to tomorrow's Fajr after Isha
   useEffect(() => {
@@ -266,6 +306,122 @@ export default function PrayerTimesScreen() {
   const renderPrayer = ({ item, index }: { item: PrayerEntry; index: number }) => {
     const isNext = nextInfo?.index === index;
     const isSunrise = item.name === "Sunrise";
+    const isJumuah = isTodayFriday && item.name === "Dhuhr";
+
+    // ── Sunrise — distinct amber/dawn card ──────────────────────────────
+    if (isSunrise) {
+      return (
+        <View
+          style={[
+            styles.prayerRow,
+            {
+              backgroundColor: "#2C1600",
+              shadowColor: "#D97706",
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.28,
+              shadowRadius: 10,
+              elevation: 4,
+            },
+          ]}
+        >
+          <View style={[styles.accentStrip, { backgroundColor: "#E07B00" }]} />
+          <View style={styles.prayerInner}>
+            <View style={styles.prayerLeft}>
+              <Text style={[styles.prayerLabel, { color: "#E07B0099" }]}>
+                {item.label}
+              </Text>
+              <Text style={[styles.prayerName, { color: "#FCD34D", fontFamily: "PlayfairDisplay_700Bold" }]}>
+                {item.name}
+              </Text>
+              <Text style={styles.sunriseNote}>Fajr prayer time ends</Text>
+            </View>
+            <View style={styles.prayerTimes}>
+              <View style={styles.prayerTimeCol}>
+                <Text style={[styles.timeLabel, { color: "#E07B0099" }]}>Time</Text>
+                <Text style={[styles.timeValue, { color: "#FCD34D" }]}>
+                  {formatTime12(item.adhan)}
+                </Text>
+              </View>
+              <View style={[styles.timesDivider, { backgroundColor: "#E07B0025" }]} />
+              <View style={styles.prayerTimeCol}>
+                <Text style={[styles.timeLabel, { color: "#E07B0099" }]}>Prayer</Text>
+                <Text style={[styles.timeValue, { color: "#E07B00CC", fontSize: 12 }]}>
+                  No Iqamah
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      );
+    }
+
+    // ── Jumu'ah — prominent green card replacing Dhuhr on Fridays ───────
+    if (isJumuah) {
+      const khutbah = todayPrayer?.jummahKhutbah;
+      const jIqamah = todayPrayer?.jummahIqamah;
+      return (
+        <View
+          style={[
+            styles.prayerRow,
+            styles.jumuahRow,
+            {
+              backgroundColor: colors.primary,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.32,
+              shadowRadius: 16,
+              elevation: 10,
+            },
+          ]}
+        >
+          <IslamicPatternBg animatePattern={false} shimmer={false} color="#ffffff" patternOpacity={0.08} />
+          <View style={[styles.accentStrip, { backgroundColor: colors.accent }]} />
+          <View style={[styles.prayerInner, { paddingVertical: 18 }]}>
+            <View style={styles.prayerLeft}>
+              <Text style={[styles.prayerLabel, { color: colors.accent + "BB", fontSize: 22 }]}>
+                الجمعة
+              </Text>
+              <Text style={[styles.prayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold", fontSize: 20 }]}>
+                Jumu'ah
+              </Text>
+              <View style={[styles.nextBadge, { backgroundColor: colors.accent, marginTop: 5 }]}>
+                <Text style={[styles.nextBadgeText, { color: colors.primary }]}>Friday Prayer</Text>
+              </View>
+            </View>
+            <View style={styles.prayerTimes}>
+              {khutbah ? (
+                <>
+                  <View style={styles.prayerTimeCol}>
+                    <Text style={[styles.timeLabel, { color: colors.primaryForeground + "80" }]}>Khutbah</Text>
+                    <Text style={[styles.timeValue, { color: colors.accent, fontSize: 18 }]}>
+                      {formatTime12(khutbah)}
+                    </Text>
+                  </View>
+                  {jIqamah && <View style={[styles.timesDivider, { backgroundColor: colors.primaryForeground + "25" }]} />}
+                </>
+              ) : null}
+              {jIqamah ? (
+                <View style={styles.prayerTimeCol}>
+                  <Text style={[styles.timeLabel, { color: colors.primaryForeground + "80" }]}>Iqamah</Text>
+                  <Text style={[styles.timeValue, { color: colors.primaryForeground, fontSize: 18 }]}>
+                    {formatTime12(jIqamah)}
+                  </Text>
+                </View>
+              ) : !khutbah ? (
+                <View style={styles.prayerTimeCol}>
+                  <Text style={[styles.timeLabel, { color: colors.primaryForeground + "80" }]}>Adhan</Text>
+                  <Text style={[styles.timeValue, { color: colors.accent, fontSize: 18 }]}>
+                    {formatTime12(item.adhan)}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </View>
+      );
+    }
+
+    // ── Regular prayer card ──────────────────────────────────────────────
     return (
       <View
         style={[
@@ -307,7 +463,7 @@ export default function PrayerTimesScreen() {
                 {formatTime12(item.adhan)}
               </Text>
             </View>
-            {!isSunrise && item.iqamah && (
+            {item.iqamah && (
               <>
                 <View style={[styles.timesDivider, { backgroundColor: isNext ? colors.primaryForeground + "25" : colors.border }]} />
                 <View style={styles.prayerTimeCol}>
@@ -428,6 +584,81 @@ export default function PrayerTimesScreen() {
             </View>
           ))}
         </View>
+      </View>
+    );
+  };
+
+  // ── Today footer — Jumu'ah multi-slot card + Eid card ───────────────────────
+  const TodayListFooter = () => {
+    const hasJummah = isTodayFriday && jummahTimes.length > 0;
+    const hasEid = !!eidTodayName && eidTodayTimes.length > 0;
+    if (!hasJummah && !hasEid) return null;
+    return (
+      <View style={{ paddingHorizontal: 16, paddingTop: 4, gap: 10 }}>
+
+        {/* ── Jumu'ah multi-slot card ── */}
+        {hasJummah && (
+          <View style={[styles.jummahFooterCard, { backgroundColor: colors.primary, overflow: "hidden" }]}>
+            <IslamicPatternBg animatePattern={false} shimmer={false} color="#ffffff" patternOpacity={0.07} />
+            <View style={[styles.accentStrip, { backgroundColor: colors.accent }]} />
+            <View style={styles.jummahFooterInner}>
+              <View style={{ marginBottom: 12 }}>
+                <Text style={[styles.jummahFooterArabic, { color: colors.accent }]}>الجمعة</Text>
+                <Text style={[styles.jummahFooterTitle, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
+                  Jumu'ah — Friday Jamah Times
+                </Text>
+                <Text style={[styles.jummahFooterSub, { color: colors.primaryForeground + "70" }]}>
+                  Weekly Friday congregational prayer
+                </Text>
+              </View>
+              <View style={styles.jummahSlotsRow}>
+                {jummahTimes.map((t, i) => (
+                  <View key={i} style={[styles.jummahSlot, { borderColor: colors.accent + "35", backgroundColor: colors.secondary + "60" }]}>
+                    <Text style={[styles.jummahSlotOrdinal, { color: colors.accent + "99" }]}>
+                      {ORDINALS[i] ?? `${i + 1}th`} Jamah
+                    </Text>
+                    <Text style={[styles.jummahSlotTime, { color: colors.accent, fontFamily: "PlayfairDisplay_700Bold" }]}>
+                      {formatTime12(t)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* ── Eid prayer card ── */}
+        {hasEid && (
+          <View style={[styles.jummahFooterCard, { backgroundColor: "#1A3D1A", overflow: "hidden" }]}>
+            <IslamicPatternBg animatePattern={false} shimmer={false} color="#ffffff" patternOpacity={0.07} />
+            <View style={[styles.accentStrip, { backgroundColor: "#C9A84C" }]} />
+            <View style={styles.jummahFooterInner}>
+              <View style={{ marginBottom: 12 }}>
+                <Text style={[styles.jummahFooterArabic, { color: "#C9A84C" }]}>
+                  {eidTodayName === "Eid ul-Fitr" ? "عيد الفطر" : "عيد الأضحى"}
+                </Text>
+                <Text style={[styles.jummahFooterTitle, { color: "#FFFFFF", fontFamily: "PlayfairDisplay_700Bold" }]}>
+                  {eidTodayName} — Prayer Times
+                </Text>
+                <Text style={[styles.jummahFooterSub, { color: "#FFFFFF70" }]}>
+                  Eid congregational prayer
+                </Text>
+              </View>
+              <View style={styles.jummahSlotsRow}>
+                {eidTodayTimes.map((t, i) => (
+                  <View key={i} style={[styles.jummahSlot, { borderColor: "#C9A84C35", backgroundColor: "#2A5240" }]}>
+                    <Text style={[styles.jummahSlotOrdinal, { color: "#C9A84C99" }]}>
+                      {ORDINALS[i] ?? `${i + 1}th`} Jamah
+                    </Text>
+                    <Text style={[styles.jummahSlotTime, { color: "#C9A84C", fontFamily: "PlayfairDisplay_700Bold" }]}>
+                      {formatTime12(t)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        )}
       </View>
     );
   };
@@ -639,6 +870,7 @@ export default function PrayerTimesScreen() {
         keyExtractor={(item) => item.name}
         renderItem={renderPrayer}
         ListHeaderComponent={ListHeader}
+        ListFooterComponent={TodayListFooter}
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
         scrollEnabled={!!prayers.length}
         refreshControl={
@@ -838,4 +1070,39 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 15 },
   retryBtn: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },
   retryText: { fontSize: 15, fontWeight: "600" },
+  // Sunrise card
+  sunriseNote: { fontSize: 11, color: "#E07B00BB", marginTop: 3, fontWeight: "500" },
+  // Jumu'ah card
+  jumuahRow: { marginBottom: 10 },
+  // Jumu'ah footer card
+  jummahFooterCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 6,
+  },
+  jummahFooterInner: {
+    paddingLeft: 20,
+    paddingRight: 16,
+    paddingVertical: 18,
+  },
+  jummahFooterArabic: { fontSize: 22, fontWeight: "400", marginBottom: 2 },
+  jummahFooterTitle: { fontSize: 16, fontWeight: "700", letterSpacing: 0.2 },
+  jummahFooterSub: { fontSize: 12, marginTop: 2 },
+  jummahSlotsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  jummahSlot: {
+    flex: 1,
+    minWidth: "40%",
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    gap: 3,
+  },
+  jummahSlotOrdinal: { fontSize: 10, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8 },
+  jummahSlotTime: { fontSize: 18, fontWeight: "700" },
 });
