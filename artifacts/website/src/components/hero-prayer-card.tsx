@@ -8,7 +8,7 @@ import {
   formatCountdown,
   usePrayerTimesToday,
 } from "@/components/prayer-times-widget";
-import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.png";
+import gpmIcon from "@/assets/gpm_favi_1783401080435.png";
 
 function formatTime12h(time: string | null | undefined): string {
   if (!time) return "--";
@@ -123,13 +123,11 @@ export function HeroPrayerCard() {
         {/* ── Header ── */}
         <div className="relative flex items-center justify-between px-6 pt-6 pb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                src={gpmLogoWhite}
-                alt="Grays Park Masjid"
-                className="h-8 w-8 object-contain"
-              />
-            </div>
+            <img
+              src={gpmIcon}
+              alt="Grays Park Masjid"
+              className="h-12 w-12 object-contain shrink-0"
+            />
             <div>
               <p className="text-white text-sm font-semibold leading-tight">Grays Park Masjid</p>
               <p className="text-white/50 text-xs leading-tight">{today}</p>
