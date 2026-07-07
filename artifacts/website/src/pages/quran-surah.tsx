@@ -32,6 +32,7 @@ import {
   Bookmark,
   BookmarkCheck,
   Volume2,
+  LayoutGrid,
 } from "lucide-react";
 
 const BOOKMARKS_KEY = "gpm-quran-bookmarks";
@@ -199,15 +200,19 @@ export default function QuranSurahPage() {
       <div className="sticky top-[57px] z-30 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto max-w-4xl px-6 py-3 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-2">
-            {prevChapter ? (
+            <Link href="/quran" data-testid="link-all-surahs">
+              <Button size="sm" variant="outline" className="gap-1.5">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                All Surahs
+              </Button>
+            </Link>
+            {prevChapter && (
               <Link href={`/quran/${prevChapter.number}`} data-testid="link-prev-surah">
-                <Button size="sm" variant="outline" className="gap-1">
+                <Button size="sm" variant="ghost" className="gap-1 text-muted-foreground">
                   <ChevronLeft className="h-3.5 w-3.5" />
                   {prevChapter.englishName}
                 </Button>
               </Link>
-            ) : (
-              <span />
             )}
           </div>
           <div className="flex items-center gap-2">
