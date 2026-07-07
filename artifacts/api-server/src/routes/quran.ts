@@ -97,6 +97,7 @@ router.get("/quran/chapters/:number/verses", async (req: Request, res: Response)
     }));
     res.json(response);
   } catch (err) {
+    console.error("[quran/verses] CAUGHT ERROR:", err);
     res.status(502).json({ error: "Failed to fetch verses from Qur'an provider" });
   }
 });

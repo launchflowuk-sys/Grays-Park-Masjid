@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, quranCacheTable, quranSettingsTable } from "@workspace/db";
+import { logger } from "./logger";
 
 const QF_BASE = "https://api.quran.com/api/v4";
 const QF_OAUTH_URL = "https://oauth2.quran.foundation/oauth2/token";
@@ -42,11 +43,20 @@ async function qfFetch<T>(path: string): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${QF_BASE}${path}`, { headers });
-  if (!res.ok) {
-    throw new QuranApiError(`Quran Foundation API failed (${res.status}): ${path}`);
+  const url = `${QF_BASE}${path}`;
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "(unreadable)");
+      logger.error({ status: res.status, url, body }, "QF API upstream error");
+      throw new QuranApiError(`Quran Foundation API failed (${res.status}): ${path}`);
+    }
+    return res.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof QuranApiError) throw err;
+    logger.error({ err, url }, "QF API fetch threw");
+    throw err;
   }
-  return res.json() as Promise<T>;
 }
 
 // ── ID mappings (legacy string → QF numeric) ─────────────────────────────────
@@ -133,27 +143,35 @@ async function getCached<T>(
   ttlMinutes: number,
   fetcher: () => Promise<T>,
 ): Promise<T> {
-  const [existing] = await db
-    .select()
-    .from(quranCacheTable)
-    .where(eq(quranCacheTable.cacheKey, cacheKey))
-    .limit(1);
+  try {
+    const [existing] = await db
+      .select()
+      .from(quranCacheTable)
+      .where(eq(quranCacheTable.cacheKey, cacheKey))
+      .limit(1);
 
-  if (existing && existing.expiresAt.getTime() > Date.now()) {
-    return JSON.parse(existing.dataJson) as T;
+    if (existing && existing.expiresAt.getTime() > Date.now()) {
+      return JSON.parse(existing.dataJson) as T;
+    }
+  } catch (err) {
+    logger.error({ err, cacheKey }, "quran getCached: DB read failed");
   }
 
   const data = await fetcher();
   const expiresAt = new Date(Date.now() + ttlMinutes * 60_000);
   const dataJson = JSON.stringify(data);
 
-  await db
-    .insert(quranCacheTable)
-    .values({ cacheKey, cacheType, dataJson, expiresAt })
-    .onConflictDoUpdate({
-      target: quranCacheTable.cacheKey,
-      set: { dataJson, expiresAt, cacheType, updatedAt: new Date() },
-    });
+  try {
+    await db
+      .insert(quranCacheTable)
+      .values({ cacheKey, cacheType, dataJson, expiresAt })
+      .onConflictDoUpdate({
+        target: quranCacheTable.cacheKey,
+        set: { dataJson, expiresAt, cacheType, updatedAt: new Date() },
+      });
+  } catch (err) {
+    logger.error({ err, cacheKey }, "quran getCached: DB write failed");
+  }
 
   return data;
 }
