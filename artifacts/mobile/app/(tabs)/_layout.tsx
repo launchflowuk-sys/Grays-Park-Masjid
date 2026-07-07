@@ -4,17 +4,22 @@ import { SymbolView } from "expo-symbols";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 import { AppDrawer } from "@/components/AppDrawer";
 
 export default function TabLayout() {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const TAB_H = isWeb ? 84 : 72;
+  // Respect the home-indicator safe area so nothing gets clipped
+  const BOTTOM_INSET = insets.bottom;
+  const TAB_INNER_H = 56; // height for icon + label row
+  const TAB_H = TAB_INNER_H + BOTTOM_INSET;
 
   return (
     <>
@@ -29,7 +34,16 @@ export default function TabLayout() {
             borderTopWidth: 0,
             elevation: 0,
             height: TAB_H,
+            paddingBottom: BOTTOM_INSET,
             overflow: "visible",
+          },
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontFamily: "Inter_600SemiBold",
+            letterSpacing: 0.2,
+          },
+          tabBarItemStyle: {
+            paddingTop: 8,
           },
           tabBarBackground: () =>
             isIOS ? (
@@ -50,7 +64,7 @@ export default function TabLayout() {
             title: "Prayer",
             tabBarIcon: ({ color, focused }) =>
               isIOS ? (
-                <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={23} />
+                <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={22} />
               ) : (
                 <MaterialCommunityIcons name="mosque" size={22} color={color} />
               ),
@@ -64,7 +78,7 @@ export default function TabLayout() {
             title: "Qur'an",
             tabBarIcon: ({ color }) =>
               isIOS ? (
-                <SymbolView name="book.pages" tintColor={color} size={23} />
+                <SymbolView name="book.pages" tintColor={color} size={22} />
               ) : (
                 <Feather name="book-open" size={21} color={color} />
               ),
@@ -82,12 +96,11 @@ export default function TabLayout() {
                 <TouchableOpacity
                   onPress={props.onPress ?? undefined}
                   onLongPress={props.onLongPress ?? undefined}
-                  style={styles.qiblaWrapper}
+                  style={[styles.qiblaWrapper, { paddingBottom: BOTTOM_INSET }]}
                   accessibilityRole="button"
                   accessibilityLabel="Qibla"
                   accessibilityState={{ selected }}
                 >
-                  {/* Raised circle — floats above the bar */}
                   <View
                     style={[
                       styles.qiblaCircle,
@@ -125,7 +138,7 @@ export default function TabLayout() {
             title: "Events",
             tabBarIcon: ({ color }) =>
               isIOS ? (
-                <SymbolView name="calendar" tintColor={color} size={23} />
+                <SymbolView name="calendar" tintColor={color} size={22} />
               ) : (
                 <Feather name="calendar" size={21} color={color} />
               ),
@@ -139,7 +152,7 @@ export default function TabLayout() {
             title: "More",
             tabBarButton: () => (
               <TouchableOpacity
-                style={styles.moreWrapper}
+                style={[styles.moreWrapper, { paddingBottom: BOTTOM_INSET }]}
                 onPress={() => setDrawerOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="More options"
@@ -180,16 +193,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
-    paddingBottom: 8,
+    paddingTop: 4,
+    gap: 2,
   },
   qiblaCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    transform: [{ translateY: -10 }],
+    transform: [{ translateY: -12 }],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -199,12 +213,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 0.2,
-    marginTop: -6,
+    marginTop: -8,
   },
   moreWrapper: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
+    paddingTop: 8,
     gap: 3,
   },
   moreLabel: {
