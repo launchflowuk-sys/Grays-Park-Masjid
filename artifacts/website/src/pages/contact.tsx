@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateEnquiryPublic } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 
 const contactSchema = z.object({
@@ -149,6 +149,42 @@ export default function ContactPage() {
                 </form>
               </Form>
             </div>
+          </div>
+        </section>
+
+        {/* Google Maps */}
+        <section className="mx-auto max-w-5xl px-6 pb-14">
+          <div className="rounded-2xl overflow-hidden border border-card-border shadow-sm">
+            <div className="bg-card px-6 py-4 flex items-center justify-between border-b border-card-border">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Find Us</p>
+                  <p className="text-xs text-muted-foreground">Grays Park Masjid, Grays, Essex</p>
+                </div>
+              </div>
+              <a
+                href="https://maps.google.com/?q=Grays+Park+Masjid+Grays+Essex"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-primary hover:underline font-medium"
+              >
+                Open in Google Maps
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+            <iframe
+              src="/api/google/maps-embed?q=Grays+Park+Masjid%2C+Grays%2C+Essex%2C+UK"
+              width="100%"
+              height="420"
+              style={{ border: 0, display: "block" }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Grays Park Masjid location"
+            />
           </div>
         </section>
 

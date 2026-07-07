@@ -1,13 +1,91 @@
 import { eq } from "drizzle-orm";
 import { db, quranCacheTable, quranSettingsTable } from "@workspace/db";
 
-const ALQURAN_BASE = "https://api.alquran.cloud/v1";
+const QF_BASE = "https://api.quran.com/api/v4";
+const QF_OAUTH_URL = "https://oauth2.quran.foundation/oauth2/token";
 
+// ── OAuth2 token cache ────────────────────────────────────────────────────────
+let _cachedToken: string | null = null;
+let _tokenExpiresAt = 0;
+
+async function getAccessToken(): Promise<string | null> {
+  const clientId = process.env.QURAN_FOUNDATION_CLIENT_ID;
+  const clientSecret = process.env.QURAN_FOUNDATION_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+
+  if (_cachedToken && Date.now() < _tokenExpiresAt - 60_000) {
+    return _cachedToken;
+  }
+
+  try {
+    const res = await fetch(QF_OAUTH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { access_token: string; expires_in: number };
+    _cachedToken = json.access_token;
+    _tokenExpiresAt = Date.now() + json.expires_in * 1000;
+    return _cachedToken;
+  } catch {
+    return null;
+  }
+}
+
+async function qfFetch<T>(path: string): Promise<T> {
+  const token = await getAccessToken();
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${QF_BASE}${path}`, { headers });
+  if (!res.ok) {
+    throw new QuranApiError(`Quran Foundation API failed (${res.status}): ${path}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+// ── ID mappings (legacy string → QF numeric) ─────────────────────────────────
+const TRANSLATION_ID_MAP: Record<string, number> = {
+  "en.sahih": 131,
+  "en.pickthall": 85,
+  "en.yusufali": 22,
+  "en.hilali": 84,
+  "en.asad": 4,
+  "en.arberry": 25,
+};
+
+const RECITER_ID_MAP: Record<string, number> = {
+  "ar.alafasy": 7,
+  "ar.abdulbasitmurattal": 1,
+  "ar.abdurrahmaansudais": 4,
+  "ar.minshawi": 3,
+  "ar.hudhaify": 6,
+  "ar.mahermuaiqly": 10,
+};
+
+// ── Revelation place static lookup (Makki vs Madani) ─────────────────────────
+const MADINAH_SURAHS = new Set([
+  2, 3, 4, 5, 8, 9, 13, 22, 24, 33, 47, 48, 49, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 76, 98, 99, 110,
+]);
+
+function revelationPlace(surahNumber: number): string {
+  return MADINAH_SURAHS.has(surahNumber) ? "Medinan" : "Meccan";
+}
+
+// ── Public API surface ────────────────────────────────────────────────────────
 export const RECITERS = [
   { id: "ar.alafasy", name: "Mishary Rashid Alafasy" },
   { id: "ar.abdulbasitmurattal", name: "Abdul Basit (Murattal)" },
   { id: "ar.abdurrahmaansudais", name: "Abdul Rahman Al-Sudais" },
   { id: "ar.minshawi", name: "Mohamed Siddiq Al-Minshawi" },
+  { id: "ar.hudhaify", name: "Ali Al-Hudhaify" },
+  { id: "ar.mahermuaiqly", name: "Maher Al Muaiqly" },
 ] as const;
 
 export const DEFAULT_TRANSLATIONS = [
@@ -15,6 +93,8 @@ export const DEFAULT_TRANSLATIONS = [
   { id: "en.pickthall", name: "Mohammed Marmaduke Pickthall", language: "en" },
   { id: "en.yusufali", name: "Abdullah Yusuf Ali", language: "en" },
   { id: "en.hilali", name: "Hilali & Khan", language: "en" },
+  { id: "en.asad", name: "Muhammad Asad", language: "en" },
+  { id: "en.arberry", name: "A.J. Arberry", language: "en" },
 ] as const;
 
 export interface QuranChapter {
@@ -36,20 +116,17 @@ export interface QuranAyah {
   audioUrl: string | null;
 }
 
-class QuranApiError extends Error {}
-
-async function alQuranFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${ALQURAN_BASE}${path}`);
-  if (!res.ok) {
-    throw new QuranApiError(`AlQuran.cloud request failed (${res.status}): ${path}`);
-  }
-  const json = (await res.json()) as { code: number; status: string; data: T };
-  if (json.code !== 200) {
-    throw new QuranApiError(`AlQuran.cloud returned status ${json.status} for ${path}`);
-  }
-  return json.data;
+export interface QuranSearchResult {
+  surahNumber: number;
+  surahName: string;
+  ayahNumber: number;
+  arabic: string;
+  translation: string;
 }
 
+class QuranApiError extends Error {}
+
+// ── DB cache helpers ──────────────────────────────────────────────────────────
 async function getCached<T>(
   cacheKey: string,
   cacheType: string,
@@ -93,19 +170,45 @@ async function getCacheDurationMinutes(): Promise<number> {
   return settings.cacheDurationMinutes;
 }
 
+// ── QF API response shapes ────────────────────────────────────────────────────
+interface QFChapter {
+  id: number;
+  name_arabic: string;
+  name_simple: string;
+  verses_count: number;
+  translated_name: { name: string };
+}
+
+interface QFVerse {
+  id: number;
+  verse_number: number;
+  verse_key: string;
+  text_uthmani: string;
+  translations: { resource_id: number; text: string; resource_name: string }[];
+  audio: { url: string } | null;
+}
+
+interface QFSearchResult {
+  id: string;
+  verse_key: string;
+  verse_number: number;
+  chapter_id: number;
+  text_uthmani: string;
+  translations: { resource_id: number; text: string; resource_name: string }[];
+}
+
+// ── Public fetchers ───────────────────────────────────────────────────────────
 export async function fetchChapters(): Promise<QuranChapter[]> {
   const ttl = await getCacheDurationMinutes();
-  return getCached("chapters:list", "chapters", ttl, async () => {
-    const data = await alQuranFetch<
-      { number: number; name: string; englishName: string; englishNameTranslation: string; numberOfAyahs: number; revelationType: string }[]
-    >("/surah");
-    return data.map((s) => ({
-      number: s.number,
-      name: s.name,
-      englishName: s.englishName,
-      englishNameTranslation: s.englishNameTranslation,
-      numberOfAyahs: s.numberOfAyahs,
-      revelationType: s.revelationType,
+  return getCached("qf:chapters:list", "chapters", ttl, async () => {
+    const data = await qfFetch<{ chapters: QFChapter[] }>("/chapters?language=en");
+    return data.chapters.map((c) => ({
+      number: c.id,
+      name: c.name_arabic,
+      englishName: c.name_simple,
+      englishNameTranslation: c.translated_name.name,
+      numberOfAyahs: c.verses_count,
+      revelationType: revelationPlace(c.id),
     }));
   });
 }
@@ -115,46 +218,39 @@ export async function fetchChapter(surahNumber: number): Promise<QuranChapter | 
   return chapters.find((c) => c.number === surahNumber) ?? null;
 }
 
-interface EditionAyah {
-  number: number;
-  audio?: string;
-  text: string;
-  numberInSurah: number;
-  surah?: { number: number };
-}
-
-interface EditionResult {
-  edition: { identifier: string };
-  ayahs: EditionAyah[];
-}
-
 export async function fetchChapterVerses(
   surahNumber: number,
   translationId: string,
   reciterId: string,
 ): Promise<QuranAyah[]> {
   const ttl = await getCacheDurationMinutes();
+  const qfTranslation = TRANSLATION_ID_MAP[translationId] ?? TRANSLATION_ID_MAP["en.sahih"];
+  const qfReciter = RECITER_ID_MAP[reciterId] ?? RECITER_ID_MAP["ar.alafasy"];
+
   return getCached(
-    `verses:${surahNumber}:${translationId}:${reciterId}`,
+    `qf:verses:${surahNumber}:${translationId}:${reciterId}`,
     "verses",
     ttl,
     async () => {
-      const editions = `quran-uthmani,${translationId},${reciterId}`;
-      const data = await alQuranFetch<EditionResult[]>(`/surah/${surahNumber}/editions/${editions}`);
-      const arabicEd = data.find((d) => d.edition.identifier === "quran-uthmani");
-      const translationEd = data.find((d) => d.edition.identifier === translationId);
-      const audioEd = data.find((d) => d.edition.identifier === reciterId);
+      const params = new URLSearchParams({
+        translations: String(qfTranslation),
+        audio: String(qfReciter),
+        fields: "text_uthmani",
+        per_page: "300",
+        language: "en",
+      });
+      const data = await qfFetch<{ verses: QFVerse[] }>(
+        `/verses/by_chapter/${surahNumber}?${params}`,
+      );
 
-      if (!arabicEd) throw new QuranApiError("Missing Arabic edition in response");
-
-      return arabicEd.ayahs.map((ayah, idx) => ({
+      return data.verses.map((v) => ({
         surahNumber,
-        ayahNumber: ayah.numberInSurah,
-        numberInSurah: ayah.numberInSurah,
-        arabic: ayah.text,
-        translation: translationEd?.ayahs[idx]?.text ?? "",
+        ayahNumber: v.verse_number,
+        numberInSurah: v.verse_number,
+        arabic: v.text_uthmani,
+        translation: v.translations[0]?.text ?? "",
         translationSource: translationId,
-        audioUrl: audioEd?.ayahs[idx]?.audio ?? null,
+        audioUrl: v.audio?.url ?? null,
       }));
     },
   );
@@ -170,36 +266,39 @@ export async function fetchAyah(
   return verses.find((v) => v.ayahNumber === ayahNumber) ?? null;
 }
 
-export interface QuranSearchResult {
-  surahNumber: number;
-  surahName: string;
-  ayahNumber: number;
-  arabic: string;
-  translation: string;
-}
-
-export async function searchQuran(keyword: string, translationId: string): Promise<QuranSearchResult[]> {
+export async function searchQuran(
+  keyword: string,
+  translationId: string,
+): Promise<QuranSearchResult[]> {
   if (!keyword.trim()) return [];
-  const data = await alQuranFetch<{
-    count: number;
-    matches: { surah: { number: number; englishName: string }; numberInSurah: number; text: string }[];
-  }>(`/search/${encodeURIComponent(keyword)}/all/${translationId}`).catch((err) => {
-    if (err instanceof QuranApiError) return { count: 0, matches: [] };
-    throw err;
+
+  const qfTranslation = TRANSLATION_ID_MAP[translationId] ?? TRANSLATION_ID_MAP["en.sahih"];
+  const params = new URLSearchParams({
+    q: keyword,
+    size: "20",
+    page: "1",
+    language: "en",
+    translations: String(qfTranslation),
   });
 
-  const results: QuranSearchResult[] = [];
-  for (const match of data.matches.slice(0, 30)) {
-    const arabicVerse = await fetchAyah(match.surah.number, match.numberInSurah, translationId, RECITERS[0].id).catch(
-      () => null,
+  try {
+    const data = await qfFetch<{ search: { results: QFSearchResult[] } }>(
+      `/search?${params}`,
     );
-    results.push({
-      surahNumber: match.surah.number,
-      surahName: match.surah.englishName,
-      ayahNumber: match.numberInSurah,
-      arabic: arabicVerse?.arabic ?? "",
-      translation: match.text,
-    });
+
+    const chaptersMap = await fetchChapters().then(
+      (chs) => new Map(chs.map((c) => [c.number, c.englishName])),
+    );
+
+    return data.search.results.map((r) => ({
+      surahNumber: r.chapter_id,
+      surahName: chaptersMap.get(r.chapter_id) ?? `Surah ${r.chapter_id}`,
+      ayahNumber: r.verse_number,
+      arabic: r.text_uthmani,
+      translation: r.translations[0]?.text ?? "",
+    }));
+  } catch (err) {
+    if (err instanceof QuranApiError) return [];
+    throw err;
   }
-  return results;
 }
