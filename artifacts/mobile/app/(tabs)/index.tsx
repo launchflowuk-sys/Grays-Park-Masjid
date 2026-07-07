@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 import { useAudio } from "@/context/AudioContext";
+import { IslamicPatternBg } from "@/components/IslamicPatternBg";
 import {
   formatDisplayDate,
   formatTime12,
@@ -360,7 +361,8 @@ export default function PrayerTimesScreen() {
   // ── List header (shared) ─────────────────────────────────────────────────────
   const ListHeader = () => (
     <View>
-      <View style={[styles.header, { paddingTop: topPad + 16, backgroundColor: colors.primary }]}>
+      <View style={[styles.header, { paddingTop: topPad + 16, backgroundColor: colors.primary, overflow: "hidden" }]}>
+        <IslamicPatternBg shimmer color="#ffffff" patternOpacity={0.08} />
         {/* Title row */}
         <View style={styles.headerRow}>
           <View>

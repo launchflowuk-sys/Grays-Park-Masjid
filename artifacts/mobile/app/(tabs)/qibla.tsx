@@ -22,6 +22,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
+import { IslamicPatternBg } from "@/components/IslamicPatternBg";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LNG = 39.8262;
@@ -181,23 +182,36 @@ export default function QiblaScreen() {
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+
+      {/* ── Green patterned header ── */}
+      <View
+        style={[
+          styles.qiblaHeader,
+          { paddingTop: topPad + 16, backgroundColor: colors.primary },
+        ]}
+      >
+        <IslamicPatternBg color="#ffffff" patternOpacity={0.07} shimmer={false} />
+        <Text
+          style={[
+            styles.title,
+            { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" },
+          ]}
+        >
+          Qibla Direction
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.accent }]}>
+          اتجاه القبلة · Direction of the Ka'bah
+        </Text>
+      </View>
+
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: topPad + 12, paddingBottom: insets.bottom + 90 },
+          { paddingTop: 16, paddingBottom: insets.bottom + 90 },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ paddingHorizontal: 20 }}>
-          <Text style={[styles.title, { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }]}>
-            Qibla Direction
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            اتجاه القبلة · Direction of the Ka'bah
-          </Text>
-        </View>
-
         {/* Compass */}
         <View style={[styles.compassCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {(s.status === "idle" || s.status === "error" || s.status === "denied") && (
@@ -362,6 +376,11 @@ export default function QiblaScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: { gap: 16 },
+  qiblaHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    overflow: "hidden",
+  },
   title: { fontSize: 28, fontWeight: "700" },
   subtitle: { fontSize: 13, marginTop: 4 },
   compassCard: {
