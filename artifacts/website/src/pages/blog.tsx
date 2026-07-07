@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useListBlogPostsPublic } from "@workspace/api-client-react";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
-import { Calendar, Clock, User, Search, X } from "lucide-react";
+import { Calendar, Clock, User, Search, X, Link2, Check } from "lucide-react";
 import { IslamicPattern } from "@/components/site/islamic-pattern";
 
 function formatDate(d: string) {
@@ -29,6 +29,7 @@ export default function BlogPage() {
   const urlCategory = params.get("category") ?? null;
 
   const [inputValue, setInputValue] = useState(urlQuery);
+  const [copied, setCopied] = useState(false);
 
   const { data: posts = [], isLoading } = useListBlogPostsPublic(
     urlCategory ? { category: urlCategory } : {},
@@ -53,6 +54,15 @@ export default function BlogPage() {
 
   function handleCategoryChange(cat: string | null) {
     updateUrl(inputValue, cat);
+  }
+
+  const isFiltered = !!(urlQuery || urlCategory);
+
+  function handleShareView() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   }
 
   const sorted = [...posts].sort(
@@ -113,7 +123,7 @@ export default function BlogPage() {
       </section>
 
       <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={urlCategory === null ? "default" : "outline"}
             size="sm"
@@ -131,6 +141,26 @@ export default function BlogPage() {
               {BLOG_CATEGORY_LABELS[cat]}
             </Button>
           ))}
+          {isFiltered && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareView}
+              className="ml-auto gap-1.5"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-green-600" />
+                  <span className="text-green-600">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-3.5 w-3.5" />
+                  Share this view
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </section>
 
