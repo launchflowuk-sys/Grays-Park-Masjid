@@ -1,11 +1,23 @@
 import { eq } from "drizzle-orm";
 import { db, quranCacheTable, quranSettingsTable } from "@workspace/db";
-import { logger } from "./logger";
 
+// ── API bases ─────────────────────────────────────────────────────────────────
 const QF_BASE = "https://api.quran.com/api/v4";
-const QF_OAUTH_URL = "https://oauth2.quran.foundation/oauth2/token";
+const AQ_BASE = "https://api.alquran.cloud/v1";
 
-// ── OAuth2 token cache ────────────────────────────────────────────────────────
+// ── AlQuran.cloud fetch (no auth required) ────────────────────────────────────
+async function aqFetch<T>(path: string): Promise<T> {
+  const res = await fetch(`${AQ_BASE}${path}`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(`AlQuran.cloud API failed (${res.status}): ${path}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+// ── Quran Foundation fetch (optional OAuth, used for chapters + search) ───────
+const QF_OAUTH_URL = "https://oauth2.quran.foundation/oauth2/token";
 let _cachedToken: string | null = null;
 let _tokenExpiresAt = 0;
 
@@ -13,11 +25,7 @@ async function getAccessToken(): Promise<string | null> {
   const clientId = process.env.QURAN_FOUNDATION_CLIENT_ID;
   const clientSecret = process.env.QURAN_FOUNDATION_CLIENT_SECRET;
   if (!clientId || !clientSecret) return null;
-
-  if (_cachedToken && Date.now() < _tokenExpiresAt - 60_000) {
-    return _cachedToken;
-  }
-
+  if (_cachedToken && Date.now() < _tokenExpiresAt - 60_000) return _cachedToken;
   try {
     const res = await fetch(QF_OAUTH_URL, {
       method: "POST",
@@ -42,24 +50,14 @@ async function qfFetch<T>(path: string): Promise<T> {
   const token = await getAccessToken();
   const headers: Record<string, string> = { Accept: "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const url = `${QF_BASE}${path}`;
-  try {
-    const res = await fetch(url, { headers });
-    if (!res.ok) {
-      const body = await res.text().catch(() => "(unreadable)");
-      logger.error({ status: res.status, url, body }, "QF API upstream error");
-      throw new QuranApiError(`Quran Foundation API failed (${res.status}): ${path}`);
-    }
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof QuranApiError) throw err;
-    logger.error({ err, url }, "QF API fetch threw");
-    throw err;
+  const res = await fetch(`${QF_BASE}${path}`, { headers });
+  if (!res.ok) {
+    throw new Error(`Quran Foundation API failed (${res.status}): ${path}`);
   }
+  return res.json() as Promise<T>;
 }
 
-// ── ID mappings (legacy string → QF numeric) ─────────────────────────────────
+// ── QF numeric ID map (search only) ──────────────────────────────────────────
 const TRANSLATION_ID_MAP: Record<string, number> = {
   "en.sahih": 131,
   "en.pickthall": 85,
@@ -69,16 +67,17 @@ const TRANSLATION_ID_MAP: Record<string, number> = {
   "en.arberry": 25,
 };
 
-const RECITER_ID_MAP: Record<string, number> = {
-  "ar.alafasy": 7,
-  "ar.abdulbasitmurattal": 1,
-  "ar.abdurrahmaansudais": 4,
-  "ar.minshawi": 3,
-  "ar.hudhaify": 6,
-  "ar.mahermuaiqly": 10,
+// ── AlQuran.cloud reciter edition identifiers ─────────────────────────────────
+const AQ_RECITER_MAP: Record<string, string> = {
+  "ar.alafasy": "ar.alafasy",
+  "ar.abdulbasitmurattal": "ar.abdulbasitmujawwad",
+  "ar.abdurrahmaansudais": "ar.abdurrahmaansudais",
+  "ar.minshawi": "ar.minshawi",
+  "ar.hudhaify": "ar.hudhaify",
+  "ar.mahermuaiqly": "ar.mahermuaiqly",
 };
 
-// ── Revelation place static lookup (Makki vs Madani) ─────────────────────────
+// ── Revelation place static lookup ───────────────────────────────────────────
 const MADINAH_SURAHS = new Set([
   2, 3, 4, 5, 8, 9, 13, 22, 24, 33, 47, 48, 49, 57, 58, 59, 60, 61, 62, 63,
   64, 65, 66, 76, 98, 99, 110,
@@ -134,8 +133,6 @@ export interface QuranSearchResult {
   translation: string;
 }
 
-class QuranApiError extends Error {}
-
 // ── DB cache helpers ──────────────────────────────────────────────────────────
 async function getCached<T>(
   cacheKey: string,
@@ -153,8 +150,8 @@ async function getCached<T>(
     if (existing && existing.expiresAt.getTime() > Date.now()) {
       return JSON.parse(existing.dataJson) as T;
     }
-  } catch (err) {
-    logger.error({ err, cacheKey }, "quran getCached: DB read failed");
+  } catch {
+    // DB read failed — proceed to fetch fresh
   }
 
   const data = await fetcher();
@@ -169,8 +166,8 @@ async function getCached<T>(
         target: quranCacheTable.cacheKey,
         set: { dataJson, expiresAt, cacheType, updatedAt: new Date() },
       });
-  } catch (err) {
-    logger.error({ err, cacheKey }, "quran getCached: DB write failed");
+  } catch {
+    // Cache write failed — data still returned to caller
   }
 
   return data;
@@ -188,7 +185,7 @@ async function getCacheDurationMinutes(): Promise<number> {
   return settings.cacheDurationMinutes;
 }
 
-// ── QF API response shapes ────────────────────────────────────────────────────
+// ── QF API response shapes (chapters + search) ────────────────────────────────
 interface QFChapter {
   id: number;
   name_arabic: string;
@@ -197,25 +194,29 @@ interface QFChapter {
   translated_name: { name: string };
 }
 
-interface QFVerse {
-  id: number;
-  verse_number: number;
-  verse_key: string;
-  text_uthmani: string;
-  translations: { resource_id: number; text: string; resource_name: string }[];
-  audio: { url: string } | null;
-}
-
 interface QFSearchResult {
   id: string;
   verse_key: string;
   verse_number: number;
   chapter_id: number;
   text_uthmani: string;
-  translations: { resource_id: number; text: string; resource_name: string }[];
+  translations?: { resource_id: number; text: string; resource_name: string }[];
+}
+
+// ── AlQuran.cloud response shapes ────────────────────────────────────────────
+interface AQAyah {
+  numberInSurah: number;
+  text: string;
+  audio?: string;
+}
+
+interface AQEdition {
+  edition: { identifier: string; format: string };
+  ayahs: AQAyah[];
 }
 
 // ── Public fetchers ───────────────────────────────────────────────────────────
+
 export async function fetchChapters(): Promise<QuranChapter[]> {
   const ttl = await getCacheDurationMinutes();
   return getCached("qf:chapters:list", "chapters", ttl, async () => {
@@ -236,39 +237,39 @@ export async function fetchChapter(surahNumber: number): Promise<QuranChapter | 
   return chapters.find((c) => c.number === surahNumber) ?? null;
 }
 
+// Verses use AlQuran.cloud — free, no auth, full translations + CDN audio URLs
 export async function fetchChapterVerses(
   surahNumber: number,
   translationId: string,
   reciterId: string,
 ): Promise<QuranAyah[]> {
   const ttl = await getCacheDurationMinutes();
-  const qfTranslation = TRANSLATION_ID_MAP[translationId] ?? TRANSLATION_ID_MAP["en.sahih"];
-  const qfReciter = RECITER_ID_MAP[reciterId] ?? RECITER_ID_MAP["ar.alafasy"];
+  const aqReciter = AQ_RECITER_MAP[reciterId] ?? "ar.alafasy";
 
   return getCached(
-    `qf:verses:${surahNumber}:${translationId}:${reciterId}`,
+    `aq:verses:${surahNumber}:${translationId}:${aqReciter}`,
     "verses",
     ttl,
     async () => {
-      const params = new URLSearchParams({
-        translations: String(qfTranslation),
-        audio: String(qfReciter),
-        fields: "text_uthmani",
-        per_page: "300",
-        language: "en",
-      });
-      const data = await qfFetch<{ verses: QFVerse[] }>(
-        `/verses/by_chapter/${surahNumber}?${params}`,
+      const editions = `quran-uthmani,${translationId},${aqReciter}`;
+      const data = await aqFetch<{ data: AQEdition[] }>(
+        `/surah/${surahNumber}/editions/${editions}`,
       );
 
-      return data.verses.map((v) => ({
+      const arabicEd = data.data.find((e) => e.edition.identifier === "quran-uthmani");
+      const transEd = data.data.find((e) => e.edition.identifier === translationId);
+      const audioEd = data.data.find((e) => e.edition.identifier === aqReciter);
+
+      if (!arabicEd) throw new Error("AlQuran.cloud: missing Arabic edition");
+
+      return arabicEd.ayahs.map((ayah, i) => ({
         surahNumber,
-        ayahNumber: v.verse_number,
-        numberInSurah: v.verse_number,
-        arabic: v.text_uthmani,
-        translation: v.translations[0]?.text ?? "",
+        ayahNumber: ayah.numberInSurah,
+        numberInSurah: ayah.numberInSurah,
+        arabic: ayah.text,
+        translation: transEd?.ayahs[i]?.text ?? "",
         translationSource: translationId,
-        audioUrl: v.audio?.url ?? null,
+        audioUrl: audioEd?.ayahs[i]?.audio ?? null,
       }));
     },
   );
@@ -313,10 +314,9 @@ export async function searchQuran(
       surahName: chaptersMap.get(r.chapter_id) ?? `Surah ${r.chapter_id}`,
       ayahNumber: r.verse_number,
       arabic: r.text_uthmani,
-      translation: r.translations[0]?.text ?? "",
+      translation: r.translations?.[0]?.text ?? "",
     }));
-  } catch (err) {
-    if (err instanceof QuranApiError) return [];
-    throw err;
+  } catch {
+    return [];
   }
 }
