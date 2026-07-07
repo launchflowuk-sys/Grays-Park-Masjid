@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 import { useAudio } from "@/context/AudioContext";
+import { requestAndRegisterPushToken } from "@/utils/notifications";
 import { IslamicPatternBg } from "@/components/IslamicPatternBg";
 import {
   formatDisplayDate,
@@ -53,6 +54,7 @@ const DEFAULT_ADHAN_URL =
   "https://cdn.prayertimes.net/audio/adhan-masjid-al-haram.mp3";
 const DEFAULT_FAJR_ADHAN_URL =
   "https://cdn.prayertimes.net/audio/adhan-fajr-masjid-al-haram.mp3";
+const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN ?? ""}`;
 
 type ViewMode = "today" | "week";
 
@@ -228,6 +230,12 @@ export default function PrayerTimesScreen() {
         try { p.remove(); } catch {}
       }
     };
+  }, []);
+
+  // Register Expo push token once on app launch (silent — user already prompted for permission)
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    void requestAndRegisterPushToken(BASE_URL);
   }, []);
   // ────────────────────────────────────────────────────────────────────────────
 

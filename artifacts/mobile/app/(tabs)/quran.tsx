@@ -18,6 +18,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
+import { getCachedChapters, setCachedChapters } from "@/utils/quranCache";
+import { loadLastRead, type BookmarkData } from "@/utils/quranBookmark";
 
 type RevFilter = "all" | "makkah" | "madinah";
 
@@ -142,6 +144,9 @@ export default function QuranScreen() {
   const [revFilter, setRevFilter] = useState<RevFilter>("all");
   const [heroSurah, setHeroSurah] = useState<Chapter | null>(null);
   const heroPickedRef = useRef(false);
+  const [offlineChapters, setOfflineChapters] = useState<Chapter[] | null>(null);
+  const [isFromCache, setIsFromCache] = useState(false);
+  const [lastRead, setLastRead] = useState<BookmarkData | null>(null);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data: chapters, isLoading, isError, refetch } = useListQuranChapters();
@@ -154,9 +159,28 @@ export default function QuranScreen() {
     }
   }, [chapters]);
 
+  // Offline cache: seed immediately, save on success, fall back on error
+  useEffect(() => {
+    getCachedChapters<Chapter[]>().then((cached) => { if (cached) setOfflineChapters(cached); });
+    loadLastRead().then(setLastRead);
+  }, []);
+
+  useEffect(() => {
+    if (chapters && (chapters as Chapter[]).length > 0) {
+      void setCachedChapters(chapters as Chapter[]);
+      setIsFromCache(false);
+    }
+  }, [chapters]);
+
+  useEffect(() => {
+    if (isError && offlineChapters) setIsFromCache(true);
+  }, [isError, offlineChapters]);
+
+  const displayChapters = (chapters as Chapter[] | undefined) ?? offlineChapters;
+
   const filtered = useMemo(() => {
-    if (!chapters) return [];
-    let list = [...chapters];
+    if (!displayChapters) return [];
+    let list = [...displayChapters];
     if (revFilter !== "all") {
       list = list.filter((c) => c.revelation_place === revFilter);
     }
@@ -168,7 +192,7 @@ export default function QuranScreen() {
         (c.translated_name?.name?.toLowerCase() ?? "").includes(q) ||
         String(c.id).includes(q),
     );
-  }, [chapters, query, revFilter]);
+  }, [displayChapters, query, revFilter]);
 
   const FILTERS: {
     key: RevFilter;
@@ -265,6 +289,7 @@ export default function QuranScreen() {
 
   const showHero =
     !isLoading && !isError && heroSurah && !query && revFilter === "all";
+  const showContinueReading = !!lastRead && !query && revFilter === "all";
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
@@ -365,9 +390,16 @@ export default function QuranScreen() {
             );
           })}
         </ScrollView>
+
+        {isFromCache && (
+          <View style={styles.offlineRow}>
+            <Ionicons name="cloud-offline-outline" size={13} color={colors.mutedForeground} />
+            <Text style={[styles.offlineText, { color: colors.mutedForeground }]}>Offline</Text>
+          </View>
+        )}
       </View>
 
-      {isLoading && (
+      {isLoading && !displayChapters && (
         <View style={styles.centerFlex}>
           <ActivityIndicator color={colors.primary} size="large" />
           <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>
@@ -376,7 +408,7 @@ export default function QuranScreen() {
         </View>
       )}
 
-      {isError && (
+      {isError && !displayChapters && (
         <View style={styles.centerFlex}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.mutedForeground} />
           <Text style={[styles.errorText, { color: colors.mutedForeground }]}>
@@ -391,7 +423,7 @@ export default function QuranScreen() {
         </View>
       )}
 
-      {!isLoading && !isError && (
+      {!!displayChapters && (
         <FlatList
           data={filtered}
           keyExtractor={(item) => String(item.id)}
@@ -399,11 +431,36 @@ export default function QuranScreen() {
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
           scrollEnabled={filtered.length > 0}
           ListHeaderComponent={
-            showHero ? (
-              <FeaturedSurahHero
-                surah={heroSurah!}
-                onPress={() => router.push(`/quran/${heroSurah!.id}`)}
-              />
+            (showHero || showContinueReading) ? (
+              <View>
+                {showContinueReading && (
+                  <TouchableOpacity
+                    style={[styles.continueCard, { backgroundColor: colors.primary }]}
+                    onPress={() => router.push(`/quran/${lastRead!.surahId}`)}
+                    activeOpacity={0.85}
+                    testID="continue-reading-card"
+                  >
+                    <View style={styles.continueLeft}>
+                      <Ionicons name="bookmark" size={16} color={colors.accent} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.continueSurah, { color: "#FAF8F3", fontFamily: "PlayfairDisplay_700Bold" }]}>
+                        {lastRead!.surahName}
+                      </Text>
+                      <Text style={[styles.continueVerse, { color: "rgba(250,248,243,0.65)" }]}>
+                        Continue from verse {lastRead!.verseNumber}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color="rgba(250,248,243,0.55)" />
+                  </TouchableOpacity>
+                )}
+                {showHero && (
+                  <FeaturedSurahHero
+                    surah={heroSurah!}
+                    onPress={() => router.push(`/quran/${heroSurah!.id}`)}
+                  />
+                )}
+              </View>
             ) : null
           }
           ListEmptyComponent={
@@ -593,6 +650,35 @@ const styles = StyleSheet.create({
   metaVerses: { fontSize: 11 },
   arabicName: { fontSize: 24, textAlign: "right" },
   listContent: { paddingTop: 8, paddingBottom: 0 },
+  offlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 4,
+    paddingTop: 6,
+    paddingBottom: 2,
+  },
+  offlineText: { fontSize: 11 },
+  continueCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 12,
+    marginTop: 12,
+    marginBottom: 4,
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+  },
+  continueLeft: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "rgba(201,168,76,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  continueSurah: { fontSize: 15 },
+  continueVerse: { fontSize: 12, marginTop: 2 },
   loadingText: { fontSize: 15, marginTop: 8 },
   errorText: { fontSize: 15 },
   emptyText: { fontSize: 15 },

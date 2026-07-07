@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   FlatList,
   Platform,
@@ -13,12 +14,15 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewToken,
   useWindowDimensions,
 } from "react-native";
 import RenderHtml, { defaultSystemFonts } from "react-native-render-html";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
+import { getCachedVerses, setCachedVerses } from "@/utils/quranCache";
+import { saveBookmark, loadBookmark } from "@/utils/quranBookmark";
 
 type QuranVerse = {
   id: string;
@@ -60,12 +64,18 @@ export default function SurahScreen() {
   const playingKeyRef = useRef<string | null>(null);
   const playAllRef = useRef(false);
   const versesRef = useRef<QuranVerse[]>([]);
+  const chapterRef = useRef<{ name_simple?: string } | undefined>(undefined);
+  const bookmarkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bookmarkPromptShownRef = useRef(false);
 
   const [playingKey, setPlayingKey] = useState<string | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [playAllMode, setPlayAllMode] = useState(false);
+  const [cacheVerses, setCacheVersesState] = useState<QuranVerse[] | null>(null);
+  const [isFromCache, setIsFromCache] = useState(false);
+  const [bookmarkVerseKey, setBookmarkVerseKey] = useState<string | null>(null);
 
   const { data: chapter } = useGetQuranChapter(surahNum);
   const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(surahNum) as {
@@ -78,6 +88,84 @@ export default function SurahScreen() {
   useEffect(() => {
     versesRef.current = verses ?? [];
   }, [verses]);
+
+  const displayVerses = verses ?? cacheVerses;
+
+  // Keep chapter name in a ref for stable closures
+  useEffect(() => { chapterRef.current = chapter as { name_simple?: string } | undefined; }, [chapter]);
+
+  // Load cached verses + bookmark on mount
+  useEffect(() => {
+    getCachedVerses<QuranVerse[]>(surahNum).then((cached) => {
+      if (cached) setCacheVersesState(cached);
+    });
+    loadBookmark(surahNum).then((bm) => {
+      if (bm) setBookmarkVerseKey(bm.verseKey);
+    });
+  }, [surahNum]);
+
+  // Persist verses to cache on successful network load
+  useEffect(() => {
+    if (verses && verses.length > 0) {
+      void setCachedVerses(surahNum, verses);
+      setIsFromCache(false);
+    }
+  }, [verses, surahNum]);
+
+  // Fall back to cache on network error
+  useEffect(() => {
+    if (isError && cacheVerses) setIsFromCache(true);
+  }, [isError, cacheVerses]);
+
+  // Show resume-reading prompt once when verses are available and a bookmark exists
+  useEffect(() => {
+    if (bookmarkPromptShownRef.current) return;
+    const list = displayVerses;
+    if (!list || !bookmarkVerseKey) return;
+    const idx = list.findIndex((v) => v.verse_key === bookmarkVerseKey);
+    if (idx <= 0) return;
+    bookmarkPromptShownRef.current = true;
+    const verseNum = list[idx]?.verse_number ?? idx + 1;
+    Alert.alert(
+      "Resume Reading",
+      `You were at verse ${verseNum}. Jump back?`,
+      [
+        { text: "Start Over", style: "cancel" },
+        {
+          text: "Jump Back",
+          onPress: () => setTimeout(() => {
+            flatListRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0.1 });
+          }, 500),
+        },
+      ],
+    );
+  }, [bookmarkVerseKey, displayVerses]);
+
+  // Stable viewability config and handler — debounce-saves reading position
+  const viewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+    waitForInteraction: true,
+  }).current;
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (!viewableItems.length) return;
+      const verse = viewableItems[0]?.item as QuranVerse | undefined;
+      if (!verse) return;
+      if (bookmarkTimerRef.current) clearTimeout(bookmarkTimerRef.current);
+      bookmarkTimerRef.current = setTimeout(() => {
+        const chName = chapterRef.current?.name_simple ?? `Surah ${surahNum}`;
+        void saveBookmark({
+          surahId: surahNum,
+          surahName: chName,
+          verseKey: verse.verse_key,
+          verseNumber: verse.verse_number,
+          savedAt: Date.now(),
+        });
+        setBookmarkVerseKey(verse.verse_key);
+      }, 1500);
+    }
+  ).current;
 
   useEffect(() => {
     return () => {
@@ -273,10 +361,17 @@ export default function SurahScreen() {
     return (
       <View style={[styles.verseCard, { backgroundColor: colors.card, borderColor: isPlaying ? colors.primary : colors.border, borderWidth: isPlaying ? 1.5 : 1 }]}>
         <View style={styles.verseHeader}>
-          <View style={[styles.verseNumber, { backgroundColor: isPlaying ? colors.primary : colors.primary + "15" }]}>
-            <Text style={[styles.verseNumberText, { color: isPlaying ? "#FAF8F3" : colors.primary }]}>
-              {item.verse_number}
-            </Text>
+          <View style={styles.verseNumberWrap}>
+            <View style={[styles.verseNumber, { backgroundColor: isPlaying ? colors.primary : colors.primary + "15" }]}>
+              <Text style={[styles.verseNumberText, { color: isPlaying ? "#FAF8F3" : colors.primary }]}>
+                {item.verse_number}
+              </Text>
+            </View>
+            {item.verse_key === bookmarkVerseKey && (
+              <View style={[styles.bookmarkDot, { backgroundColor: colors.background }]} pointerEvents="none">
+                <Ionicons name="bookmark" size={9} color={colors.accent} />
+              </View>
+            )}
           </View>
           {hasAudio && (
             <TouchableOpacity
@@ -348,6 +443,15 @@ export default function SurahScreen() {
         <View style={styles.headerBtn} />
       </View>
 
+      {isFromCache && (
+        <View style={[styles.offlineBadge, { backgroundColor: colors.muted }]}>
+          <Ionicons name="cloud-offline-outline" size={12} color={colors.mutedForeground} />
+          <Text style={[styles.offlineBadgeText, { color: colors.mutedForeground }]}>
+            Offline · Reading from cache
+          </Text>
+        </View>
+      )}
+
       {surahNum !== 9 && surahNum !== 1 && (
         <View style={[styles.bismillah, { backgroundColor: colors.background }]}>
           <Text style={[styles.bismillahText, { color: colors.primary }]}>
@@ -376,7 +480,7 @@ export default function SurahScreen() {
     </View>
   );
 
-  if (isError) {
+  if (isError && !displayVerses) {
     return (
       <View style={[styles.flex, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { paddingTop: topPad, backgroundColor: colors.primary }]}>
@@ -407,7 +511,7 @@ export default function SurahScreen() {
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      {isLoading ? (
+      {isLoading && !displayVerses ? (
         <>
           <ListHeader />
           <View style={styles.centerFlex}>
@@ -420,12 +524,14 @@ export default function SurahScreen() {
       ) : (
         <FlatList
           ref={flatListRef}
-          data={verses ?? []}
+          data={displayVerses ?? []}
           keyExtractor={(item, index) => item.verse_key ?? String(index)}
           renderItem={renderVerse}
           ListHeaderComponent={ListHeader}
           contentContainerStyle={[styles.listContent, { paddingBottom: listBottomPad }]}
-          scrollEnabled={!!(verses && verses.length > 0)}
+          scrollEnabled={!!(displayVerses && displayVerses.length > 0)}
+          viewabilityConfig={viewabilityConfig}
+          onViewableItemsChanged={onViewableItemsChanged}
           onScroll={handleScroll}
           scrollEventThrottle={16}
           ListEmptyComponent={
@@ -653,6 +759,31 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 15 },
   retryBtn: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },
   retryText: { fontSize: 15, fontWeight: "600" },
+  offlineBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginHorizontal: 14,
+    marginTop: 8,
+    marginBottom: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+  },
+  offlineBadgeText: { fontSize: 12 },
+  verseNumberWrap: { position: "relative" },
+  bookmarkDot: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(201,168,76,0.4)",
+  },
 
   // Mini player
   miniPlayer: {
