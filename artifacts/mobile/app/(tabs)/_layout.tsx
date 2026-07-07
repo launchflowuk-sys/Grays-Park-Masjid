@@ -1,4 +1,3 @@
-import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -13,48 +12,48 @@ export default function TabLayout() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
-  const isWeb = Platform.OS === "web";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Respect the home-indicator safe area so nothing gets clipped
-  const BOTTOM_INSET = insets.bottom;
-  const TAB_INNER_H = 56; // height for icon + label row
-  const TAB_H = TAB_INNER_H + BOTTOM_INSET;
+  // Float the bar above the home indicator (or above the bottom edge on devices without one)
+  const bottomOffset = insets.bottom > 0 ? insets.bottom + 6 : 16;
+  const BAR_H = 62;
+
+  const ACTIVE = colors.accent;        // gold #C9A84C
+  const INACTIVE = "rgba(250,248,243,0.50)";
 
   return (
     <>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: colors.tabBarActive,
-          tabBarInactiveTintColor: colors.tabBarInactive,
+          tabBarActiveTintColor: ACTIVE,
+          tabBarInactiveTintColor: INACTIVE,
           tabBarStyle: {
             position: "absolute",
-            backgroundColor: isIOS ? colors.tabBar + "E8" : colors.tabBar,
+            bottom: bottomOffset,
+            left: 20,
+            right: 20,
+            height: BAR_H,
+            backgroundColor: colors.primary,
+            borderRadius: 22,
             borderTopWidth: 0,
-            elevation: 0,
-            height: TAB_H,
-            paddingBottom: BOTTOM_INSET,
+            elevation: 14,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.32,
+            shadowRadius: 18,
             overflow: "visible",
           },
           tabBarLabelStyle: {
             fontSize: 10,
             fontFamily: "Inter_600SemiBold",
-            letterSpacing: 0.2,
+            letterSpacing: 0.3,
+            marginBottom: 2,
           },
           tabBarItemStyle: {
             paddingTop: 8,
           },
-          tabBarBackground: () =>
-            isIOS ? (
-              <BlurView
-                intensity={60}
-                tint="dark"
-                style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar + "CC" }]}
-              />
-            ) : isWeb ? (
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar }]} />
-            ) : null,
+          tabBarBackground: () => null,
         }}
       >
         {/* ── Prayer ── */}
@@ -64,7 +63,11 @@ export default function TabLayout() {
             title: "Prayer",
             tabBarIcon: ({ color, focused }) =>
               isIOS ? (
-                <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={22} />
+                <SymbolView
+                  name={focused ? "moon.stars.fill" : "moon.stars"}
+                  tintColor={color}
+                  size={22}
+                />
               ) : (
                 <MaterialCommunityIcons name="mosque" size={22} color={color} />
               ),
@@ -85,49 +88,20 @@ export default function TabLayout() {
           }}
         />
 
-        {/* ── Qibla — elevated centre button ── */}
+        {/* ── Qibla — inline, no raised bubble ── */}
         <Tabs.Screen
           name="qibla"
           options={{
             title: "Qibla",
-            tabBarButton: (props) => {
-              const selected = props.accessibilityState?.selected ?? false;
-              return (
-                <TouchableOpacity
-                  onPress={props.onPress ?? undefined}
-                  onLongPress={props.onLongPress ?? undefined}
-                  style={[styles.qiblaWrapper, { paddingBottom: BOTTOM_INSET }]}
-                  accessibilityRole="button"
-                  accessibilityLabel="Qibla"
-                  accessibilityState={{ selected }}
-                >
-                  <View
-                    style={[
-                      styles.qiblaCircle,
-                      {
-                        backgroundColor: selected ? colors.accent : colors.secondary,
-                        borderColor: colors.accent,
-                        shadowColor: colors.accent,
-                      },
-                    ]}
-                  >
-                    <MaterialCommunityIcons
-                      name="compass"
-                      size={28}
-                      color={selected ? colors.primary : colors.accent}
-                    />
-                  </View>
-                  <Text
-                    style={[
-                      styles.qiblaLabel,
-                      { color: selected ? colors.tabBarActive : colors.tabBarInactive },
-                    ]}
-                  >
-                    Qibla
-                  </Text>
-                </TouchableOpacity>
-              );
-            },
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.qiblaIcon, focused && { backgroundColor: colors.accent + "22" }]}>
+                <MaterialCommunityIcons
+                  name="compass"
+                  size={24}
+                  color={color}
+                />
+              </View>
+            ),
           }}
         />
 
@@ -145,42 +119,28 @@ export default function TabLayout() {
           }}
         />
 
-        {/* ── More — opens AppDrawer, never navigates ── */}
+        {/* ── More — opens drawer ── */}
         <Tabs.Screen
           name="more"
           options={{
             title: "More",
             tabBarButton: () => (
               <TouchableOpacity
-                style={[styles.moreWrapper, { paddingBottom: BOTTOM_INSET }]}
+                style={styles.moreBtn}
                 onPress={() => setDrawerOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="More options"
               >
-                <Feather name="menu" size={22} color={colors.tabBarInactive} />
-                <Text style={[styles.moreLabel, { color: colors.tabBarInactive }]}>More</Text>
+                <Feather name="menu" size={22} color={INACTIVE} />
+                <Text style={[styles.moreLabel, { color: INACTIVE }]}>More</Text>
               </TouchableOpacity>
             ),
           }}
         />
 
-        {/* ── Blog — hidden from bar; navigable via AppDrawer ── */}
-        <Tabs.Screen
-          name="blog"
-          options={{
-            title: "Blog",
-            href: null,
-          }}
-        />
-
-        {/* ── Settings/Alerts — hidden from bar; navigable via AppDrawer ── */}
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: "Alerts",
-            href: null,
-          }}
-        />
+        {/* ── Hidden routes — removed from bar layout ── */}
+        <Tabs.Screen name="blog" options={{ href: null }} />
+        <Tabs.Screen name="settings" options={{ href: null }} />
       </Tabs>
 
       <AppDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
@@ -189,42 +149,25 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  qiblaWrapper: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingTop: 4,
-    gap: 2,
-  },
-  qiblaCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 2,
+  qiblaIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    transform: [{ translateY: -12 }],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 10,
   },
-  qiblaLabel: {
-    fontSize: 10,
-    fontFamily: "Inter_600SemiBold",
-    letterSpacing: 0.2,
-    marginTop: -8,
-  },
-  moreWrapper: {
+  moreBtn: {
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
     paddingTop: 8,
-    gap: 3,
+    paddingBottom: 6,
+    gap: 2,
   },
   moreLabel: {
     fontSize: 10,
     fontFamily: "Inter_600SemiBold",
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
+    marginBottom: 2,
   },
 });
