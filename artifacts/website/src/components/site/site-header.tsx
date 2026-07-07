@@ -44,7 +44,7 @@ import {
   PenLine,
 } from "lucide-react";
 import { PrayerTimesWidget } from "@/components/prayer-times-widget";
-import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { IslamicPattern, IslamicPatternBg, IslamicStar } from "@/components/site/islamic-pattern";
 import { useGetQuranSettingsPublic } from "@workspace/api-client-react";
 import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
 
@@ -167,8 +167,9 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
-      <div className="bg-primary border-b border-primary/30">
-        <div className="mx-auto max-w-6xl px-3 sm:px-6 py-1.5 sm:py-2 flex justify-center overflow-x-auto">
+      <div className="relative bg-primary border-b border-primary/30 overflow-hidden">
+        <IslamicPatternBg opacity={0.07} />
+        <div className="relative mx-auto max-w-6xl px-3 sm:px-6 py-1.5 sm:py-2 flex justify-center overflow-x-auto">
           <PrayerTimesWidget variant="topbar" />
         </div>
       </div>

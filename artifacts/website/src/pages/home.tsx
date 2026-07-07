@@ -29,7 +29,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
 import { TodayPrayersBar } from "@/components/today-prayers-bar";
-import { ArchIconBadge, IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { ArchIconBadge, IslamicPattern, IslamicPatternBg, IslamicStar } from "@/components/site/islamic-pattern";
 import { usePrayerTimesToday } from "@/components/prayer-times-widget";
 import {
   useListDonationCampaignsPublic,
@@ -110,7 +110,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/55 via-primary/15 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
-          <IslamicPattern className="pointer-events-none absolute inset-0 w-full h-full text-primary-foreground/[0.04]" />
+          <IslamicPatternBg opacity={0.06} />
 
           <div className="relative z-10 mx-auto max-w-6xl px-6 w-full flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-12 py-10 md:py-14 lg:pb-16">
             <div className="max-w-3xl pt-2 md:pt-4">
@@ -168,7 +168,7 @@ export default function Home() {
         </div>
 
         <div className="bg-primary pt-8 pb-8 md:pt-16 md:pb-9 relative overflow-hidden">
-          <IslamicPattern className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 text-primary-foreground/[0.05]" />
+          <IslamicPatternBg opacity={0.07} />
           <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 relative">
             {STATS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-center gap-3">
