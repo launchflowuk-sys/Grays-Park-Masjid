@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Landmark } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { PrayerTime } from "@workspace/api-client-react";
 import {
   IQAMAH_PRAYER_ORDER,
@@ -8,6 +8,7 @@ import {
   formatCountdown,
   usePrayerTimesToday,
 } from "@/components/prayer-times-widget";
+import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.png";
 
 function formatTime12h(time: string | null | undefined): string {
   if (!time) return "--";
@@ -17,13 +18,17 @@ function formatTime12h(time: string | null | undefined): string {
   return `${hour12}:${m.toString().padStart(2, "0")} ${period}`;
 }
 
-const SHORT_LABELS: Record<string, string> = {
-  fajr: "Fajr",
-  dhuhr: "Dhuhr",
-  asr: "Asr",
-  maghrib: "Magh.",
-  isha: "Isha",
-};
+function iqamahOffset(
+  adhan: string | null | undefined,
+  iqamah: string | null | undefined,
+): string | null {
+  if (!adhan || !iqamah) return null;
+  const [ah, am] = adhan.split(":").map(Number);
+  const [ih, im] = iqamah.split(":").map(Number);
+  const diff = ih * 60 + im - (ah * 60 + am);
+  if (diff <= 0) return null;
+  return `+${diff}m`;
+}
 
 function useNow(intervalMs: number) {
   const [now, setNow] = useState(() => new Date());
@@ -34,78 +39,214 @@ function useNow(intervalMs: number) {
   return now;
 }
 
+/**
+ * Arabesque curvilinear pattern — four circular arcs connecting midpoints
+ * of each tile, forming an interlocking clover/leaf mesh. Deliberately
+ * different from the angular geometric IslamicPattern used elsewhere.
+ */
+function ArabesqueBg() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full pointer-events-none select-none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        <pattern
+          id="gpm-arabesque-hero"
+          x="0"
+          y="0"
+          width="72"
+          height="72"
+          patternUnits="userSpaceOnUse"
+        >
+          {/* 4 circular arc curves connecting tile midpoints — interlocking clover */}
+          <path
+            d="M36,0 A36,36 0 0,0 0,36  M72,36 A36,36 0 0,0 36,0  M36,72 A36,36 0 0,0 72,36  M0,36 A36,36 0 0,0 36,72"
+            stroke="white"
+            strokeWidth="0.65"
+            fill="none"
+          />
+          {/* Small accent circles at tile corners and center */}
+          <circle cx="36" cy="36" r="2.2" fill="none" stroke="white" strokeWidth="0.55" />
+          <circle cx="0"  cy="0"  r="2.2" fill="none" stroke="white" strokeWidth="0.55" />
+          <circle cx="72" cy="0"  r="2.2" fill="none" stroke="white" strokeWidth="0.55" />
+          <circle cx="0"  cy="72" r="2.2" fill="none" stroke="white" strokeWidth="0.55" />
+          <circle cx="72" cy="72" r="2.2" fill="none" stroke="white" strokeWidth="0.55" />
+          {/* Tiny midpoint dots for added detail */}
+          <circle cx="36" cy="0"  r="1" fill="white" />
+          <circle cx="36" cy="72" r="1" fill="white" />
+          <circle cx="0"  cy="36" r="1" fill="white" />
+          <circle cx="72" cy="36" r="1" fill="white" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#gpm-arabesque-hero)" opacity="0.09" />
+    </svg>
+  );
+}
+
+const PRAYER_LABELS: Record<string, string> = {
+  fajr: "Fajr",
+  dhuhr: "Dhuhr",
+  asr: "Asr",
+  maghrib: "Maghrib",
+  isha: "Isha",
+};
+
 export function HeroPrayerCard() {
   const { isLoading, todayRow, tomorrowRow } = usePrayerTimesToday();
   const now = useNow(1000);
   const current = todayRow ? computeCurrentNext(todayRow, tomorrowRow, now) : null;
 
-  if (isLoading || !todayRow) {
-    return null;
-  }
+  if (isLoading || !todayRow) return null;
+
+  const nextAdhan = current
+    ? (todayRow[`${current.nextKey}Adhan` as keyof PrayerTime] as string | null | undefined)
+    : null;
+  const nextIqamah = current
+    ? (todayRow[`${current.nextKey}Iqamah` as keyof PrayerTime] as string | null | undefined)
+    : null;
+  const nextOffset = iqamahOffset(nextAdhan, nextIqamah);
+
+  const today = new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   return (
     <div className="w-full max-w-[720px]" data-testid="hero-prayer-card">
-      <div className="bg-card rounded-2xl shadow-2xl shadow-black/20 border border-card-border p-5 md:p-7">
-        {current && (
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-secondary text-xs font-semibold tracking-wide uppercase">
-                Next Prayer
-              </p>
-              <p className="text-2xl font-bold font-serif text-primary mt-1">
-                {current.nextLabel}
-              </p>
+      <div className="relative bg-primary rounded-3xl overflow-hidden shadow-2xl shadow-black/30">
+        <ArabesqueBg />
+
+        {/* ── Header ── */}
+        <div className="relative flex items-center justify-between px-6 pt-6 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 overflow-hidden">
+              <img
+                src={gpmLogoWhite}
+                alt="Grays Park Masjid"
+                className="h-8 w-8 object-contain"
+              />
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold tabular-nums text-primary">
+            <div>
+              <p className="text-white text-sm font-semibold leading-tight">Grays Park Masjid</p>
+              <p className="text-white/50 text-xs leading-tight">{today}</p>
+            </div>
+          </div>
+
+          <Link
+            href="/prayer-times"
+            className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 transition-colors"
+          >
+            Full timetable
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* ── Next prayer ── */}
+        {current && (
+          <div className="relative px-6 pb-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-2">
+              Next Prayer
+            </p>
+
+            <div className="flex items-end justify-between gap-3">
+              <p className="font-serif text-4xl md:text-5xl text-white leading-none">
+                {PRAYER_LABELS[current.nextKey] ?? current.nextLabel}
+              </p>
+              <p className="font-bold text-3xl md:text-4xl tabular-nums text-white leading-none pb-0.5">
                 {formatCountdown(current.countdownMs)}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                starts at {formatTime12h(current.nextTime)}
-              </p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground shrink-0">
-              <Landmark className="w-5 h-5" aria-hidden="true" />
+
+            <div className="flex items-center gap-3 mt-3 text-sm text-white/50">
+              <span>
+                Adhan{" "}
+                <span className="text-white/80 font-medium">{formatTime12h(nextAdhan)}</span>
+              </span>
+              {nextIqamah && (
+                <>
+                  <span className="text-white/20">·</span>
+                  <span>
+                    Iqamah{" "}
+                    <span className="text-white/80 font-medium">{formatTime12h(nextIqamah)}</span>
+                    {nextOffset && (
+                      <span className="ml-1.5 text-[11px] bg-secondary/20 text-secondary px-1.5 py-0.5 rounded-full font-semibold">
+                        {nextOffset}
+                      </span>
+                    )}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 md:gap-3 mt-6">
+        {/* ── Divider ── */}
+        <div className="relative mx-6 mb-1">
+          <div className="h-px bg-white/8" />
+          <div className="absolute left-0 top-0 h-px w-16 bg-secondary/50" />
+        </div>
+
+        {/* ── All prayers row ── */}
+        <div className="relative grid grid-cols-5 gap-1 px-4 py-5">
           {IQAMAH_PRAYER_ORDER.map((p) => {
+            const adhan = todayRow[`${p.key}Adhan` as keyof PrayerTime] as string | null | undefined;
             const iqamah = todayRow[`${p.key}Iqamah` as keyof PrayerTime] as string | null | undefined;
+            const offset = iqamahOffset(adhan, iqamah);
             const isNext = current?.nextKey === p.key;
+            const isCurrent = current?.currentKey === p.key;
+
             return (
               <div
                 key={p.key}
-                className={`relative rounded-xl border flex flex-col items-center justify-center gap-1.5 px-2 py-3.5 md:py-4 transition-colors ${
+                className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-colors ${
                   isNext
-                    ? "bg-primary/10 border-primary/30"
-                    : "bg-muted/40 border-transparent"
+                    ? "bg-white/10"
+                    : isCurrent
+                      ? "bg-secondary/10"
+                      : ""
                 }`}
               >
+                <p
+                  className={`text-[10px] font-semibold uppercase tracking-wide ${
+                    isNext ? "text-secondary" : "text-white/40"
+                  }`}
+                >
+                  {p.label}
+                </p>
+                <p
+                  className={`text-sm font-bold tabular-nums leading-tight ${
+                    isNext ? "text-white" : isCurrent ? "text-secondary/90" : "text-white/65"
+                  }`}
+                >
+                  {formatTime12h(adhan)}
+                </p>
+                {offset ? (
+                  <span
+                    className={`text-[10px] font-semibold rounded px-1 leading-snug ${
+                      isNext
+                        ? "text-secondary bg-secondary/20"
+                        : "text-white/30"
+                    }`}
+                  >
+                    {offset}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-transparent select-none">·</span>
+                )}
                 {isNext && (
-                  <span className="absolute top-2 right-2 flex h-2.5 w-2.5" data-testid="indicator-next-prayer-pulse">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+                  <span className="flex h-1.5 w-1.5 mt-0.5" data-testid="indicator-next-prayer-pulse">
+                    <span className="absolute inline-flex h-1.5 w-1.5 animate-ping rounded-full bg-secondary opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-secondary" />
                   </span>
                 )}
-                <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">
-                  {SHORT_LABELS[p.key] ?? p.label}
-                </p>
-                <p className="text-sm font-bold text-primary leading-tight">
-                  {formatTime12h(iqamah)}
-                </p>
               </div>
             );
           })}
         </div>
-
-        <Link
-          href="/prayer-times"
-          className="mt-6 flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-        >
-          View full timetable <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-        </Link>
       </div>
     </div>
   );
