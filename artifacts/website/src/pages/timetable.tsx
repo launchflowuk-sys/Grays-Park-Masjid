@@ -283,12 +283,12 @@ export default function TimetablePage() {
                       // Opaque solid background for the sticky column — avoids
                       // scrolling content bleeding through transparent colours.
                       const stickyBgStyle: React.CSSProperties = isToday
-                        ? { backgroundColor: "color-mix(in srgb, hsl(var(--secondary)) 20%, hsl(var(--background)))" }
+                        ? { backgroundColor: "#d4ddd7" }
                         : isFri
-                          ? { backgroundColor: "hsl(var(--primary))" }
+                          ? { backgroundColor: "#1B3D2F" }
                           : idx % 2 === 0
-                            ? { backgroundColor: "hsl(var(--background))" }
-                            : { backgroundColor: "color-mix(in srgb, hsl(var(--muted)) 30%, hsl(var(--background)))" };
+                            ? { backgroundColor: "#FAF8F3" }
+                            : { backgroundColor: "#f0ede7" };
 
                       return (
                         <tr

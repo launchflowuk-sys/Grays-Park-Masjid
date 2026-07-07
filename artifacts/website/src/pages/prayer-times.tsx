@@ -404,9 +404,12 @@ export default function PrayerTimesPage() {
                             className={`transition-colors border-b border-border/60 last:border-b-0 ${rowBg}`}
                           >
                             {/* Date cell — sticky on mobile */}
-                            <td className={`sticky left-0 z-10 px-4 py-3 border-r border-border/60 ${
-                              isToday ? "bg-secondary/20" : isFri ? "bg-secondary/8" : idx % 2 === 0 ? "bg-background" : "bg-muted/30"
-                            }`}>
+                            <td
+                              className="sticky left-0 z-10 px-4 py-3 border-r border-border/60"
+                              style={{
+                                backgroundColor: isToday ? "#d4ddd7" : isFri ? "#e9ebe5" : idx % 2 === 0 ? "#FAF8F3" : "#f0ede7",
+                              }}
+                            >
                               <div className="flex items-center gap-2">
                                 <div>
                                   <p className={`font-semibold tabular-nums leading-none ${isToday ? "text-primary" : "text-foreground"}`}>
