@@ -101,15 +101,15 @@ export default function QuranSurahPage() {
   const queue: QuranAudioTrack[] = useMemo(() => {
     if (!verses || !chapter) return [];
     return verses
-      .filter((v) => v.audioUrl)
+      .filter((v) => v.audio?.url)
       .map((v) => ({
-        surahNumber: v.surahNumber,
-        ayahNumber: v.ayahNumber,
-        numberInSurah: v.numberInSurah,
-        audioUrl: v.audioUrl as string,
+        surahNumber,
+        ayahNumber: v.verse_number,
+        numberInSurah: v.verse_number,
+        audioUrl: v.audio!.url,
         surahName: chapter.name_simple,
       }));
-  }, [verses, chapter]);
+  }, [verses, chapter, surahNumber]);
 
   function toggleBookmark(ayahNumber: number) {
     const key = `${surahNumber}:${ayahNumber}`;
@@ -136,16 +136,16 @@ export default function QuranSurahPage() {
     play(queue[0], queue);
   }
 
-  function playAyah(ayahNumber: number, audioUrl: string | null, numberInSurah: number) {
+  function playAyah(verseNumber: number, audioUrl: string | null) {
     if (!audioUrl || !chapter) return;
     const track: QuranAudioTrack = {
       surahNumber,
-      ayahNumber,
-      numberInSurah,
+      ayahNumber: verseNumber,
+      numberInSurah: verseNumber,
       audioUrl,
       surahName: chapter.name_simple,
     };
-    if (current?.surahNumber === surahNumber && current?.ayahNumber === ayahNumber) {
+    if (current?.surahNumber === surahNumber && current?.ayahNumber === verseNumber) {
       togglePlay();
     } else {
       play(track, queue);
@@ -266,33 +266,33 @@ export default function QuranSurahPage() {
         ) : (
           <div className="space-y-4" data-testid="list-verses">
             {verses.map((verse) => {
-              const key = `${verse.surahNumber}:${verse.ayahNumber}`;
+              const key = verse.verse_key;
               const isBookmarked = bookmarks.includes(key);
               const isCurrentAudio =
-                current?.surahNumber === verse.surahNumber && current?.ayahNumber === verse.ayahNumber;
+                current?.surahNumber === surahNumber && current?.ayahNumber === verse.verse_number;
               return (
                 <Card
-                  key={verse.ayahNumber}
-                  id={`ayah-${verse.ayahNumber}`}
+                  key={verse.verse_key}
+                  id={`ayah-${verse.verse_number}`}
                   className={`border-card-border scroll-mt-32 transition-colors ${
                     isCurrentAudio ? "ring-2 ring-primary/40 bg-primary/[0.03]" : ""
                   }`}
-                  data-testid={`card-verse-${verse.numberInSurah}`}
+                  data-testid={`card-verse-${verse.verse_number}`}
                 >
                   <CardContent className="p-5 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
                       <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-serif font-semibold">
-                        {verse.numberInSurah}
+                        {verse.verse_number}
                       </span>
                       <div className="flex items-center gap-1">
-                        {verse.audioUrl && (
+                        {verse.audio?.url && (
                           <Button
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
-                            onClick={() => playAyah(verse.ayahNumber, verse.audioUrl, verse.numberInSurah)}
+                            onClick={() => playAyah(verse.verse_number, verse.audio?.url ?? null)}
                             aria-label="Play ayah"
-                            data-testid={`button-play-ayah-${verse.numberInSurah}`}
+                            data-testid={`button-play-ayah-${verse.verse_number}`}
                           >
                             {isCurrentAudio && isPlaying ? (
                               <Pause className="h-4 w-4" />
@@ -305,9 +305,9 @@ export default function QuranSurahPage() {
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8"
-                          onClick={() => toggleBookmark(verse.ayahNumber)}
+                          onClick={() => toggleBookmark(verse.verse_number)}
                           aria-label="Bookmark ayah"
-                          data-testid={`button-bookmark-ayah-${verse.numberInSurah}`}
+                          data-testid={`button-bookmark-ayah-${verse.verse_number}`}
                         >
                           {isBookmarked ? (
                             <BookmarkCheck className="h-4 w-4 text-primary" />
@@ -319,18 +319,18 @@ export default function QuranSurahPage() {
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8"
-                          onClick={() => shareAyah(verse.ayahNumber)}
+                          onClick={() => shareAyah(verse.verse_number)}
                           aria-label="Share ayah"
-                          data-testid={`button-share-ayah-${verse.numberInSurah}`}
+                          data-testid={`button-share-ayah-${verse.verse_number}`}
                         >
                           <Share2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     <p dir="rtl" className="font-serif text-2xl sm:text-3xl leading-[2.1] mb-4 text-right">
-                      {verse.arabic}
+                      {verse.text_uthmani}
                     </p>
-                    <p className="text-muted-foreground leading-relaxed">{verse.translation}</p>
+                    <p className="text-muted-foreground leading-relaxed">{verse.translations?.[0]?.text ?? ""}</p>
                   </CardContent>
                 </Card>
               );

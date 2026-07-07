@@ -42,10 +42,12 @@ export default function SurahScreen() {
   const translationWidth = width - 28 - 32;
 
   const { data: chapter } = useGetQuranChapter(surahNum);
-  const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(
-    surahNum,
-    { translation: "131", reciter: "7" } as Record<string, unknown>
-  ) as { data: QuranVerse[] | undefined; isLoading: boolean; isError: boolean; refetch: () => void };
+  const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(surahNum) as {
+    data: QuranVerse[] | undefined;
+    isLoading: boolean;
+    isError: boolean;
+    refetch: () => void;
+  };
 
   const playAudio = useCallback(async (key: string, url: string) => {
     if (Platform.OS === "web") return;
@@ -195,7 +197,7 @@ export default function SurahScreen() {
       ) : (
         <FlatList
           data={verses ?? []}
-          keyExtractor={(item) => item.verse_key}
+          keyExtractor={(item, index) => item.verse_key ?? String(index)}
           renderItem={renderVerse}
           ListHeaderComponent={ListHeader}
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 30 }]}

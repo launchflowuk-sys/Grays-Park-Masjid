@@ -781,10 +781,10 @@ function FeaturedAyahSection() {
         ) : featured && verse ? (
           <>
             <p dir="rtl" className="font-serif text-2xl md:text-3xl leading-relaxed mb-4 text-foreground">
-              {verse.arabic}
+              {verse.text_uthmani}
             </p>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-2">
-              {verse.translation}
+              {verse.translations?.[0]?.text ?? ""}
             </p>
             <p className="text-sm text-primary font-medium mb-8">
               {chapter?.name_simple ?? "Surah"} {featured.surahNumber}:{featured.ayahNumber}

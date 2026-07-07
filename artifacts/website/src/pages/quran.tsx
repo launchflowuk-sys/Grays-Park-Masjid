@@ -53,9 +53,9 @@ function FeaturedAyahBanner() {
           <span className="text-xs uppercase tracking-[0.15em] font-semibold">Ayah of the Day</span>
         </div>
         <p dir="rtl" className="font-serif text-2xl sm:text-3xl leading-relaxed mb-3">
-          {verse.arabic}
+          {verse.text_uthmani}
         </p>
-        <p className="text-primary-foreground/85 leading-relaxed mb-4">{verse.translation}</p>
+        <p className="text-primary-foreground/85 leading-relaxed mb-4">{verse.translations?.[0]?.text ?? ""}</p>
         {featured.reflectionTitle && (
           <p className="text-sm text-secondary font-medium mb-1">{featured.reflectionTitle}</p>
         )}

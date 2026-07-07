@@ -85,7 +85,17 @@ router.get("/quran/chapters/:number/verses", async (req: Request, res: Response)
 
   try {
     const verses = await fetchChapterVerses(number, translation, reciter);
-    res.json(verses);
+    const response = verses.map((v) => ({
+      id: `${v.surahNumber}:${v.numberInSurah}`,
+      verse_key: `${v.surahNumber}:${v.numberInSurah}`,
+      verse_number: v.numberInSurah,
+      text_uthmani: v.arabic,
+      translations: [
+        { text: v.translation, resource_id: 0, resource_name: v.translationSource },
+      ],
+      audio: v.audioUrl ? { url: v.audioUrl } : null,
+    }));
+    res.json(response);
   } catch (err) {
     res.status(502).json({ error: "Failed to fetch verses from Qur'an provider" });
   }

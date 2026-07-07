@@ -1045,14 +1045,13 @@ export interface QuranChapter {
 }
 
 export interface QuranVerse {
-  surahNumber: number;
-  ayahNumber: number;
-  numberInSurah: number;
-  arabic: string;
-  translation: string;
-  translationSource: string;
+  id: string;
+  verse_key: string;
+  verse_number: number;
+  text_uthmani: string;
+  translations: Array<{ text: string; resource_id: number; resource_name?: string }>;
   /** @nullable */
-  audioUrl: string | null;
+  audio: { url: string } | null;
 }
 
 export interface QuranSearchResult {

@@ -75,10 +75,10 @@ function ReflectionSlide() {
         Qur&apos;an {ref.context === "friday" ? "· Jumu'ah Reflection" : "· A Moment of Reflection"}
       </p>
       <p dir="rtl" className="font-serif text-4xl sm:text-6xl leading-[1.9] mb-8 text-primary-foreground">
-        {verse.arabic}
+        {verse.text_uthmani}
       </p>
       <p className="text-xl sm:text-2xl leading-relaxed text-primary-foreground/85 max-w-3xl">
-        &ldquo;{verse.translation}&rdquo;
+        &ldquo;{verse.translations?.[0]?.text ?? ""}&rdquo;
       </p>
       <p className="mt-8 text-secondary text-sm sm:text-base uppercase tracking-widest">
         Surah {ref.surah}:{ref.ayah}
