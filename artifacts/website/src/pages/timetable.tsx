@@ -274,13 +274,15 @@ export default function TimetablePage() {
                             ? "bg-background"
                             : "bg-muted/30";
 
-                      const stickyBg = isToday
-                        ? "bg-secondary/20"
+                      // Opaque solid background for the sticky column — avoids
+                      // scrolling content bleeding through transparent colours.
+                      const stickyBgStyle: React.CSSProperties = isToday
+                        ? { backgroundColor: "color-mix(in srgb, hsl(var(--secondary)) 20%, hsl(var(--background)))" }
                         : isFri
-                          ? "bg-secondary/8"
+                          ? { backgroundColor: "color-mix(in srgb, hsl(var(--secondary)) 8%, hsl(var(--background)))" }
                           : idx % 2 === 0
-                            ? "bg-background"
-                            : "bg-muted/30";
+                            ? { backgroundColor: "hsl(var(--background))" }
+                            : { backgroundColor: "color-mix(in srgb, hsl(var(--muted)) 30%, hsl(var(--background)))" };
 
                       return (
                         <tr
@@ -288,8 +290,8 @@ export default function TimetablePage() {
                           data-testid={`timetable-row-${row.date}`}
                           className={`border-b border-border/60 last:border-b-0 transition-colors hover:brightness-95 ${rowBg}`}
                         >
-                          {/* Sticky date column */}
-                          <td className={`sticky left-0 z-10 px-4 py-3 border-r border-border/60 ${stickyBg}`}>
+                          {/* Sticky date column — solid bg so scrolling cells don't bleed through */}
+                          <td className="sticky left-0 z-10 px-4 py-3 border-r border-border/60" style={stickyBgStyle}>
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="min-w-0">
                                 <p className={`font-semibold tabular-nums leading-tight ${isToday ? "text-primary" : "text-foreground"}`}>
