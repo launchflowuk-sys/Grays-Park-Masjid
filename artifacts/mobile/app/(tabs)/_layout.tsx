@@ -1,0 +1,138 @@
+import { BlurView } from "expo-blur";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { Tabs } from "expo-router";
+import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import { SymbolView } from "expo-symbols";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Platform, StyleSheet, View } from "react-native";
+
+import { useColors } from "@/hooks/useColors";
+
+function NativeTabLayout() {
+  return (
+    <NativeTabs>
+      <NativeTabs.Trigger name="index">
+        <Icon sf={{ default: "moon.stars", selected: "moon.stars.fill" }} />
+        <Label>Prayer</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="quran">
+        <Icon sf={{ default: "book.pages", selected: "book.pages.fill" }} />
+        <Label>Qur'an</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="blog">
+        <Icon sf={{ default: "newspaper", selected: "newspaper.fill" }} />
+        <Label>Blog</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="events">
+        <Icon sf={{ default: "calendar", selected: "calendar.fill" }} />
+        <Label>Events</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="more">
+        <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
+        <Label>More</Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  );
+}
+
+function ClassicTabLayout() {
+  const colors = useColors();
+  const isIOS = Platform.OS === "ios";
+  const isWeb = Platform.OS === "web";
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
+        tabBarStyle: {
+          position: "absolute",
+          backgroundColor: isIOS ? colors.tabBar + "E8" : colors.tabBar,
+          borderTopWidth: 0,
+          elevation: 0,
+          ...(isWeb ? { height: 84 } : {}),
+        },
+        tabBarBackground: () =>
+          isIOS ? (
+            <BlurView
+              intensity={60}
+              tint="dark"
+              style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar + "CC" }]}
+            />
+          ) : isWeb ? (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar }]} />
+          ) : null,
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Prayer",
+          tabBarIcon: ({ color, focused }) =>
+            isIOS ? (
+              <SymbolView name={focused ? "moon.stars.fill" : "moon.stars"} tintColor={color} size={23} />
+            ) : (
+              <Ionicons name={focused ? "moon" : "moon-outline"} size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="quran"
+        options={{
+          title: "Qur'an",
+          tabBarIcon: ({ color, focused }) =>
+            isIOS ? (
+              <SymbolView name={focused ? "book.pages.fill" : "book.pages"} tintColor={color} size={23} />
+            ) : (
+              <Feather name="book-open" size={21} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="blog"
+        options={{
+          title: "Blog",
+          tabBarIcon: ({ color, focused }) =>
+            isIOS ? (
+              <SymbolView name={focused ? "newspaper.fill" : "newspaper"} tintColor={color} size={23} />
+            ) : (
+              <Feather name="file-text" size={21} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="events"
+        options={{
+          title: "Events",
+          tabBarIcon: ({ color, focused }) =>
+            isIOS ? (
+              <SymbolView name={focused ? "calendar.fill" : "calendar"} tintColor={color} size={23} />
+            ) : (
+              <Feather name="calendar" size={21} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: "More",
+          tabBarIcon: ({ color, focused }) =>
+            isIOS ? (
+              <SymbolView name={focused ? "ellipsis.circle.fill" : "ellipsis.circle"} tintColor={color} size={23} />
+            ) : (
+              <Feather name="more-horizontal" size={22} color={color} />
+            ),
+        }}
+      />
+    </Tabs>
+  );
+}
+
+export default function TabLayout() {
+  if (isLiquidGlassAvailable()) {
+    return <NativeTabLayout />;
+  }
+  return <ClassicTabLayout />;
+}

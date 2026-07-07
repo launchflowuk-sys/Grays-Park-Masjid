@@ -13,3 +13,4 @@
 - [Coolify external Postgres access from the agent workspace](coolify-external-postgres-access.md) — external connection strings can fail auth even when correct; run one-off data loads via a heredoc pasted into Coolify's own container terminal instead.
 - [Orval zod codegen barrel collision on multi-param endpoints](orval-zod-params-collision.md) — any operation with 2+ path/query params makes orval regenerate api-zod's index.ts with a duplicate-export TS2308; fixed via a postcodegen script, not a hand edit.
 - [Orval hook needs explicit queryKey with `enabled`](orval-hook-explicit-querykey-with-enabled.md) — overriding `query.enabled` on a param'd orval hook without also passing `queryKey: getXQueryKey(...)` fails TS2741.
+- [Expo mobile workflow name and notifications version](expo-mobile-workflow.md) — mobile workflow is `artifacts/mobile: expo`; expo-notifications must be ~0.32.x for Expo SDK 54 (not ^57).
