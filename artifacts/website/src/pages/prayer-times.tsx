@@ -40,6 +40,34 @@ function useNow(intervalMs: number) {
   return now;
 }
 
+function PrayerCell({
+  adhan,
+  iqamah,
+  isToday,
+  fridayIqamah,
+  last,
+}: {
+  adhan: string | null | undefined;
+  iqamah: string | null | undefined;
+  isToday?: boolean;
+  fridayIqamah?: boolean;
+  last?: boolean;
+}) {
+  return (
+    <td className={`text-center px-3 py-3 ${last ? "" : "border-r border-border/60"}`}>
+      <p className="text-[11px] text-muted-foreground tabular-nums leading-none">
+        {formatTime12h(adhan)}
+      </p>
+      <p className={`text-sm font-semibold tabular-nums mt-1 leading-none ${isToday ? "text-primary" : "text-foreground"}`}>
+        {formatTime12h(iqamah)}
+        {fridayIqamah && (
+          <span className="ml-1 text-[9px] font-bold text-secondary/80 align-top">J</span>
+        )}
+      </p>
+    </td>
+  );
+}
+
 export default function PrayerTimesPage() {
   const { data, isLoading, today, todayRow, tomorrowRow } = usePrayerTimesToday();
   const now = useNow(1000);
@@ -291,67 +319,158 @@ export default function PrayerTimesPage() {
           )}
         </section>
 
-        {/* ── Upcoming Days ───────────────────────────────────────── */}
+        {/* ── Monthly Timetable ───────────────────────────────────── */}
         {upcoming.length > 0 && (
-          <section className="bg-muted/40 border-t border-border">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 md:py-16">
-              <div className="flex items-center gap-3 mb-8">
-                <IslamicStar className="h-5 w-5 text-secondary" />
-                <h2 className="font-serif text-2xl md:text-3xl">Upcoming Days</h2>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {upcoming.slice(0, 8).map((row) => {
-                  const isToday = row.date === today;
-                  return (
-                    <div
-                      key={row.id}
-                      data-testid={`card-day-${row.date}`}
-                      className={`rounded-xl border px-5 py-4 ${
-                        isToday
-                          ? "border-primary/40 bg-primary/5"
-                          : "border-card-border bg-card"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="font-serif text-base font-semibold text-foreground">
-                          {format(parseISO(row.date), "EEE d MMM")}
-                        </p>
-                        {isToday && (
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                            Today
-                          </span>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-5 gap-1 text-center">
-                        {[
-                          { key: "fajr", label: "Fajr", time: row.fajrIqamah },
-                          { key: "dhuhr", label: "Dhuhr", time: row.dhuhrIqamah },
-                          { key: "asr", label: "Asr", time: row.asrIqamah },
-                          { key: "maghrib", label: "Maghrib", time: row.maghribIqamah },
-                          { key: "isha", label: "Isha", time: row.ishaIqamah },
-                        ].map((p) => (
-                          <div key={p.key} className="flex flex-col gap-0.5">
-                            <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-                              {p.key === "maghrib" ? "Magh" : p.label}
-                            </span>
-                            <span className="text-xs font-semibold text-primary tabular-nums">
-                              {p.time ?? "-"}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 text-center">
+          <section className="border-t border-border">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
+              <div className="flex items-center justify-between mb-8 gap-4">
+                <div className="flex items-center gap-3">
+                  <IslamicStar className="h-5 w-5 text-secondary shrink-0" />
+                  <div>
+                    <h2 className="font-serif text-2xl md:text-3xl">Monthly Timetable</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Iqamah times for the next {upcoming.slice(0, 31).length} days
+                    </p>
+                  </div>
+                </div>
                 <Link href="/timetable">
-                  <Button variant="outline" size="sm">
-                    View Full Timetable
+                  <Button variant="outline" size="sm" className="shrink-0">
+                    PDF Downloads
                   </Button>
                 </Link>
+              </div>
+
+              {/* Scrollable table wrapper */}
+              <div className="rounded-2xl overflow-hidden border border-primary/20 shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px] border-collapse text-sm" data-testid="timetable-monthly">
+                    {/* ── Header ── */}
+                    <thead>
+                      <tr className="bg-primary text-primary-foreground">
+                        {/* Date column */}
+                        <th className="sticky left-0 z-10 bg-primary text-left px-4 py-4 font-semibold text-sm tracking-wide border-r border-white/10 min-w-[110px]">
+                          <span className="block text-[10px] uppercase tracking-widest text-primary-foreground/60 font-normal mb-0.5">
+                            اليوم
+                          </span>
+                          Date
+                        </th>
+                        {[
+                          { key: "fajr", label: "Fajr", arabic: "الفجر" },
+                          { key: "sunrise", label: "Sunrise", arabic: "الشروق" },
+                          { key: "dhuhr", label: "Dhuhr", arabic: "الظهر" },
+                          { key: "asr", label: "Asr", arabic: "العصر" },
+                          { key: "maghrib", label: "Maghrib", arabic: "المغرب" },
+                          { key: "isha", label: "Isha", arabic: "العشاء" },
+                        ].map((col) => (
+                          <th
+                            key={col.key}
+                            className="text-center px-3 py-4 font-semibold tracking-wide border-r border-white/10 last:border-r-0 min-w-[100px]"
+                          >
+                            <span className="block font-serif text-base text-secondary/90 leading-none mb-0.5">
+                              {col.arabic}
+                            </span>
+                            <span className="block text-sm">{col.label}</span>
+                            {col.key !== "sunrise" && (
+                              <div className="flex justify-center gap-2 mt-1.5 text-[9px] uppercase tracking-widest text-primary-foreground/50 font-normal">
+                                <span>Adhan</span>
+                                <span>·</span>
+                                <span>Iqamah</span>
+                              </div>
+                            )}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    {/* ── Body ── */}
+                    <tbody>
+                      {upcoming.slice(0, 31).map((row, idx) => {
+                        const isToday = row.date === today;
+                        const dayOfWeek = parseISO(row.date).getDay();
+                        const isFri = dayOfWeek === 5;
+
+                        const rowBg = isToday
+                          ? "bg-secondary/20 border-secondary/30"
+                          : isFri
+                            ? "bg-secondary/8 hover:bg-secondary/15"
+                            : idx % 2 === 0
+                              ? "bg-background hover:bg-muted/40"
+                              : "bg-muted/30 hover:bg-muted/50";
+
+                        return (
+                          <tr
+                            key={row.id}
+                            data-testid={`timetable-row-${row.date}`}
+                            className={`transition-colors border-b border-border/60 last:border-b-0 ${rowBg}`}
+                          >
+                            {/* Date cell — sticky on mobile */}
+                            <td className={`sticky left-0 z-10 px-4 py-3 border-r border-border/60 ${
+                              isToday ? "bg-secondary/20" : isFri ? "bg-secondary/8" : idx % 2 === 0 ? "bg-background" : "bg-muted/30"
+                            }`}>
+                              <div className="flex items-center gap-2">
+                                <div>
+                                  <p className={`font-semibold tabular-nums leading-none ${isToday ? "text-primary" : "text-foreground"}`}>
+                                    {format(parseISO(row.date), "d MMM")}
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                                    {format(parseISO(row.date), "EEE")}
+                                  </p>
+                                </div>
+                                {isToday && (
+                                  <span className="text-[9px] font-bold uppercase tracking-widest text-secondary-foreground bg-secondary px-1.5 py-0.5 rounded-full leading-none">
+                                    Today
+                                  </span>
+                                )}
+                                {isFri && !isToday && (
+                                  <span className="text-[9px] font-semibold text-secondary/80 leading-none">
+                                    Jumu'ah
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Fajr */}
+                            <PrayerCell adhan={row.fajrAdhan} iqamah={row.fajrIqamah} isToday={isToday} />
+
+                            {/* Sunrise — adhan only, no iqamah */}
+                            <td className="text-center px-3 py-3 border-r border-border/60">
+                              <p className="text-sm font-medium tabular-nums text-muted-foreground">
+                                {formatTime12h(row.sunrise as string | null | undefined)}
+                              </p>
+                            </td>
+
+                            {/* Dhuhr */}
+                            <PrayerCell adhan={row.dhuhrAdhan} iqamah={isFri ? (row.jummahIqamah ?? row.dhuhrIqamah) : row.dhuhrIqamah} isToday={isToday} fridayIqamah={isFri && !!row.jummahIqamah} />
+
+                            {/* Asr */}
+                            <PrayerCell adhan={row.asrAdhan} iqamah={row.asrIqamah} isToday={isToday} />
+
+                            {/* Maghrib */}
+                            <PrayerCell adhan={row.maghribAdhan} iqamah={row.maghribIqamah} isToday={isToday} />
+
+                            {/* Isha */}
+                            <PrayerCell adhan={row.ishaAdhan} iqamah={row.ishaIqamah} isToday={isToday} last />
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table footer */}
+                <div className="bg-primary/5 border-t border-primary/10 px-5 py-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-secondary/30 border border-secondary/40" />
+                    Today
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-secondary/10" />
+                    Friday / Jumu'ah
+                  </span>
+                  <span className="ml-auto text-muted-foreground/60 italic">
+                    All times shown as Iqamah · Scroll right for all prayers
+                  </span>
+                </div>
               </div>
             </div>
           </section>
