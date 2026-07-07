@@ -169,7 +169,7 @@ export default function TabLayout() {
           name="blog"
           options={{
             title: "Blog",
-            tabBarButton: () => null,
+            href: null,
           }}
         />
 
@@ -178,7 +178,7 @@ export default function TabLayout() {
           name="settings"
           options={{
             title: "Alerts",
-            tabBarButton: () => null,
+            href: null,
           }}
         />
       </Tabs>
