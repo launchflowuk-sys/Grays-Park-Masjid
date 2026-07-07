@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useSearch, useLocation } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useListBlogPostsPublic } from "@workspace/api-client-react";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
-import { Calendar, Clock, User } from "lucide-react";
+import { Calendar, Clock, User, Search, X } from "lucide-react";
 import { IslamicPattern } from "@/components/site/islamic-pattern";
 
 function formatDate(d: string) {
@@ -20,10 +21,39 @@ function readingTime(html: string) {
 }
 
 export default function BlogPage() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const searchString = useSearch();
+  const [, navigate] = useLocation();
+
+  const params = new URLSearchParams(searchString);
+  const urlQuery = params.get("q") ?? "";
+  const urlCategory = params.get("category") ?? null;
+
+  const [inputValue, setInputValue] = useState(urlQuery);
+
   const { data: posts = [], isLoading } = useListBlogPostsPublic(
-    activeCategory ? { category: activeCategory } : {},
+    urlCategory ? { category: urlCategory } : {},
   );
+
+  useEffect(() => {
+    setInputValue(urlQuery);
+  }, [urlQuery]);
+
+  function updateUrl(nextQuery: string, nextCategory: string | null) {
+    const p = new URLSearchParams();
+    if (nextQuery) p.set("q", nextQuery);
+    if (nextCategory) p.set("category", nextCategory);
+    const qs = p.toString();
+    navigate(qs ? `/blog?${qs}` : "/blog");
+  }
+
+  function handleSearchChange(value: string) {
+    setInputValue(value);
+    updateUrl(value, urlCategory);
+  }
+
+  function handleCategoryChange(cat: string | null) {
+    updateUrl(inputValue, cat);
+  }
 
   const sorted = [...posts].sort(
     (a, b) =>
@@ -31,8 +61,18 @@ export default function BlogPage() {
       new Date(a.publishedAt ?? a.createdAt).getTime(),
   );
 
-  const featured = sorted[0];
-  const rest = sorted.slice(1);
+  const filtered = urlQuery.trim()
+    ? sorted.filter((p) => {
+        const q = urlQuery.toLowerCase();
+        return (
+          p.title.toLowerCase().includes(q) ||
+          (p.excerpt ?? "").toLowerCase().includes(q)
+        );
+      })
+    : sorted;
+
+  const featured = filtered[0];
+  const rest = filtered.slice(1);
 
   return (
     <>
@@ -49,21 +89,44 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            type="search"
+            placeholder="Search articles…"
+            value={inputValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {inputValue && (
+            <button
+              type="button"
+              onClick={() => handleSearchChange("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-4">
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={activeCategory === null ? "default" : "outline"}
+            variant={urlCategory === null ? "default" : "outline"}
             size="sm"
-            onClick={() => setActiveCategory(null)}
+            onClick={() => handleCategoryChange(null)}
           >
             All
           </Button>
           {BLOG_CATEGORIES.map((cat) => (
             <Button
               key={cat}
-              variant={activeCategory === cat ? "default" : "outline"}
+              variant={urlCategory === cat ? "default" : "outline"}
               size="sm"
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
             >
               {BLOG_CATEGORY_LABELS[cat]}
             </Button>
@@ -78,9 +141,22 @@ export default function BlogPage() {
               <div key={i} className="rounded-xl bg-muted animate-pulse h-64" />
             ))}
           </div>
-        ) : sorted.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="text-center py-24 text-muted-foreground">
-            <p className="text-lg">No posts yet — check back soon.</p>
+            {urlQuery ? (
+              <>
+                <p className="text-lg mb-2">No articles match "{urlQuery}".</p>
+                <button
+                  type="button"
+                  onClick={() => handleSearchChange("")}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Clear search
+                </button>
+              </>
+            ) : (
+              <p className="text-lg">No posts yet — check back soon.</p>
+            )}
           </div>
         ) : (
           <>
