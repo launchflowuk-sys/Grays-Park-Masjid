@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   FlatList,
   Platform,
   StatusBar,
@@ -28,6 +29,8 @@ type QuranVerse = {
   audio?: { url: string } | null;
 };
 
+const TOTAL_SURAHS = 114;
+const FLOAT_THRESHOLD = 300;
 
 export default function SurahScreen() {
   const { number } = useLocalSearchParams<{ number: string }>();
@@ -41,6 +44,10 @@ export default function SurahScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const translationWidth = width - 28 - 32;
 
+  const flatListRef = useRef<FlatList<QuranVerse>>(null);
+  const floatOpacity = useRef(new Animated.Value(0)).current;
+  const scrollYRef = useRef(0);
+
   const { data: chapter } = useGetQuranChapter(surahNum);
   const { data: verses, isLoading, isError, refetch } = useGetQuranChapterVerses(surahNum) as {
     data: QuranVerse[] | undefined;
@@ -49,35 +56,70 @@ export default function SurahScreen() {
     refetch: () => void;
   };
 
-  const playAudio = useCallback(async (key: string, url: string) => {
-    if (Platform.OS === "web") return;
-    try {
-      if (soundRef.current) {
-        const s = soundRef.current as { stopAsync: () => Promise<void>; unloadAsync: () => Promise<void> };
-        await s.stopAsync();
-        await s.unloadAsync();
-        soundRef.current = null;
+  const handleScroll = useCallback(
+    (event: { nativeEvent: { contentOffset: { y: number } } }) => {
+      const y = event.nativeEvent.contentOffset.y;
+      const wasAbove = scrollYRef.current < FLOAT_THRESHOLD;
+      const isAbove = y < FLOAT_THRESHOLD;
+      scrollYRef.current = y;
+      if (wasAbove !== isAbove) {
+        Animated.timing(floatOpacity, {
+          toValue: isAbove ? 0 : 1,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
       }
-      if (playingKey === key) {
-        setPlayingKey(null);
-        return;
-      }
-      setPlayingKey(key);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      const { Audio } = await import("expo-av");
-      const { sound } = await Audio.Sound.createAsync({ uri: url }, { shouldPlay: true });
-      soundRef.current = sound;
-      sound.setOnPlaybackStatusUpdate((status: unknown) => {
-        const s = status as { didJustFinish?: boolean; isLoaded?: boolean };
-        if (s.isLoaded && s.didJustFinish) {
+    },
+    [floatOpacity],
+  );
+
+  const scrollToTop = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
+
+  const goToPrev = useCallback(() => {
+    if (surahNum > 1) router.replace(`/quran/${surahNum - 1}`);
+  }, [surahNum, router]);
+
+  const goToNext = useCallback(() => {
+    if (surahNum < TOTAL_SURAHS) router.replace(`/quran/${surahNum + 1}`);
+  }, [surahNum, router]);
+
+  const playAudio = useCallback(
+    async (key: string, url: string) => {
+      if (Platform.OS === "web") return;
+      try {
+        if (soundRef.current) {
+          const s = soundRef.current as {
+            stopAsync: () => Promise<void>;
+            unloadAsync: () => Promise<void>;
+          };
+          await s.stopAsync();
+          await s.unloadAsync();
           soundRef.current = null;
-          setPlayingKey(null);
         }
-      });
-    } catch {
-      setPlayingKey(null);
-    }
-  }, [playingKey]);
+        if (playingKey === key) {
+          setPlayingKey(null);
+          return;
+        }
+        setPlayingKey(key);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        const { Audio } = await import("expo-av");
+        const { sound } = await Audio.Sound.createAsync({ uri: url }, { shouldPlay: true });
+        soundRef.current = sound;
+        sound.setOnPlaybackStatusUpdate((status: unknown) => {
+          const s = status as { didJustFinish?: boolean; isLoaded?: boolean };
+          if (s.isLoaded && s.didJustFinish) {
+            soundRef.current = null;
+            setPlayingKey(null);
+          }
+        });
+      } catch {
+        setPlayingKey(null);
+      }
+    },
+    [playingKey],
+  );
 
   const renderVerse = ({ item }: { item: QuranVerse }) => {
     const rawTranslation = item.translations?.[0]?.text ?? "";
@@ -92,12 +134,17 @@ export default function SurahScreen() {
       <View style={[styles.verseCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.verseHeader}>
           <View style={[styles.verseNumber, { backgroundColor: colors.primary + "15" }]}>
-            <Text style={[styles.verseNumberText, { color: colors.primary }]}>{item.verse_number}</Text>
+            <Text style={[styles.verseNumberText, { color: colors.primary }]}>
+              {item.verse_number}
+            </Text>
           </View>
           {hasAudio && (
             <TouchableOpacity
               onPress={() => playAudio(item.verse_key, item.audio!.url)}
-              style={[styles.playBtn, { backgroundColor: isPlaying ? colors.accent : colors.muted }]}
+              style={[
+                styles.playBtn,
+                { backgroundColor: isPlaying ? colors.accent : colors.muted },
+              ]}
               testID={`verse-play-${item.verse_number}`}
             >
               <Ionicons
@@ -110,7 +157,9 @@ export default function SurahScreen() {
         </View>
 
         {item.text_uthmani && (
-          <Text style={[styles.arabicText, { color: colors.foreground }]}>{item.text_uthmani}</Text>
+          <Text style={[styles.arabicText, { color: colors.foreground }]}>
+            {item.text_uthmani}
+          </Text>
         )}
 
         {translationHtml ? (
@@ -136,7 +185,9 @@ export default function SurahScreen() {
           <Ionicons name="chevron-back" size={24} color={colors.primaryForeground} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={[styles.headerArabic, { color: colors.accent }]}>{chapter?.name_arabic ?? ""}</Text>
+          <Text style={[styles.headerArabic, { color: colors.accent }]}>
+            {chapter?.name_arabic ?? ""}
+          </Text>
           <Text
             style={[
               styles.headerTitle,
@@ -174,14 +225,22 @@ export default function SurahScreen() {
         </View>
         <View style={styles.centerFlex}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.mutedForeground} />
-          <Text style={[styles.errorText, { color: colors.mutedForeground }]}>Unable to load surah</Text>
-          <TouchableOpacity onPress={refetch} style={[styles.retryBtn, { backgroundColor: colors.primary }]}>
+          <Text style={[styles.errorText, { color: colors.mutedForeground }]}>
+            Unable to load surah
+          </Text>
+          <TouchableOpacity
+            onPress={refetch}
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+          >
             <Text style={[styles.retryText, { color: colors.primaryForeground }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
+
+  const hasPrev = surahNum > 1;
+  const hasNext = surahNum < TOTAL_SURAHS;
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
@@ -191,24 +250,96 @@ export default function SurahScreen() {
           <ListHeader />
           <View style={styles.centerFlex}>
             <ActivityIndicator color={colors.primary} size="large" />
-            <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>Loading verses…</Text>
+            <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>
+              Loading verses…
+            </Text>
           </View>
         </>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={verses ?? []}
           keyExtractor={(item, index) => item.verse_key ?? String(index)}
           renderItem={renderVerse}
           ListHeaderComponent={ListHeader}
-          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 30 }]}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: insets.bottom + 96 },
+          ]}
           scrollEnabled={!!(verses && verses.length > 0)}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           ListEmptyComponent={
             <View style={styles.centerFlex}>
-              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>No verses found</Text>
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                No verses found
+              </Text>
             </View>
           }
         />
       )}
+
+      {/* Floating navigation panel */}
+      <Animated.View
+        style={[
+          styles.floatPanel,
+          {
+            bottom: insets.bottom + 16,
+            opacity: floatOpacity,
+          },
+        ]}
+        pointerEvents="box-none"
+      >
+        <View style={styles.floatInner}>
+          {/* Back */}
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.floatBtn}
+            testID="float-back"
+          >
+            <Ionicons name="arrow-back" size={18} color="#FAF8F3" />
+          </TouchableOpacity>
+
+          <View style={styles.floatDivider} />
+
+          {/* Previous surah */}
+          <TouchableOpacity
+            onPress={goToPrev}
+            style={[styles.floatBtn, !hasPrev && styles.floatBtnDisabled]}
+            disabled={!hasPrev}
+            testID="float-prev"
+          >
+            <Ionicons
+              name="chevron-back-circle-outline"
+              size={18}
+              color={hasPrev ? "#FAF8F3" : "rgba(250,248,243,0.3)"}
+            />
+          </TouchableOpacity>
+
+          {/* Scroll to top */}
+          <TouchableOpacity
+            onPress={scrollToTop}
+            style={styles.floatBtnAccent}
+            testID="float-top"
+          >
+            <Ionicons name="arrow-up" size={18} color="#1B3D2F" />
+          </TouchableOpacity>
+
+          {/* Next surah */}
+          <TouchableOpacity
+            onPress={goToNext}
+            style={[styles.floatBtn, !hasNext && styles.floatBtnDisabled]}
+            disabled={!hasNext}
+            testID="float-next"
+          >
+            <Ionicons
+              name="chevron-forward-circle-outline"
+              size={18}
+              color={hasNext ? "#FAF8F3" : "rgba(250,248,243,0.3)"}
+            />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
     </View>
   );
 }
@@ -255,4 +386,50 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 15 },
   retryBtn: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },
   retryText: { fontSize: 15, fontWeight: "600" },
+
+  // Floating panel
+  floatPanel: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  floatInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(27,61,47,0.92)",
+    borderRadius: 32,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    gap: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  floatBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  floatBtnAccent: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#C9A84C",
+  },
+  floatBtnDisabled: {
+    opacity: 0.4,
+  },
+  floatDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: "rgba(250,248,243,0.2)",
+    marginHorizontal: 2,
+  },
 });
