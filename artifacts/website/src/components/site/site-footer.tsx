@@ -84,7 +84,7 @@ export function SiteFooter() {
             <img
               src={gpmLogoWhite}
               alt="Grays Park Masjid - Thurrock Islamic Education &amp; Cultural Association"
-              className="h-20 w-auto"
+              className="h-32 w-auto"
               data-testid="img-footer-logo"
             />
           </div>
