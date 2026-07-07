@@ -61,7 +61,7 @@ function SidebarNav({
   onNavigate?: () => void;
 }) {
   return (
-    <nav className="flex-1 py-4 space-y-1 px-3">
+    <nav className="flex-1 py-4 space-y-1 px-3 overflow-y-auto">
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const active = location === item.href;
@@ -141,7 +141,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   const sidebarFooter = (
-    <div className="px-3 py-4 border-t border-primary-foreground/10">
+    <div className="px-3 py-4 border-t border-primary-foreground/10 shrink-0" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
       <div className="px-3 mb-3">
         <p className="text-sm font-medium truncate">{admin?.name}</p>
         <p className="text-xs text-primary-foreground/60 truncate">{admin?.role.replace(/_/g, " ")}</p>
@@ -161,7 +161,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex bg-muted/20">
-      <aside className="hidden md:flex w-64 shrink-0 bg-primary text-primary-foreground flex-col">
+      <aside className="hidden md:flex w-64 shrink-0 bg-primary text-primary-foreground flex-col overflow-hidden">
         <div className="px-6 py-6 border-b border-primary-foreground/10">
           <p className="font-serif text-lg">Grays Park Masjid</p>
           <p className="text-xs text-primary-foreground/60">Admin Panel</p>
@@ -173,7 +173,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <SheetContent
           side="left"
-          className="w-64 p-0 bg-primary text-primary-foreground flex flex-col border-primary-foreground/10"
+          className="w-64 p-0 bg-primary text-primary-foreground flex flex-col border-primary-foreground/10 overflow-hidden"
         >
           <div className="px-6 py-6 border-b border-primary-foreground/10">
             <p className="font-serif text-lg">Grays Park Masjid</p>
