@@ -403,29 +403,28 @@ export default function PrayerTimesPage() {
                             data-testid={`timetable-row-${row.date}`}
                             className={`transition-colors border-b border-border/60 last:border-b-0 ${rowBg}`}
                           >
-                            {/* Date cell — sticky on mobile */}
+                            {/* Date cell — sticky on mobile. Solid brand-green background
+                                prevents scrolling content bleeding through on horizontal scroll. */}
                             <td
-                              className="sticky left-0 z-10 px-4 py-3 border-r border-border/60"
-                              style={{
-                                backgroundColor: isToday ? "#d4ddd7" : isFri ? "#e9ebe5" : idx % 2 === 0 ? "#FAF8F3" : "#f0ede7",
-                              }}
+                              className="sticky left-0 z-10 px-4 py-3 border-r border-white/15"
+                              style={{ backgroundColor: isToday ? "#2A5240" : "#1B3D2F" }}
                             >
                               <div className="flex items-center gap-2">
                                 <div>
-                                  <p className={`font-semibold tabular-nums leading-none ${isToday ? "text-primary" : "text-foreground"}`}>
+                                  <p className={`font-semibold tabular-nums leading-none ${isToday || isFri ? "text-[#C9A84C]" : "text-white"}`}>
                                     {format(parseISO(row.date), "d MMM")}
                                   </p>
-                                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                                  <p className="text-[11px] text-white/55 mt-0.5">
                                     {format(parseISO(row.date), "EEE")}
                                   </p>
                                 </div>
                                 {isToday && (
-                                  <span className="text-[9px] font-bold uppercase tracking-widest text-secondary-foreground bg-secondary px-1.5 py-0.5 rounded-full leading-none">
+                                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#1B3D2F] bg-[#C9A84C] px-1.5 py-0.5 rounded-full leading-none">
                                     Today
                                   </span>
                                 )}
                                 {isFri && !isToday && (
-                                  <span className="text-[9px] font-semibold text-secondary/80 leading-none">
+                                  <span className="text-[9px] font-semibold text-[#C9A84C] leading-none">
                                     Jumu'ah
                                   </span>
                                 )}

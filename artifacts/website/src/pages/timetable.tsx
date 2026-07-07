@@ -280,15 +280,11 @@ export default function TimetablePage() {
                             ? "bg-background"
                             : "bg-muted/30";
 
-                      // Opaque solid background for the sticky column — avoids
-                      // scrolling content bleeding through transparent colours.
-                      const stickyBgStyle: React.CSSProperties = isToday
-                        ? { backgroundColor: "#d4ddd7" }
-                        : isFri
-                          ? { backgroundColor: "#1B3D2F" }
-                          : idx % 2 === 0
-                            ? { backgroundColor: "#FAF8F3" }
-                            : { backgroundColor: "#f0ede7" };
+                      // Solid brand-green sticky background — prevents scrolling
+                      // content bleeding through. Today uses secondary (lighter green).
+                      const stickyBgStyle: React.CSSProperties = {
+                        backgroundColor: isToday ? "#2A5240" : "#1B3D2F",
+                      };
 
                       return (
                         <tr
@@ -296,24 +292,24 @@ export default function TimetablePage() {
                           data-testid={`timetable-row-${row.date}`}
                           className={`last:border-b-0 transition-colors hover:brightness-95 ${isFri ? "border-b border-white/10" : "border-b border-border/60"} ${rowBg}`}
                         >
-                          {/* Sticky date column — solid bg so scrolling cells don't bleed through */}
-                          <td className={`sticky left-0 z-10 px-4 py-3 ${isFri ? "border-r border-white/15" : "border-r border-border/60"}`} style={stickyBgStyle}>
+                          {/* Sticky date column — solid green bg so scrolling cells don't bleed through */}
+                          <td className="sticky left-0 z-10 px-4 py-3 border-r border-white/15" style={stickyBgStyle}>
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="min-w-0">
-                                <p className={`font-semibold tabular-nums leading-tight ${isFri ? "text-secondary" : isToday ? "text-primary" : "text-foreground"}`}>
+                                <p className={`font-semibold tabular-nums leading-tight ${isToday ? "text-[#C9A84C]" : isFri ? "text-[#C9A84C]" : "text-white"}`}>
                                   {format(parseISO(row.date), "d MMM")}
                                 </p>
-                                <p className={`text-[11px] ${isFri ? "text-white/55" : "text-muted-foreground"}`}>
+                                <p className="text-[11px] text-white/55">
                                   {format(parseISO(row.date), "EEEE")}
                                 </p>
                               </div>
                               {isToday && (
-                                <span className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-secondary-foreground bg-secondary px-1.5 py-0.5 rounded-full leading-none">
+                                <span className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-[#1B3D2F] bg-[#C9A84C] px-1.5 py-0.5 rounded-full leading-none">
                                   Today
                                 </span>
                               )}
                               {isFri && !isToday && (
-                                <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-primary bg-secondary px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                                <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-[#C9A84C] leading-none whitespace-nowrap">
                                   Jumu'ah
                                 </span>
                               )}
