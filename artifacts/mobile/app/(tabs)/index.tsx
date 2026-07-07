@@ -176,28 +176,22 @@ export default function PrayerTimesScreen() {
     if (Platform.OS === "web") return;
     try {
       if (adhanSoundRef.current) {
-        const s = adhanSoundRef.current as {
-          stopAsync: () => Promise<void>;
-          unloadAsync: () => Promise<void>;
-        };
-        await s.stopAsync().catch(() => {});
-        await s.unloadAsync().catch(() => {});
+        const p = adhanSoundRef.current as { remove: () => void };
+        try { p.remove(); } catch {}
         adhanSoundRef.current = null;
       }
       const isFajr = prayerName === "Fajr" || useFajrForAll;
       const url = isFajr ? fajrAdhanUrl : regularAdhanUrl;
-      const { Audio } = await import("expo-av");
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: url },
-        { shouldPlay: true }
-      );
-      adhanSoundRef.current = sound;
+      const { createAudioPlayer, setAudioModeAsync } = await import("expo-audio");
+      await setAudioModeAsync({ playsInSilentModeIOS: true });
+      const player = createAudioPlayer({ uri: url });
+      player.play();
+      adhanSoundRef.current = player;
       setAdhanPlaying(true);
       setAdhanPrayerName(prayerName);
-      sound.setOnPlaybackStatusUpdate((status: unknown) => {
-        const st = status as { didJustFinish?: boolean; isLoaded?: boolean };
-        if (st.isLoaded && st.didJustFinish) {
+      player.addListener("playbackStatusUpdate", (status: unknown) => {
+        const st = status as { didJustFinish?: boolean };
+        if (st.didJustFinish) {
           adhanSoundRef.current = null;
           setAdhanPlaying(false);
         }
@@ -209,12 +203,8 @@ export default function PrayerTimesScreen() {
 
   const stopAdhan = async () => {
     if (adhanSoundRef.current) {
-      const s = adhanSoundRef.current as {
-        stopAsync: () => Promise<void>;
-        unloadAsync: () => Promise<void>;
-      };
-      await s.stopAsync().catch(() => {});
-      await s.unloadAsync().catch(() => {});
+      const p = adhanSoundRef.current as { remove: () => void };
+      try { p.remove(); } catch {}
       adhanSoundRef.current = null;
     }
     setAdhanPlaying(false);
@@ -235,12 +225,8 @@ export default function PrayerTimesScreen() {
   useEffect(() => {
     return () => {
       if (adhanSoundRef.current) {
-        const s = adhanSoundRef.current as {
-          stopAsync: () => Promise<void>;
-          unloadAsync: () => Promise<void>;
-        };
-        s.stopAsync().catch(() => {});
-        s.unloadAsync().catch(() => {});
+        const p = adhanSoundRef.current as { remove: () => void };
+        try { p.remove(); } catch {}
       }
     };
   }, []);

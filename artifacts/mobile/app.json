@@ -21,7 +21,11 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Grays Park Masjid uses your location to find the Qibla direction.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Grays Park Masjid uses your location to find the Qibla direction.",
-        "UIBackgroundModes": ["audio", "fetch", "remote-notification"]
+        "UIBackgroundModes": [
+          "audio",
+          "fetch",
+          "remote-notification"
+        ]
       }
     },
     "android": {
@@ -61,7 +65,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Grays Park Masjid uses your location to find the Qibla direction."
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

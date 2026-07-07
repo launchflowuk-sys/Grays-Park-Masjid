@@ -14,7 +14,7 @@ export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const TAB_H = isWeb ? 84 : 64;
+  const TAB_H = isWeb ? 84 : 72;
 
   return (
     <>
@@ -178,8 +178,8 @@ const styles = StyleSheet.create({
   qiblaWrapper: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-end",
-    paddingBottom: 6,
+    justifyContent: "center",
+    gap: 3,
   },
   qiblaCircle: {
     width: 54,
@@ -188,17 +188,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    transform: [{ translateY: -14 }],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 8,
   },
   qiblaLabel: {
     fontSize: 10,
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 0.2,
-    marginTop: -2,
   },
   moreWrapper: {
     flex: 1,

@@ -29,41 +29,35 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [streamUrl, setStreamUrl] = useState(DEFAULT_STREAM_URL);
-  const soundRef = useRef<unknown>(null);
-  const AudioRef = useRef<unknown>(null);
+  const playerRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (Platform.OS === "web") return;
-    let Audio: unknown;
     (async () => {
       try {
-        const av = await import("expo-av");
-        Audio = av.Audio;
-        AudioRef.current = Audio;
-        const AudioClass = Audio as { setAudioModeAsync: (opts: unknown) => Promise<void> };
-        await AudioClass.setAudioModeAsync({
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-        });
-      } catch {
-        // expo-av may not be installed yet
-      }
+        const { setAudioModeAsync } = await import("expo-audio");
+        await setAudioModeAsync({ staysActiveInBackground: true, playsInSilentModeIOS: true });
+      } catch {}
     })();
     return () => {
-      if (soundRef.current) {
-        const s = soundRef.current as { unloadAsync: () => Promise<void> };
-        s.unloadAsync().catch(() => {});
+      if (playerRef.current) {
+        const p = playerRef.current as { remove: () => void };
+        try { p.remove(); } catch {}
       }
     };
   }, []);
 
   const stop = useCallback(async () => {
     try {
-      if (soundRef.current) {
-        const s = soundRef.current as { stopAsync: () => Promise<void>; unloadAsync: () => Promise<void> };
-        await s.stopAsync();
-        await s.unloadAsync();
-        soundRef.current = null;
+      if (playerRef.current) {
+        if (Platform.OS === "web") {
+          const a = playerRef.current as HTMLAudioElement;
+          a.pause();
+        } else {
+          const p = playerRef.current as { remove: () => void };
+          p.remove();
+        }
+        playerRef.current = null;
       }
     } catch {}
     setIsPlaying(false);
@@ -77,26 +71,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       if (Platform.OS === "web") {
-        // Web audio via HTML5
         const audio = new (window as Window & typeof globalThis).Audio(streamUrl);
         (audio as HTMLAudioElement).play();
-        soundRef.current = audio;
+        playerRef.current = audio;
         setIsPlaying(true);
       } else {
-        const av = await import("expo-av");
-        const Audio = av.Audio;
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: streamUrl },
-          { shouldPlay: true, isLooping: false }
-        );
-        soundRef.current = sound;
-        sound.setOnPlaybackStatusUpdate((status: unknown) => {
-          const s = status as { isPlaying?: boolean; didJustFinish?: boolean; isLoaded?: boolean };
-          if (s.isLoaded) {
-            setIsPlaying(!!s.isPlaying);
-          }
+        const { createAudioPlayer } = await import("expo-audio");
+        const player = createAudioPlayer({ uri: streamUrl });
+        player.play();
+        playerRef.current = player;
+        player.addListener("playbackStatusUpdate", (status: unknown) => {
+          const s = status as { playing?: boolean; didJustFinish?: boolean };
+          setIsPlaying(!!s.playing);
           if (s.didJustFinish) {
-            soundRef.current = null;
+            playerRef.current = null;
             setIsPlaying(false);
           }
         });
