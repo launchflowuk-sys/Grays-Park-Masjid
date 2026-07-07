@@ -19,7 +19,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.png";
-import { useGetSettingPublic, useListServicesPublic } from "@workspace/api-client-react";
+import { useGetSettingPublic } from "@workspace/api-client-react";
+
+const SERVICE_LINKS = [
+  { href: "/jumuah", label: "Jumu'ah Prayer" },
+  { href: "/nikah", label: "Nikah Services" },
+  { href: "/funeral", label: "Funeral & Janazah" },
+  { href: "/zakat", label: "Zakat & Charity" },
+  { href: "/madrassah", label: "Madrassah" },
+  { href: "/education", label: "Adult Education" },
+  { href: "/sisters-facilities", label: "Sisters' Facilities" },
+  { href: "/youth-programmes", label: "Youth Programmes" },
+];
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
@@ -42,6 +53,7 @@ function useSetting(key: string): string | undefined {
   const { data } = useGetSettingPublic(key);
   return data?.value || undefined;
 }
+
 
 function SocialLink({ href, label, icon: Icon }: { href: string; label: string; icon: typeof Facebook }) {
   return (
@@ -67,12 +79,6 @@ export function SiteFooter() {
   const instagramUrl = useSetting("site_instagram_url");
   const youtubeUrl = useSetting("site_youtube_url");
   const whatsappUrl = useSetting("site_whatsapp_url");
-
-  const { data: servicesData } = useListServicesPublic();
-  const services = [...(servicesData ?? [])]
-    .filter((s) => s.published)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .slice(0, 8);
 
   const hasSocial = facebookUrl || instagramUrl || youtubeUrl || whatsappUrl;
 
@@ -130,24 +136,17 @@ export function SiteFooter() {
           </div>
           <div className="w-8 h-[2px] bg-secondary mb-4" />
           <div className="flex flex-col gap-2.5 text-sm text-primary-foreground/70">
-            {services.length === 0 ? (
-              <Link href="/services" className="flex items-center gap-1.5 hover:text-primary-foreground transition-colors">
+            {SERVICE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-1.5 hover:text-primary-foreground transition-colors"
+                data-testid={`link-footer-service-${link.href.replace("/", "")}`}
+              >
                 <ChevronRight className="h-3.5 w-3.5 text-secondary shrink-0" />
-                View All Services
+                {link.label}
               </Link>
-            ) : (
-              services.map((service) => (
-                <Link
-                  key={service.id}
-                  href="/services"
-                  className="flex items-center gap-1.5 hover:text-primary-foreground transition-colors"
-                  data-testid={`link-footer-service-${service.id}`}
-                >
-                  <ChevronRight className="h-3.5 w-3.5 text-secondary shrink-0" />
-                  {service.title}
-                </Link>
-              ))
-            )}
+            ))}
           </div>
         </div>
 
