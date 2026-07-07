@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { eq, and } from "drizzle-orm";
 import sanitizeHtml from "sanitize-html";
 import { db, blogPostsTable, insertBlogPostSchema } from "@workspace/db";
@@ -30,7 +30,7 @@ function sanitizeContent(html: string): string {
   });
 }
 
-function sanitizeBlogBody(req: Parameters<Parameters<typeof Router>[0]>[0], _res: Parameters<Parameters<typeof Router>[0]>[1], next: Parameters<Parameters<typeof Router>[0]>[2]) {
+function sanitizeBlogBody(req: Request, _res: Response, next: NextFunction) {
   if (req.body && typeof req.body.content === "string") {
     req.body.content = sanitizeContent(req.body.content);
   }
