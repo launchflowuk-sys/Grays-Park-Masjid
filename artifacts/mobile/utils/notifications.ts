@@ -13,10 +13,21 @@ export async function getOrCreateDeviceId(): Promise<string> {
   return id;
 }
 
+// UUID v4 pattern — Expo push token registration requires a valid project UUID.
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function requestAndRegisterPushToken(
   baseUrl: string,
   memberId?: string | null,
 ): Promise<boolean> {
+  // Skip silently when no valid EAS project ID is configured.
+  // This is expected during development before the app is registered on EAS.
+  const projectId = process.env.EXPO_PUBLIC_PROJECT_ID ?? "";
+  if (!UUID_RE.test(projectId)) {
+    return false;
+  }
+
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -28,9 +39,7 @@ export async function requestAndRegisterPushToken(
 
     if (finalStatus !== "granted") return false;
 
-    const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
-    });
+    const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
     const token = tokenData.data;
     const deviceId = await getOrCreateDeviceId();
 
