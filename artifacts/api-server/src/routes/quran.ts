@@ -129,7 +129,23 @@ router.get("/quran/featured-ayah", async (_req: Request, res: Response) => {
   );
 
   if (!active) {
-    res.status(404).json({ error: "No featured ayah configured" });
+    // Fallback: Ayat al-Kursi (2:255) — always a meaningful default
+    res.json(
+      serialize({
+        id: "default",
+        surahNumber: 2,
+        ayahNumber: 255,
+        reflectionTitle: "Ayat al-Kursi",
+        reflectionText:
+          "The Throne Verse — the greatest verse in the Qur'an. Recite it after every prayer and before sleeping.",
+        isPublished: true,
+        showOnHomepage: true,
+        startDate: null,
+        endDate: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    );
     return;
   }
 

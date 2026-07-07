@@ -56,18 +56,18 @@ const BASE_NAV_LINKS = [
 ];
 
 const COMMUNITY_LINKS = [
-  { href: "/events", label: "Events", icon: CalendarDays, desc: "What's on at the masjid" },
-  { href: "/education", label: "Education", icon: GraduationCap, desc: "Islamic classes for all ages" },
-  { href: "/announcements", label: "News", icon: Newspaper, desc: "Latest updates & notices" },
-  { href: "/blog", label: "Blog", icon: PenLine, desc: "Articles & Islamic content" },
-  { href: "/prophet", label: "Prophet Muhammad ﷺ", icon: Star, desc: "Life & legacy of the Prophet" },
-  { href: "/stories", label: "Islamic Stories", icon: BookOpen, desc: "Stories for all ages" },
-  { href: "/madrassah", label: "Madrassah", icon: BookOpenCheck, desc: "Weekend Islamic school" },
-  { href: "/sisters-facilities", label: "Sisters' Facilities", icon: HeartHandshake, desc: "Spaces for our sisters" },
-  { href: "/youth-programmes", label: "Youth Programmes", icon: Sparkles, desc: "Activities for young people" },
-  { href: "/gallery", label: "Gallery", icon: Images, desc: "Photos from our community" },
-  { href: "/volunteer", label: "Volunteer", icon: HandHeart, desc: "Give your time & skills" },
-  { href: "/join", label: "Join the Masjid", icon: UserPlus, desc: "Become a member" },
+  { href: "/events", label: "Events", icon: CalendarDays, desc: "What's on at the masjid", featured: false },
+  { href: "/education", label: "Education", icon: GraduationCap, desc: "Islamic classes for all ages", featured: false },
+  { href: "/announcements", label: "News", icon: Newspaper, desc: "Latest updates & notices", featured: false },
+  { href: "/blog", label: "Blog", icon: PenLine, desc: "Articles & Islamic content", featured: false },
+  { href: "/prophet", label: "Prophet Muhammad ﷺ", icon: Star, desc: "Life, teachings & legacy of the Prophet", featured: true },
+  { href: "/stories", label: "Islamic Stories", icon: BookOpen, desc: "Stories & wisdom for all ages", featured: false },
+  { href: "/madrassah", label: "Madrassah", icon: BookOpenCheck, desc: "Weekend Islamic school", featured: false },
+  { href: "/sisters-facilities", label: "Sisters' Facilities", icon: HeartHandshake, desc: "Spaces for our sisters", featured: false },
+  { href: "/youth-programmes", label: "Youth Programmes", icon: Sparkles, desc: "Activities for young people", featured: false },
+  { href: "/gallery", label: "Gallery", icon: Images, desc: "Photos from our community", featured: false },
+  { href: "/volunteer", label: "Volunteer", icon: HandHeart, desc: "Give your time & skills", featured: false },
+  { href: "/join", label: "Join the Masjid", icon: UserPlus, desc: "Become a member", featured: false },
 ];
 
 const SERVICES_LINKS = [
@@ -91,15 +91,15 @@ function MegaPanel({
   onNavigate,
   feature,
 }: {
-  links: { href: string; label: string; icon: import("lucide-react").LucideIcon; desc: string }[];
+  links: { href: string; label: string; icon: import("lucide-react").LucideIcon; desc: string; featured?: boolean }[];
   onNavigate?: () => void;
   feature: { title: string; desc: string; href: string; cta: string; icon: import("lucide-react").LucideIcon };
 }) {
   const FeatureIcon = feature.icon;
   return (
-    <div className="relative w-[min(92vw,44rem)] overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+    <div className="relative w-[min(92vw,48rem)] overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
       <IslamicPattern className="pointer-events-none absolute -right-6 -top-10 h-40 w-40 text-primary/[0.05]" />
-      <div className="relative grid grid-cols-1 md:grid-cols-[1.5fr_1fr]">
+      <div className="relative grid grid-cols-1 md:grid-cols-[1.6fr_1fr]">
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-4">
           {links.map((link) => {
             const Icon = link.icon;
@@ -109,14 +109,14 @@ function MegaPanel({
                   <Link
                     href={link.href}
                     onClick={onNavigate}
-                    className="group flex items-start gap-3 rounded-lg p-3 hover-elevate transition-colors"
+                    className={`group flex items-start gap-3 rounded-lg p-3 hover-elevate transition-colors ${link.featured ? "ring-1 ring-secondary/40 bg-secondary/5" : ""}`}
                     data-testid={`link-nav-${link.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-t-full rounded-b-md transition-colors ${link.featured ? "bg-secondary text-secondary-foreground group-hover:bg-secondary/80" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"}`}>
                       <Icon className="h-4 w-4" strokeWidth={1.75} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-sm font-medium leading-tight">{link.label}</span>
+                      <span className={`block text-sm leading-tight ${link.featured ? "font-bold" : "font-medium"}`}>{link.label}</span>
                       <span className="block text-xs text-muted-foreground mt-0.5 leading-snug">
                         {link.desc}
                       </span>
@@ -128,16 +128,20 @@ function MegaPanel({
           })}
         </ul>
         <div className="relative bg-primary text-primary-foreground p-6 flex flex-col justify-between overflow-hidden">
-          <IslamicStar className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 text-primary-foreground/10" />
+          <IslamicStar className="pointer-events-none absolute -bottom-4 -right-4 h-28 w-28 text-primary-foreground/10" />
+          <IslamicPattern className="pointer-events-none absolute -left-8 top-0 h-24 w-24 text-secondary/10" />
           <div className="relative">
-            <FeatureIcon className="h-6 w-6 text-secondary mb-3" strokeWidth={1.75} />
-            <p className="font-serif text-lg leading-snug mb-1.5">{feature.title}</p>
+            <div className="flex items-center gap-2 mb-3">
+              <FeatureIcon className="h-5 w-5 text-secondary" strokeWidth={1.75} />
+              <span className="text-xs uppercase tracking-[0.15em] text-secondary font-semibold">Featured</span>
+            </div>
+            <p className="font-serif text-xl leading-snug mb-2">{feature.title}</p>
             <p className="text-xs text-primary-foreground/75 leading-relaxed">{feature.desc}</p>
           </div>
-          <Link href={feature.href} onClick={onNavigate} className="relative mt-5">
+          <Link href={feature.href} onClick={onNavigate} className="relative mt-6">
             <Button
               size="sm"
-              className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5"
+              className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 font-semibold"
               data-testid={`button-mega-feature-${feature.cta.toLowerCase().replace(/\s+/g, "-")}`}
             >
               {feature.cta} <ArrowRight className="h-3.5 w-3.5" />
@@ -179,21 +183,27 @@ export function SiteHeader() {
         </Link>
         <NavigationMenu className="hidden md:flex max-w-none flex-none">
           <NavigationMenuList className="gap-1 text-sm font-medium">
-            {NAV_LINKS.map((link) => (
-              <NavigationMenuItem key={link.href}>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href={link.href}
-                    className={`inline-flex h-9 items-center rounded-md px-3 hover:text-primary hover:bg-transparent transition-colors ${
-                      location === link.href ? "text-primary" : ""
-                    }`}
-                    data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {link.label}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isQuran = link.href === "/quran";
+              return (
+                <NavigationMenuItem key={link.href}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={link.href}
+                      className={
+                        isQuran
+                          ? `inline-flex h-9 items-center gap-1.5 rounded-full px-4 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md shadow-secondary/25 border border-secondary/50 transition-all text-sm tracking-wide`
+                          : `inline-flex h-9 items-center rounded-md px-3 hover:text-primary hover:bg-transparent transition-colors text-sm ${location === link.href ? "text-primary font-semibold" : ""}`
+                      }
+                      data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {isQuran && <BookOpen className="h-3.5 w-3.5 shrink-0" />}
+                      {link.label}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              );
+            })}
             <NavigationMenuItem>
               <NavigationMenuTrigger
                 className={`h-9 bg-transparent px-3 text-sm font-medium hover:text-primary hover:bg-transparent data-[state=open]:bg-transparent data-[state=open]:text-primary ${
@@ -207,11 +217,11 @@ export function SiteHeader() {
                 <MegaPanel
                   links={COMMUNITY_LINKS}
                   feature={{
-                    title: "Join Our Community",
-                    desc: "Become a registered member of Grays Park Masjid and stay connected with everything we offer.",
-                    href: "/join",
-                    cta: "Join the Masjid",
-                    icon: UserPlus,
+                    title: "The Prophet Muhammad ﷺ",
+                    desc: "Explore the blessed life, teachings and eternal legacy of the final Messenger of Allah — our perfect guide and example.",
+                    href: "/prophet",
+                    cta: "Explore His Legacy",
+                    icon: Star,
                   }}
                 />
               </NavigationMenuContent>
@@ -312,19 +322,33 @@ export function SiteHeader() {
               </div>
               <nav className="flex flex-col px-4 py-4">
                 <div className="flex flex-col gap-1 pb-2">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className={`rounded-lg px-3 py-3 text-base font-semibold tracking-wide hover:bg-primary-foreground/10 transition-colors ${
-                        location === link.href ? "text-secondary" : ""
-                      }`}
-                      data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                  {NAV_LINKS.map((link) => {
+                    const isQuran = link.href === "/quran";
+                    return isQuran ? (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center gap-2 rounded-full mx-1 px-4 py-2.5 text-base font-bold tracking-wide bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors shadow shadow-black/20"
+                        data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                      >
+                        <BookOpen className="h-4 w-4 shrink-0" />
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className={`rounded-lg px-3 py-3 text-base font-semibold tracking-wide hover:bg-primary-foreground/10 transition-colors ${
+                          location === link.href ? "text-secondary" : ""
+                        }`}
+                        data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
                 </div>
                 <Accordion type="multiple" className="border-t border-secondary/20 mt-1">
                   <AccordionItem value="community" className="border-secondary/20">
@@ -338,12 +362,12 @@ export function SiteHeader() {
                             key={link.href}
                             href={link.href}
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-primary-foreground/10 transition-colors"
+                            className={`flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-primary-foreground/10 transition-colors ${link.featured ? "ring-1 ring-secondary/40 bg-secondary/10 rounded-xl" : ""}`}
                           >
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md bg-secondary/15 text-secondary">
+                            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-t-full rounded-b-md ${link.featured ? "bg-secondary text-secondary-foreground" : "bg-secondary/15 text-secondary"}`}>
                               <link.icon className="h-4 w-4" strokeWidth={1.75} />
                             </span>
-                            <span className="text-sm">{link.label}</span>
+                            <span className={`text-sm ${link.featured ? "font-bold" : ""}`}>{link.label}</span>
                           </Link>
                         ))}
                       </div>
