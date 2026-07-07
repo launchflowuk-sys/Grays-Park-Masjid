@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   AlertDialog,
@@ -18,6 +19,7 @@ import {
 import {
   useAdminListBlogPosts,
   useAdminDeleteBlogPost,
+  useAdminUpdateBlogPost,
   getAdminListBlogPostsQueryKey,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +43,15 @@ export default function AdminBlogPage() {
         setDeleteId(null);
       },
       onError: () => toast({ title: "Failed to delete", variant: "destructive" }),
+    },
+  });
+
+  const publishMutation = useAdminUpdateBlogPost({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListBlogPostsQueryKey() });
+      },
+      onError: () => toast({ title: "Failed to update status", variant: "destructive" }),
     },
   });
 
@@ -100,9 +111,31 @@ export default function AdminBlogPage() {
                         {BLOG_CATEGORY_LABELS[row.category as BlogCategory] ?? row.category}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={row.published ? "default" : "secondary"}>
-                          {row.published ? "Published" : "Draft"}
-                        </Badge>
+                        {canWrite ? (
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={row.published}
+                              disabled={publishMutation.isPending}
+                              onCheckedChange={(checked) =>
+                                publishMutation.mutate({
+                                  id: row.id,
+                                  data: {
+                                    published: checked,
+                                    publishedAt: checked ? (row.publishedAt ?? new Date().toISOString()) : undefined,
+                                  },
+                                })
+                              }
+                              aria-label={row.published ? "Unpublish" : "Publish"}
+                            />
+                            <span className="text-sm text-muted-foreground">
+                              {row.published ? "Published" : "Draft"}
+                            </span>
+                          </div>
+                        ) : (
+                          <Badge variant={row.published ? "default" : "secondary"}>
+                            {row.published ? "Published" : "Draft"}
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-right space-x-1">
                         {canWrite && (

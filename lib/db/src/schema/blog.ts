@@ -34,7 +34,9 @@ export const blogPostsTable = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const insertBlogPostSchema = createInsertSchema(blogPostsTable).omit({
+export const insertBlogPostSchema = createInsertSchema(blogPostsTable, {
+  category: z.enum(BLOG_CATEGORIES),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

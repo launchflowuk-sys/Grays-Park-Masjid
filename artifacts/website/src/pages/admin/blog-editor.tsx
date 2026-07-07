@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -29,6 +39,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useAdminCreateBlogPost,
   useAdminUpdateBlogPost,
+  useAdminDeleteBlogPost,
   getAdminListBlogPostsQueryKey,
   getAdminGetBlogPostQueryOptions,
 } from "@workspace/api-client-react";
@@ -36,7 +47,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUpload } from "@workspace/object-storage-web";
 import { useToast } from "@/hooks/use-toast";
 import { TiptapEditor } from "@/components/admin/tiptap-editor";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
 
@@ -65,6 +76,7 @@ function BlogEditorInner({ id }: { id?: string }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { data: existing, isLoading } = useQuery({
     ...getAdminGetBlogPostQueryOptions(id ?? ""),
@@ -161,6 +173,17 @@ function BlogEditorInner({ id }: { id?: string }) {
       createMutation.mutate({ data: payload });
     }
   }
+
+  const deleteMutation = useAdminDeleteBlogPost({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListBlogPostsQueryKey() });
+        toast({ title: "Blog post deleted" });
+        navigate("/admin/blog");
+      },
+      onError: () => toast({ title: "Failed to delete", variant: "destructive" }),
+    },
+  });
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -287,6 +310,18 @@ function BlogEditorInner({ id }: { id?: string }) {
                   >
                     {isPending ? "Saving..." : isEdit ? "Update Post" : "Create Post"}
                   </Button>
+                  {isEdit && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full text-destructive border-destructive/30 hover:bg-destructive/5"
+                      onClick={() => setDeleteOpen(true)}
+                      data-testid="button-delete-blog-post"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Post
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 
@@ -421,6 +456,27 @@ function BlogEditorInner({ id }: { id?: string }) {
           </div>
         </form>
       </Form>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the blog post. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => id && deleteMutation.mutate({ id })}
+              data-testid="button-confirm-delete-blog"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

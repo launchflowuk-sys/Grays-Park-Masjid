@@ -7,6 +7,7 @@ import { useGetBlogPostBySlug } from "@workspace/api-client-react";
 import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
 import { IslamicPattern } from "@/components/site/islamic-pattern";
+import DOMPurify from "dompurify";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -114,7 +115,7 @@ export default function BlogPostPage() {
 
         <div
           className="prose prose-lg max-w-none prose-headings:font-serif prose-a:text-primary prose-blockquote:border-primary/40 prose-blockquote:text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
       </article>
     </main>

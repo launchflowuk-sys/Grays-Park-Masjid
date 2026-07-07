@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and } from "drizzle-orm";
+import sanitizeHtml from "sanitize-html";
 import { db, blogPostsTable, insertBlogPostSchema } from "@workspace/db";
 import {
   registerAdminCreate,
@@ -9,7 +10,36 @@ import {
 } from "../lib/crud";
 import { CONTENT_WRITE, ALL_ROLES } from "../lib/roles";
 
+const ALLOWED_TAGS = [
+  "h2", "h3", "h4", "p", "br", "strong", "em", "u", "s",
+  "ul", "ol", "li", "blockquote", "pre", "code", "hr",
+  "a", "img",
+];
+
+const ALLOWED_ATTRS: sanitizeHtml.IOptions["allowedAttributes"] = {
+  a: ["href", "title", "rel", "target"],
+  img: ["src", "alt", "width", "height"],
+};
+
+function sanitizeContent(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: ALLOWED_ATTRS,
+    allowedSchemes: ["https", "http", "mailto"],
+    disallowedTagsMode: "discard",
+  });
+}
+
+function sanitizeBlogBody(req: Parameters<Parameters<typeof Router>[0]>[0], _res: Parameters<Parameters<typeof Router>[0]>[1], next: Parameters<Parameters<typeof Router>[0]>[2]) {
+  if (req.body && typeof req.body.content === "string") {
+    req.body.content = sanitizeContent(req.body.content);
+  }
+  next();
+}
+
 const router: IRouter = Router();
+
+router.use("/admin/blog-posts", sanitizeBlogBody);
 
 router.get("/blog-posts", async (req, res) => {
   const { category } = req.query;
