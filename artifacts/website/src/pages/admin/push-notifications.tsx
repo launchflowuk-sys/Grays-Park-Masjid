@@ -1,7 +1,7 @@
 import { AdminLayout } from "@/components/admin/admin-layout";
-import { useAdminDeviceTokenStats } from "@workspace/api-client-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Smartphone, Users, Wifi, Send, Bell } from "lucide-react";
+import { useAdminGetDeviceTokenStats, useAdminListPushNotificationHistory } from "@workspace/api-client-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Smartphone, Users, Wifi, Send, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -9,15 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-type BroadcastHistory = {
-  id: string;
-  title: string;
-  body: string;
-  category: string;
-  sentCount: number;
-  createdAt: string;
-};
+import { getAdminListPushNotificationHistoryQueryKey } from "@workspace/api-client-react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   announcements: "Announcement",
@@ -31,21 +23,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   blog: "bg-purple-100 text-purple-800",
 };
 
+const PAGE_SIZE = 10;
+
 export default function AdminPushNotificationsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data: stats, isLoading: statsLoading } = useAdminDeviceTokenStats();
+  const { data: stats, isLoading: statsLoading } = useAdminGetDeviceTokenStats();
 
-  const { data: history, isLoading: historyLoading } = useQuery<BroadcastHistory[]>({
-    queryKey: ["/api/admin/push-notifications/history"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/push-notifications/history", {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch history");
-      return res.json() as Promise<BroadcastHistory[]>;
-    },
-  });
+  const [page, setPage] = useState(1);
+
+  const { data: historyPage, isLoading: historyLoading } = useAdminListPushNotificationHistory(
+    { page, limit: PAGE_SIZE },
+  );
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -69,7 +58,10 @@ export default function AdminPushNotificationsPage() {
       });
       setTitle("");
       setBody("");
-      void queryClient.invalidateQueries({ queryKey: ["/api/admin/push-notifications/history"] });
+      setPage(1);
+      void queryClient.invalidateQueries({
+        queryKey: getAdminListPushNotificationHistoryQueryKey({ page: 1, limit: PAGE_SIZE }),
+      });
     },
     onError: () => {
       toast({ title: "Failed to send notification", variant: "destructive" });
@@ -77,6 +69,8 @@ export default function AdminPushNotificationsPage() {
   });
 
   const canSend = title.trim().length > 0 && body.trim().length > 0;
+  const history = historyPage?.data ?? [];
+  const hasMore = historyPage?.hasMore ?? false;
 
   return (
     <AdminLayout>
@@ -201,52 +195,80 @@ export default function AdminPushNotificationsPage() {
           <div className="flex items-center gap-2">
             <Bell className="h-4 w-4 text-gray-500" />
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-              Recent Broadcasts
+              Broadcast History
             </h3>
           </div>
 
           {historyLoading ? (
             <p className="text-sm text-gray-400">Loading…</p>
-          ) : !history || history.length === 0 ? (
+          ) : history.length === 0 ? (
             <p className="text-sm text-gray-400">No broadcasts sent yet.</p>
           ) : (
-            <div className="space-y-3">
-              {history.slice(0, 10).map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start justify-between gap-3 py-3 border-b last:border-0"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {item.title}
-                      </p>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          CATEGORY_COLORS[item.category] ?? "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {CATEGORY_LABELS[item.category] ?? item.category}
-                      </span>
+            <>
+              <div className="space-y-3">
+                {history.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-start justify-between gap-3 py-3 border-b last:border-0"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {item.title}
+                        </p>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            CATEGORY_COLORS[item.category] ?? "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {CATEGORY_LABELS[item.category] ?? item.category}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">{item.body}</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.body}</p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        {item.sentCount} device{item.sentCount !== 1 ? "s" : ""}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      {item.sentCount} device{item.sentCount !== 1 ? "s" : ""}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(item.createdAt).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
+                ))}
+              </div>
+
+              {/* Pagination controls */}
+              <div className="flex items-center justify-between pt-2">
+                <p className="text-xs text-gray-400">Page {page}</p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!hasMore}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
-              ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>

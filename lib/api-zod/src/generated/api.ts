@@ -250,6 +250,44 @@ export const AdminDeleteNotificationRecipientResponse = zod.void()
 
 
 /**
+ * @summary Get registered device token count (admin)
+ */
+export const AdminGetDeviceTokenStatsResponse = zod.object({
+  "count": zod.number()
+})
+
+
+/**
+ * @summary List past push notification broadcasts (admin)
+ */
+export const adminListPushNotificationHistoryQueryPageDefault = 1;
+
+export const adminListPushNotificationHistoryQueryLimitDefault = 20;
+export const adminListPushNotificationHistoryQueryLimitMax = 50;
+
+
+
+export const AdminListPushNotificationHistoryQueryParams = zod.object({
+  "page": zod.coerce.number().min(1).default(adminListPushNotificationHistoryQueryPageDefault),
+  "limit": zod.coerce.number().min(1).max(adminListPushNotificationHistoryQueryLimitMax).default(adminListPushNotificationHistoryQueryLimitDefault)
+})
+
+export const AdminListPushNotificationHistoryResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "body": zod.string(),
+  "category": zod.string(),
+  "sentCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "page": zod.number(),
+  "limit": zod.number(),
+  "hasMore": zod.boolean()
+})
+
+
+/**
  * @summary List published prayer times
  */
 export const ListPrayerTimesPublicResponseItem = zod.object({

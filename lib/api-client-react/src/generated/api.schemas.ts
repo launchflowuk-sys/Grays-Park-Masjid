@@ -1036,22 +1036,23 @@ export interface QuranTranslation {
 }
 
 export interface QuranChapter {
-  id: number;
-  name_simple: string;
-  name_arabic: string;
-  verses_count: number;
-  translated_name?: { name: string };
-  revelation_place?: string;
+  number: number;
+  name: string;
+  englishName: string;
+  englishNameTranslation: string;
+  numberOfAyahs: number;
+  revelationType: string;
 }
 
 export interface QuranVerse {
-  id: string;
-  verse_key: string;
-  verse_number: number;
-  text_uthmani: string;
-  translations: Array<{ text: string; resource_id: number; resource_name?: string }>;
+  surahNumber: number;
+  ayahNumber: number;
+  numberInSurah: number;
+  arabic: string;
+  translation: string;
+  translationSource: string;
   /** @nullable */
-  audio: { url: string } | null;
+  audioUrl: string | null;
 }
 
 export interface QuranSearchResult {
@@ -1143,6 +1144,38 @@ export interface PatchQuranReflection {
   status?: string;
   showPublicly?: boolean;
 }
+
+export interface DeviceTokenStats {
+  count: number;
+}
+
+export interface NotificationBroadcast {
+  id: string;
+  title: string;
+  body: string;
+  category: string;
+  sentCount: number;
+  createdAt: string;
+}
+
+export interface NotificationBroadcastHistory {
+  data: NotificationBroadcast[];
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export type AdminListPushNotificationHistoryParams = {
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+};
 
 export type AdminListDonationTransactionsParams = {
 campaignId?: string;

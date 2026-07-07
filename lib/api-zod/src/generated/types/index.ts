@@ -7,6 +7,7 @@
  */
 
 export * from './adminListDonationTransactionsParams';
+export * from './adminListPushNotificationHistoryParams';
 export * from './adminRole';
 export * from './adminUser';
 export * from './announcement';
@@ -16,6 +17,7 @@ export * from './course';
 export * from './courseRegistration';
 export * from './createAdminUserInput';
 export * from './createNotificationRecipientInput';
+export * from './deviceTokenStats';
 export * from './donationCampaign';
 export * from './donationTransaction';
 export * from './donationTransactionStatus';
@@ -56,6 +58,8 @@ export * from './loginInput';
 export * from './member';
 export * from './memberStatusLookup';
 export * from './newsPost';
+export * from './notificationBroadcast';
+export * from './notificationBroadcastHistory';
 export * from './notificationModule';
 export * from './notificationRecipient';
 export * from './patchAdminUserInput';

@@ -21,6 +21,7 @@ import type {
 
 import type {
   AdminListDonationTransactionsParams,
+  AdminListPushNotificationHistoryParams,
   AdminUser,
   Announcement,
   BlogPost,
@@ -29,6 +30,7 @@ import type {
   CourseRegistration,
   CreateAdminUserInput,
   CreateNotificationRecipientInput,
+  DeviceTokenStats,
   DonationCampaign,
   DonationTransaction,
   Enquiry,
@@ -68,6 +70,7 @@ import type {
   Member,
   MemberStatusLookup,
   NewsPost,
+  NotificationBroadcastHistory,
   NotificationRecipient,
   PatchAdminUserInput,
   PatchAnnouncement,
@@ -1151,6 +1154,167 @@ export const useAdminDeleteNotificationRecipient = <TError = ErrorType<ErrorResp
       > => {
       return useMutation(getAdminDeleteNotificationRecipientMutationOptions(options));
     }
+
+export const getAdminGetDeviceTokenStatsUrl = () => {
+
+
+
+
+  return `/api/admin/device-tokens/stats`
+}
+
+/**
+ * @summary Get registered device token count (admin)
+ */
+export const adminGetDeviceTokenStats = async ( options?: RequestInit): Promise<DeviceTokenStats> => {
+
+  return customFetch<DeviceTokenStats>(getAdminGetDeviceTokenStatsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetDeviceTokenStatsQueryKey = () => {
+    return [
+    `/api/admin/device-tokens/stats`
+    ] as const;
+    }
+
+
+export const getAdminGetDeviceTokenStatsQueryOptions = <TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetDeviceTokenStatsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>> = ({ signal }) => adminGetDeviceTokenStats({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetDeviceTokenStatsQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>>
+export type AdminGetDeviceTokenStatsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get registered device token count (admin)
+ */
+
+export function useAdminGetDeviceTokenStats<TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetDeviceTokenStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminListPushNotificationHistoryUrl = (params?: AdminListPushNotificationHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/push-notifications/history?${stringifiedParams}` : `/api/admin/push-notifications/history`
+}
+
+/**
+ * @summary List past push notification broadcasts (admin)
+ */
+export const adminListPushNotificationHistory = async (params?: AdminListPushNotificationHistoryParams, options?: RequestInit): Promise<NotificationBroadcastHistory> => {
+
+  return customFetch<NotificationBroadcastHistory>(getAdminListPushNotificationHistoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListPushNotificationHistoryQueryKey = (params?: AdminListPushNotificationHistoryParams,) => {
+    return [
+    `/api/admin/push-notifications/history`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListPushNotificationHistoryQueryOptions = <TData = Awaited<ReturnType<typeof adminListPushNotificationHistory>>, TError = ErrorType<ErrorResponse>>(params?: AdminListPushNotificationHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListPushNotificationHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListPushNotificationHistoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListPushNotificationHistory>>> = ({ signal }) => adminListPushNotificationHistory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListPushNotificationHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListPushNotificationHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof adminListPushNotificationHistory>>>
+export type AdminListPushNotificationHistoryQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List past push notification broadcasts (admin)
+ */
+
+export function useAdminListPushNotificationHistory<TData = Awaited<ReturnType<typeof adminListPushNotificationHistory>>, TError = ErrorType<ErrorResponse>>(
+ params?: AdminListPushNotificationHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListPushNotificationHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListPushNotificationHistoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListPrayerTimesPublicUrl = () => {
 
@@ -10881,99 +11045,3 @@ export const useAdminDeleteQuranReflection = <TError = ErrorType<ErrorResponse>,
       return useMutation(getAdminDeleteQuranReflectionMutationOptions(options));
     }
 
-
-
-// ─── Device Tokens ────────────────────────────────────────────────────────────
-
-export type RegisterDeviceTokenBody = {
-  deviceId: string;
-  token: string;
-  platform?: string;
-};
-
-export type PatchDeviceTokenBody = {
-  token?: string;
-  categories?: {
-    announcements?: boolean;
-    events?: boolean;
-    blog?: boolean;
-  };
-};
-
-export type DeviceTokenStatsResponse = { count: number };
-
-export const registerDeviceToken = (
-  body: RegisterDeviceTokenBody,
-  options?: SecondParameter<typeof customFetch>,
-) =>
-  customFetch<void>(`/api/device-tokens`, {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(body),
-  });
-
-export const patchDeviceTokenCategories = (
-  deviceId: string,
-  body: PatchDeviceTokenBody,
-  options?: SecondParameter<typeof customFetch>,
-) =>
-  customFetch<void>(`/api/device-tokens/${deviceId}`, {
-    ...options,
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(body),
-  });
-
-export const deleteDeviceToken = (
-  deviceId: string,
-  options?: SecondParameter<typeof customFetch>,
-) =>
-  customFetch<void>(`/api/device-tokens/${deviceId}`, { ...options, method: "DELETE" });
-
-export const adminGetDeviceTokenStats = (
-  options?: SecondParameter<typeof customFetch>,
-) =>
-  customFetch<DeviceTokenStatsResponse>(`/api/admin/device-tokens/stats`, {
-    ...options,
-    method: "GET",
-  });
-
-export const getAdminDeviceTokenStatsQueryKey = () =>
-  [`/api/admin/device-tokens/stats`] as const;
-
-export const getAdminDeviceTokenStatsQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
-  TError = ErrorType<ErrorResponse>,
->(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getAdminDeviceTokenStatsQueryKey();
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>> = () =>
-    adminGetDeviceTokenStats(requestOptions);
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
-    TError,
-    TData
-  >;
-};
-
-export type AdminDeviceTokenStatsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof adminGetDeviceTokenStats>>
->;
-export type AdminDeviceTokenStatsQueryError = ErrorType<ErrorResponse>;
-
-export function useAdminDeviceTokenStats<
-  TData = Awaited<ReturnType<typeof adminGetDeviceTokenStats>>,
-  TError = ErrorType<ErrorResponse>,
->(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof adminGetDeviceTokenStats>>, TError, TData>;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getAdminDeviceTokenStatsQueryOptions(options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
-  query.queryKey = queryOptions.queryKey;
-  return query;
-}
