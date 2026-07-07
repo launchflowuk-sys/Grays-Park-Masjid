@@ -151,15 +151,14 @@ export default function PrayerTimesScreen() {
       .slice(0, 7);
   }, [allPrayerTimes, today]);
 
-  // Countdown timer
+  // Countdown timer — always ticking, wraps to tomorrow's Fajr after Isha
   useEffect(() => {
     if (!nextInfo) return;
-    const timer = setInterval(() => {
-      setCountdown(getCountdownToTime(nextInfo.prayer.adhan));
-    }, 1000);
-    setCountdown(getCountdownToTime(nextInfo.prayer.adhan));
+    const tick = () => setCountdown(getCountdownToTime(nextInfo.prayer.adhan, nextInfo.isTomorrow));
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [nextInfo?.prayer.adhan]);
+  }, [nextInfo?.prayer.adhan, nextInfo?.isTomorrow]);
 
   // Pulse animation for next-prayer card
   useEffect(() => {
@@ -501,7 +500,9 @@ export default function PrayerTimesScreen() {
               { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] },
             ]}
           >
-            <Text style={[styles.nextLabel, { color: colors.accent }]}>Next Prayer</Text>
+            <Text style={[styles.nextLabel, { color: colors.accent }]}>
+              {nextInfo.isTomorrow ? "Tomorrow · First Prayer" : "Next Prayer"}
+            </Text>
             <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
               {nextInfo.prayer.name}
             </Text>
@@ -512,14 +513,6 @@ export default function PrayerTimesScreen() {
               {formatTime12(nextInfo.prayer.adhan)}
             </Text>
           </Animated.View>
-        )}
-        {viewMode === "today" && !nextInfo && !isLoading && prayers.length > 0 && (
-          <View style={[styles.nextPrayerCard, { backgroundColor: colors.secondary }]}>
-            <Text style={[styles.nextLabel, { color: colors.accent }]}>All prayers complete</Text>
-            <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
-              Alhamdulillah
-            </Text>
-          </View>
         )}
 
         {/* Live Radio bar */}
