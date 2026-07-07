@@ -21,8 +21,8 @@ type EventItem = {
   id: string;
   title: string;
   description?: string | null;
-  startDate: string;
-  endDate?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
   location?: string | null;
   imageUrl?: string | null;
 };
@@ -48,11 +48,11 @@ export default function EventsScreen() {
   const { data: events, isLoading, isError, refetch } = useListEventsPublic();
 
   const upcoming = [...((events ?? []) as EventItem[])]
-    .filter((e) => new Date(e.endDate ?? e.startDate) >= new Date())
-    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    .filter((e) => new Date(e.endsAt ?? e.startsAt) >= new Date())
+    .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
 
   const renderEvent = ({ item, index }: { item: EventItem; index: number }) => {
-    const startDate = new Date(item.startDate);
+    const startDate = new Date(item.startsAt);
     const day = startDate.getDate().toString();
     const month = startDate.toLocaleString("en-GB", { month: "short" }).toUpperCase();
     const isFeatured = index === 0;
@@ -91,7 +91,7 @@ export default function EventsScreen() {
                 {item.title}
               </Text>
               <Text style={[styles.eventDate, { color: colors.mutedForeground }]} numberOfLines={1}>
-                {formatDateRange(item.startDate, item.endDate)}
+                {formatDateRange(item.startsAt, item.endsAt)}
               </Text>
               {item.location && (
                 <View style={styles.locationRow}>

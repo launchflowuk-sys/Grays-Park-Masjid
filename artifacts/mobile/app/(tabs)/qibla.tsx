@@ -91,7 +91,7 @@ export default function QiblaScreen() {
   async function startQibla() {
     setState({ status: "loading" });
     try {
-      let lat: number, lng: number;
+      let lat = 0, lng = 0;
       if (Platform.OS === "web") {
         await new Promise<void>((resolve, reject) => {
           if (!navigator.geolocation) {

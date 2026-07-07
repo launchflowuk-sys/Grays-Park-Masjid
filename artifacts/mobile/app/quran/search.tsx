@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useSearchQuran } from "@workspace/api-client-react";
+import { useSearchQuran, getSearchQuranQueryKey } from "@workspace/api-client-react";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -36,8 +36,13 @@ export default function QuranSearchScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data, isLoading } = useSearchQuran(
-    { query: submitted, page: 1 } as Record<string, unknown>,
-    { query: { enabled: submitted.length >= 2 } }
+    { q: submitted } as Record<string, unknown>,
+    {
+      query: {
+        enabled: submitted.length >= 2,
+        queryKey: getSearchQuranQueryKey({ q: submitted }),
+      },
+    }
   );
 
   const results: SearchResult[] = (data as { results?: SearchResult[] } | undefined)?.results ?? [];

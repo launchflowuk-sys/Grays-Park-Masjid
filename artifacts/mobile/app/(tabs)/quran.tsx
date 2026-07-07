@@ -54,34 +54,59 @@ export default function QuranScreen() {
     { key: "madinah", label: "Medinan", icon: "water-outline", activeColor: "#1B5E20" },
   ];
 
-  const renderItem = ({ item }: { item: (typeof filtered)[number] }) => (
-    <Pressable
-      style={({ pressed }) => [
-        styles.surahRow,
-        { backgroundColor: pressed ? colors.muted : colors.card },
-      ]}
-      onPress={() => router.push(`/quran/${item.id}`)}
-      testID={`surah-${item.id}`}
-    >
-      <View style={[styles.numberBadge, { backgroundColor: colors.primary + "15", borderColor: colors.primary + "30" }]}>
-        <Text style={[styles.numberText, { color: colors.primary }]}>{item.id}</Text>
-      </View>
-      <View style={styles.surahInfo}>
-        <Text style={[styles.surahName, { color: colors.foreground }]} numberOfLines={1}>
-          {item.name_simple}
+  const renderItem = ({ item }: { item: (typeof filtered)[number] }) => {
+    const isMakkah = item.revelation_place === "makkah";
+    const accentColor = isMakkah ? colors.accent : colors.secondary;
+    return (
+      <Pressable
+        style={({ pressed }) => [
+          styles.card,
+          {
+            backgroundColor: pressed ? colors.muted : colors.card,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.07,
+            shadowRadius: 4,
+            elevation: 2,
+          },
+        ]}
+        onPress={() => router.push(`/quran/${item.id}`)}
+        testID={`surah-${item.id}`}
+      >
+        <View style={[styles.accentStrip, { backgroundColor: accentColor }]} />
+
+        <View style={styles.diamondWrap}>
+          <View style={[styles.diamond, { backgroundColor: accentColor + "18", borderColor: accentColor + "45" }]}>
+            <Text style={[styles.diamondNum, { color: accentColor, fontFamily: "PlayfairDisplay_700Bold" }]}>
+              {item.id}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.cardBody}>
+          <Text style={[styles.cardName, { color: colors.foreground, fontFamily: "PlayfairDisplay_700Bold" }]} numberOfLines={1}>
+            {item.name_simple}
+          </Text>
+          <Text style={[styles.cardMeaning, { color: colors.mutedForeground }]} numberOfLines={1}>
+            {item.translated_name?.name ?? ""}
+          </Text>
+          <View style={styles.metaRow}>
+            <Text style={[styles.metaRev, { color: accentColor }]}>
+              {isMakkah ? "Meccan" : "Medinan"}
+            </Text>
+            <View style={[styles.metaDot, { backgroundColor: colors.border }]} />
+            <Text style={[styles.metaVerses, { color: colors.mutedForeground }]}>
+              {item.verses_count} verses
+            </Text>
+          </View>
+        </View>
+
+        <Text style={[styles.arabicName, { color: colors.primary, fontFamily: "PlayfairDisplay_700Bold" }]}>
+          {item.name_arabic}
         </Text>
-        <Text style={[styles.surahSub, { color: colors.mutedForeground }]} numberOfLines={1}>
-          {item.translated_name?.name ?? ""} · {item.verses_count} verses
-        </Text>
-      </View>
-      <View style={styles.arabicCol}>
-        <Text style={[styles.arabicName, { color: colors.primary }]}>{item.name_arabic}</Text>
-        <Text style={[styles.revBadge, { color: item.revelation_place === "makkah" ? colors.accent : colors.mutedForeground }]}>
-          {item.revelation_place === "makkah" ? "Meccan" : item.revelation_place === "madinah" ? "Medinan" : ""}
-        </Text>
-      </View>
-    </Pressable>
-  );
+      </Pressable>
+    );
+  };
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
@@ -184,9 +209,6 @@ export default function QuranScreen() {
               </Text>
             </View>
           }
-          ItemSeparatorComponent={() => (
-            <View style={[styles.separator, { backgroundColor: colors.border }]} />
-          )}
         />
       )}
     </View>
@@ -224,30 +246,59 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   filterChipText: { fontSize: 13, fontWeight: "700" },
-  surahRow: {
+  card: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    marginHorizontal: 12,
+    marginVertical: 4,
+    borderRadius: 12,
+    overflow: "hidden",
+    paddingVertical: 18,
+    paddingLeft: 22,
+    paddingRight: 14,
     gap: 12,
   },
-  numberBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 8,
-    borderWidth: 1,
+  accentStrip: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+  },
+  diamondWrap: {
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  numberText: { fontSize: 14, fontWeight: "700" },
-  surahInfo: { flex: 1 },
-  surahName: { fontSize: 16, fontWeight: "600" },
-  surahSub: { fontSize: 12, marginTop: 2 },
-  arabicCol: { alignItems: "flex-end" },
-  arabicName: { fontSize: 20 },
-  revBadge: { fontSize: 11, marginTop: 2 },
-  separator: { height: 1, marginHorizontal: 16 },
-  listContent: { paddingTop: 0 },
+  diamond: {
+    width: 36,
+    height: 36,
+    borderRadius: 4,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ rotate: "45deg" }],
+  },
+  diamondNum: {
+    fontSize: 13,
+    fontWeight: "700",
+    transform: [{ rotate: "-45deg" }],
+  },
+  cardBody: { flex: 1 },
+  cardName: { fontSize: 17, fontWeight: "700" },
+  cardMeaning: { fontSize: 12, marginTop: 2 },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 7,
+    gap: 6,
+  },
+  metaRev: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
+  metaDot: { width: 3, height: 3, borderRadius: 1.5 },
+  metaVerses: { fontSize: 11 },
+  arabicName: { fontSize: 24, textAlign: "right" },
+  listContent: { paddingTop: 8, paddingBottom: 0 },
   loadingText: { fontSize: 15, marginTop: 8 },
   errorText: { fontSize: 15 },
   emptyText: { fontSize: 15 },
