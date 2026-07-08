@@ -108,6 +108,16 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
     multiline: true,
   },
   {
+    key: "adhan_audio_url",
+    label: "Adhan Audio URL (General)",
+    description: "URL to an MP3 file played as the adhan in the app for all prayers except Fajr.",
+  },
+  {
+    key: "adhan_fajr_audio_url",
+    label: "Adhan Audio URL (Fajr)",
+    description: "URL to an MP3 file played as the Fajr adhan (usually a different recitation). Falls back to the general adhan if not set.",
+  },
+  {
     key: "ramadan_start_date",
     label: "Ramadan Start Date",
     description: "First day of Ramadan (YYYY-MM-DD). Used to send Suhoor/Iftar notifications at Fajr and Maghrib times.",

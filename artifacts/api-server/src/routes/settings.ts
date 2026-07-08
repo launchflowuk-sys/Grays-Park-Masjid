@@ -37,6 +37,8 @@ const PUBLIC_SETTING_KEYS = new Set([
   "eid_al_fitr_times",
   "eid_al_adha_date",
   "eid_al_adha_times",
+  "adhan_audio_url",
+  "adhan_fajr_audio_url",
 ]);
 
 function serializeSetting(row: typeof siteSettingsTable.$inferSelect) {
