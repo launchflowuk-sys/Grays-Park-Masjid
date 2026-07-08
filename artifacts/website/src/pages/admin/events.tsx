@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -79,26 +80,34 @@ function EventDialog({
   const queryClient = useQueryClient();
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
-    defaultValues: editing
-      ? {
-          title: editing.title,
-          description: editing.description,
-          location: editing.location ?? "",
-          imageUrl: editing.imageUrl ?? "",
-          startsAt: toLocalInput(editing.startsAt),
-          endsAt: toLocalInput(editing.endsAt),
-          published: editing.published,
-        }
-      : {
-          title: "",
-          description: "",
-          location: "",
-          imageUrl: "",
-          startsAt: "",
-          endsAt: "",
-          published: true,
-        },
+    defaultValues: {
+      title: "",
+      description: "",
+      location: "",
+      imageUrl: "",
+      startsAt: "",
+      endsAt: "",
+      published: true,
+    },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(
+        editing
+          ? {
+              title: editing.title,
+              description: editing.description,
+              location: editing.location ?? "",
+              imageUrl: editing.imageUrl ?? "",
+              startsAt: toLocalInput(editing.startsAt),
+              endsAt: toLocalInput(editing.endsAt),
+              published: editing.published,
+            }
+          : { title: "", description: "", location: "", imageUrl: "", startsAt: "", endsAt: "", published: true },
+      );
+    }
+  }, [open, editing]);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getAdminListEventsQueryKey() });
 
@@ -196,9 +205,14 @@ function EventDialog({
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormLabel>Event Image (optional)</FormLabel>
                   <FormControl>
-                    <Input data-testid="input-event-image" {...field} />
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      aspectHint="Recommended: 1200 × 630 px (16:9 landscape)"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

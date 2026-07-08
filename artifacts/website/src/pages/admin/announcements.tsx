@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -70,16 +71,24 @@ function AnnouncementDialog({
   const queryClient = useQueryClient();
   const form = useForm<AnnouncementForm>({
     resolver: zodResolver(announcementSchema),
-    defaultValues: editing
-      ? {
-          title: editing.title,
-          body: editing.body,
-          imageUrl: editing.imageUrl ?? "",
-          pinned: editing.pinned,
-          published: editing.published,
-        }
-      : { title: "", body: "", imageUrl: "", pinned: false, published: true },
+    defaultValues: { title: "", body: "", imageUrl: "", pinned: false, published: true },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(
+        editing
+          ? {
+              title: editing.title,
+              body: editing.body,
+              imageUrl: editing.imageUrl ?? "",
+              pinned: editing.pinned,
+              published: editing.published,
+            }
+          : { title: "", body: "", imageUrl: "", pinned: false, published: true },
+      );
+    }
+  }, [open, editing]);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getAdminListAnnouncementsQueryKey() });
 
@@ -160,9 +169,14 @@ function AnnouncementDialog({
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormLabel>Announcement Image (optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="/uploads/announcement.jpg" data-testid="input-announcement-image" {...field} />
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      aspectHint="Recommended: 800 × 450 px (16:9)"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

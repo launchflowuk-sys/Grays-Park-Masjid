@@ -44,10 +44,10 @@ import {
   getAdminGetBlogPostQueryOptions,
 } from "@workspace/api-client-react";
 import { useQuery } from "@tanstack/react-query";
-import { useUpload } from "@workspace/object-storage-web";
 import { useToast } from "@/hooks/use-toast";
 import { TiptapEditor } from "@/components/admin/tiptap-editor";
-import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
 
@@ -111,15 +111,6 @@ function BlogEditorInner({ id }: { id?: string }) {
       });
     }
   }, [existing, form]);
-
-  const { uploadFile, isUploading } = useUpload({
-    onSuccess: (res) => {
-      const publicUrl = `/api/storage/objects/${res.objectPath}`;
-      form.setValue("featureImageUrl", publicUrl);
-      toast({ title: "Image uploaded" });
-    },
-    onError: () => toast({ title: "Image upload failed", variant: "destructive" }),
-  });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getAdminListBlogPostsQueryKey() });
 
@@ -390,63 +381,20 @@ function BlogEditorInner({ id }: { id?: string }) {
                   <CardTitle className="text-sm font-medium">Feature Image</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {form.watch("featureImageUrl") && (
-                    <div className="relative">
-                      <img
-                        src={form.watch("featureImageUrl")}
-                        alt="Feature"
-                        className="w-full aspect-video object-cover rounded-md"
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="secondary"
-                        className="absolute top-2 right-2 h-6 w-6"
-                        onClick={() => form.setValue("featureImageUrl", "")}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                  <label className="block">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      disabled={isUploading}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) uploadFile(file);
-                        e.target.value = "";
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full pointer-events-none"
-                      disabled={isUploading}
-                      asChild
-                    >
-                      <span>
-                        <Upload className="h-4 w-4 mr-2" />
-                        {isUploading ? "Uploading..." : "Upload Image"}
-                      </span>
-                    </Button>
-                  </label>
-
                   <FormField
                     control={form.control}
                     name="featureImageUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs text-muted-foreground">or paste URL</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="https://..."
-                            className="text-xs"
-                            {...field}
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            aspectHint="Recommended: 1200 × 630 px (16:9 landscape)"
+                            disabled={isPending}
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
