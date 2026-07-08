@@ -3,16 +3,8 @@ import { useState, useEffect } from "react";
 const MASJID_LAT = 51.4762;
 const MASJID_LNG = 0.3247;
 
-/** Precise 20-mile radius used for final GPS confirmation. */
+/** 20 miles — the required locality radius for both IP pre-check and GPS confirmation. */
 const LOCAL_RADIUS_KM = 32.187;
-
-/**
- * Coarse threshold for the IP pre-check. IP geolocation is less accurate
- * than GPS, so we use a wider margin (100 km). Anyone IP-geolocated within
- * 100 km of Grays Park is assumed local and never shown a browser prompt.
- * Only visitors IP-geolocated beyond 100 km proceed to the GPS step.
- */
-const IP_LOCAL_THRESHOLD_KM = 100;
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
@@ -27,18 +19,18 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
 }
 
 export type LocationStatus =
-  | "idle"       // initial — IP check not yet complete
-  | "detecting"  // GPS permission requested, awaiting user
-  | "local"      // confirmed within LOCAL_RADIUS_KM
-  | "remote"     // confirmed beyond LOCAL_RADIUS_KM
-  | "denied"     // GPS permission denied (after IP said remote)
-  | "unavailable"; // geolocation API unavailable or IP lookup failed
+  | "idle"        // initial — IP check not yet complete
+  | "detecting"   // GPS permission requested, awaiting user
+  | "local"       // confirmed within 20 miles
+  | "remote"      // confirmed beyond 20 miles
+  | "denied"      // GPS permission denied
+  | "unavailable"; // Geolocation API not present
 
 export type VisitorLocation = {
   status: LocationStatus;
   coords: GeolocationCoordinates | null;
   /** True unless we have a confirmed remote GPS fix.
-   *  Defaults to true so the masjid card is always the safe fallback. */
+   *  Defaults true so the masjid card is the safe fallback. */
   isLocal: boolean;
 };
 
@@ -49,41 +41,50 @@ export function useVisitorLocation(): VisitorLocation {
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    // Abort the IP lookup after 4 seconds so it never blocks the page.
+    // Abort the IP lookup after 4 s so it never meaningfully delays the page.
     const ipTimeout = setTimeout(() => controller.abort(), 4000);
 
     async function run() {
-      // ── Stage 1: coarse IP geolocation (no user permission required) ──
+      // ── Stage 1: silent IP geolocation (no browser permission required) ──
+      // Uses the same 20-mile threshold as GPS.
+      // - IP confirms local (≤ 32 km)  → mark local, skip GPS entirely (no prompt).
+      // - IP says remote or fails       → proceed to GPS for a precise reading.
+      let ipConfirmedLocal = false;
+
       try {
         const res = await fetch("https://ipapi.co/json/", {
           signal: controller.signal,
         });
-        if (!res.ok) throw new Error("ip-lookup-not-ok");
+        if (res.ok) {
+          const data = (await res.json()) as {
+            latitude?: unknown;
+            longitude?: unknown;
+          };
+          const ipLat =
+            typeof data.latitude === "number" ? data.latitude : null;
+          const ipLng =
+            typeof data.longitude === "number" ? data.longitude : null;
 
-        const data = (await res.json()) as { latitude?: unknown; longitude?: unknown };
-        const ipLat = typeof data.latitude === "number" ? data.latitude : null;
-        const ipLng = typeof data.longitude === "number" ? data.longitude : null;
-
-        if (ipLat === null || ipLng === null) throw new Error("ip-no-coords");
-
-        const distKm = haversineKm(MASJID_LAT, MASJID_LNG, ipLat, ipLng);
-
-        if (distKm <= IP_LOCAL_THRESHOLD_KM) {
-          // Within 100 km by IP — treat as local; no browser GPS prompt.
-          if (!cancelled) setStatus("local");
-          return;
+          if (ipLat !== null && ipLng !== null) {
+            const distKm = haversineKm(MASJID_LAT, MASJID_LNG, ipLat, ipLng);
+            if (distKm <= LOCAL_RADIUS_KM) {
+              ipConfirmedLocal = true;
+            }
+          }
         }
-        // Beyond 100 km — proceed to GPS for precise confirmation.
       } catch {
-        // IP lookup failed, timed out, or was aborted.
-        // Stay as "unavailable" (isLocal = true) — show masjid card safely.
-        if (!cancelled) setStatus("unavailable");
-        return;
+        // IP lookup failed or timed out — proceed to GPS anyway.
       } finally {
         clearTimeout(ipTimeout);
       }
 
-      // ── Stage 2: precise browser GPS (only for likely-remote visitors) ──
+      if (ipConfirmedLocal) {
+        // No GPS prompt needed — user is demonstrably local.
+        if (!cancelled) setStatus("local");
+        return;
+      }
+
+      // ── Stage 2: browser GPS (for IP-remote or IP-failed visitors) ──
       if (cancelled) return;
 
       if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -116,6 +117,8 @@ export function useVisitorLocation(): VisitorLocation {
     };
   }, []);
 
+  // isLocal is true for every state except a confirmed remote GPS fix.
+  // This ensures the masjid card is always the safe default.
   const isLocal = status !== "remote";
 
   return { status, coords, isLocal };
