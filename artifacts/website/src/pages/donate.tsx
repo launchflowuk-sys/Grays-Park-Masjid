@@ -1,12 +1,20 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   useListDonationCampaignsPublic,
   type DonationCampaign,
 } from "@workspace/api-client-react";
+import { DonationWidget } from "@/components/donations/donation-widget";
 import { HandHeart, ArrowRight } from "lucide-react";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 
@@ -15,13 +23,18 @@ function formatCurrency(value: string | null | undefined) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(num);
 }
 
-function CampaignCard({ campaign }: { campaign: DonationCampaign }) {
+function CampaignCard({
+  campaign,
+  onDonateWithoutSlug,
+}: {
+  campaign: DonationCampaign;
+  onDonateWithoutSlug: (c: DonationCampaign) => void;
+}) {
   const target = campaign.targetAmount ? Number(campaign.targetAmount) : null;
   const raised = Number(campaign.raisedAmount);
   const pct = target && target > 0 ? Math.min(100, Math.round((raised / target) * 100)) : null;
-  const href = campaign.slug ? `/donate/${campaign.slug}` : null;
 
-  const content = (
+  const inner = (
     <div
       data-testid={`card-campaign-${campaign.id}`}
       className="relative overflow-hidden rounded-2xl border border-card-border bg-card transition-shadow hover:shadow-md group"
@@ -56,7 +69,7 @@ function CampaignCard({ campaign }: { campaign: DonationCampaign }) {
           )}
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-secondary text-secondary-foreground font-semibold text-sm transition-colors group-hover:bg-secondary/90">
-              {href ? (
+              {campaign.slug ? (
                 <>Learn more & Donate <ArrowRight className="h-4 w-4" /></>
               ) : (
                 "Donate to this campaign"
@@ -68,15 +81,24 @@ function CampaignCard({ campaign }: { campaign: DonationCampaign }) {
     </div>
   );
 
-  if (href) {
+  if (campaign.slug) {
     return (
-      <Link href={href} data-testid={`button-donate-${campaign.id}`}>
-        {content}
+      <Link href={`/donate/${campaign.slug}`} data-testid={`button-donate-${campaign.id}`}>
+        {inner}
       </Link>
     );
   }
 
-  return content;
+  return (
+    <button
+      type="button"
+      className="block w-full text-left"
+      onClick={() => onDonateWithoutSlug(campaign)}
+      data-testid={`button-donate-${campaign.id}`}
+    >
+      {inner}
+    </button>
+  );
 }
 
 export default function DonatePage() {
@@ -84,6 +106,8 @@ export default function DonatePage() {
   const active = (data ?? []).filter((c) => c.active);
   const featured = active.filter((c) => c.featured);
   const others = active.filter((c) => !c.featured);
+
+  const [inlineDialogCampaign, setInlineDialogCampaign] = useState<DonationCampaign | null>(null);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -123,7 +147,11 @@ export default function DonatePage() {
           ) : (
             <div className="space-y-6">
               {[...featured, ...others].map((campaign) => (
-                <CampaignCard key={campaign.id} campaign={campaign} />
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  onDonateWithoutSlug={setInlineDialogCampaign}
+                />
               ))}
             </div>
           )}
@@ -143,6 +171,21 @@ export default function DonatePage() {
 
       </main>
       <SiteFooter />
+
+      {/* Fallback inline donation dialog for campaigns without a slug */}
+      <Dialog
+        open={!!inlineDialogCampaign}
+        onOpenChange={(open) => !open && setInlineDialogCampaign(null)}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-serif">{inlineDialogCampaign?.title}</DialogTitle>
+          </DialogHeader>
+          {inlineDialogCampaign && (
+            <DonationWidget campaign={inlineDialogCampaign} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

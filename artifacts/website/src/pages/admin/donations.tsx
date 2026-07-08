@@ -59,22 +59,31 @@ function toSlug(title: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-const campaignSchema = z.object({
-  slug: z.string().optional(),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Short description is required"),
-  longDescription: z.string().optional(),
-  imageUrl: z.string().optional(),
-  galleryImages: z.array(z.string()).optional(),
-  targetAmount: z.string().optional(),
-  raisedAmount: z.string().min(1, "Required"),
-  presetAmounts: z.array(z.number()).optional(),
-  externalDonationUrl: z.string().optional(),
-  allowOneTime: z.boolean(),
-  allowMonthly: z.boolean(),
-  active: z.boolean(),
-  featured: z.boolean(),
-});
+const campaignSchema = z
+  .object({
+    slug: z.string().optional(),
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Short description is required"),
+    longDescription: z.string().optional(),
+    imageUrl: z.string().optional(),
+    galleryImages: z.array(z.string()).optional(),
+    targetAmount: z.string().optional(),
+    raisedAmount: z.string().min(1, "Required"),
+    presetAmounts: z.array(z.number()).optional(),
+    externalDonationUrl: z.string().optional(),
+    allowOneTime: z.boolean(),
+    allowMonthly: z.boolean(),
+    active: z.boolean(),
+    featured: z.boolean(),
+  })
+  .refine(
+    (data) => !data.active || (data.slug && data.slug.trim().length > 0),
+    {
+      message: "A URL slug is required for active campaigns so donors can access the campaign page.",
+      path: ["slug"],
+    },
+  );
+
 type CampaignForm = z.infer<typeof campaignSchema>;
 
 function buildDefaultValues(editing: DonationCampaign | null): CampaignForm {
@@ -210,6 +219,8 @@ function CampaignDialog({
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [slugTouched, setSlugTouched] = useState(false);
+
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
     defaultValues: buildDefaultValues(editing),
@@ -218,6 +229,7 @@ function CampaignDialog({
   useEffect(() => {
     if (open) {
       form.reset(buildDefaultValues(editing));
+      setSlugTouched(!!editing && !!(editing.slug));
     }
   }, [open, editing]);
 
@@ -225,10 +237,10 @@ function CampaignDialog({
   const isCreating = !editing;
 
   useEffect(() => {
-    if (isCreating && open) {
+    if (isCreating && open && !slugTouched) {
       form.setValue("slug", toSlug(titleValue ?? ""), { shouldDirty: false });
     }
-  }, [titleValue, isCreating, open]);
+  }, [titleValue, isCreating, open, slugTouched]);
 
   const galleryImages = form.watch("galleryImages") ?? [];
 
@@ -326,10 +338,18 @@ function CampaignDialog({
                 <FormItem>
                   <FormLabel>URL Slug</FormLabel>
                   <FormControl>
-                    <Input placeholder="masjid-extension-fund" {...field} />
+                    <Input
+                      placeholder="masjid-extension-fund"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setSlugTouched(true);
+                      }}
+                    />
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Used in the public URL: /donate/<strong>{form.watch("slug") || "slug"}</strong>
+                    Public campaign URL: /donate/<strong>{form.watch("slug") || "slug"}</strong>
+                    {" · "}Auto-generated from title until you edit it manually.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
