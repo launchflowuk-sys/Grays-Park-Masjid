@@ -9,6 +9,8 @@
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "ship": "EXPO_TOKEN=$EXPO_TOKEN eas build --platform all --profile production --non-interactive",
+    "ship:android": "EXPO_TOKEN=$EXPO_TOKEN eas build --platform android --profile production --non-interactive",
+    "ship:ios": "EXPO_TOKEN=$EXPO_TOKEN eas build --platform ios --profile production",
     "update": "EXPO_TOKEN=$EXPO_TOKEN eas update --branch preview --message preview"
   },
   "devDependencies": {
