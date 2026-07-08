@@ -14,6 +14,8 @@ import { Maximize2, Sunrise } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useGetSettingPublic } from "@workspace/api-client-react";
 import type { PrayerTime } from "@workspace/api-client-react";
+import { useVisitorLocation } from "@/hooks/use-visitor-location";
+import { LocalPrayerTimesCard } from "@/components/local-prayer-times-card";
 
 const ARABIC_LABELS: Record<string, string> = {
   fajr: "الفجر",
@@ -75,6 +77,7 @@ export default function PrayerTimesPage() {
   const { data, isLoading, today, todayRow, tomorrowRow } = usePrayerTimesToday();
   const now = useNow(1000);
   const current = todayRow ? computeCurrentNext(todayRow, tomorrowRow, now) : null;
+  const { isLocal, coords } = useVisitorLocation();
 
   const sorted = [...(data ?? [])].sort((a, b) => a.date.localeCompare(b.date));
   const upcoming = sorted.filter((p) => p.date >= today);
@@ -161,6 +164,13 @@ export default function PrayerTimesPage() {
             </div>
           </div>
         </section>
+
+        {/* ── Local Prayer Times (non-local visitors only) ─────────── */}
+        {!isLocal && coords && (
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-10">
+            <LocalPrayerTimesCard coords={coords} variant="page" />
+          </div>
+        )}
 
         {/* ── Today's Prayer Cards ────────────────────────────────── */}
         <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12 md:py-16">

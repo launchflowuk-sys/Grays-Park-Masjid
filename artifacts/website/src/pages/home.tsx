@@ -28,6 +28,8 @@ import {
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
+import { LocalPrayerTimesCard } from "@/components/local-prayer-times-card";
+import { useVisitorLocation } from "@/hooks/use-visitor-location";
 import { TodayPrayersBar } from "@/components/today-prayers-bar";
 import { ArchIconBadge, IslamicPattern, IslamicPatternBg, IslamicStar } from "@/components/site/islamic-pattern";
 import { usePrayerTimesToday } from "@/components/prayer-times-widget";
@@ -93,6 +95,14 @@ const STATS = [
   { icon: HandCoins, title: "Donate & Support", desc: "Help build our future" },
   { icon: Calendar, title: "Events & Activities", desc: "Bringing people together" },
 ];
+
+function SmartPrayerCard() {
+  const { isLocal, coords } = useVisitorLocation();
+  if (!isLocal && coords) {
+    return <LocalPrayerTimesCard coords={coords} />;
+  }
+  return <HeroPrayerCard />;
+}
 
 export default function Home() {
   return (
@@ -162,7 +172,7 @@ export default function Home() {
             </div>
 
             <div className="w-full lg:w-[420px] xl:w-[460px] lg:shrink-0 lg:z-20 lg:mb-[-4.5rem] xl:mb-[-5.5rem]">
-              <HeroPrayerCard />
+              <SmartPrayerCard />
             </div>
           </div>
         </div>
