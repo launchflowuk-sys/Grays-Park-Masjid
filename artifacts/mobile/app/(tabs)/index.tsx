@@ -739,16 +739,16 @@ export default function PrayerTimesScreen() {
               { backgroundColor: colors.secondary, transform: [{ scale: pulseAnim }] },
             ]}
           >
-            <Text style={[styles.nextLabel, { color: colors.primaryForeground + "60" }]}>
+            <Text style={[styles.nextLabel, { color: colors.accent }]}>
               {nextInfo.isTomorrow ? "Tomorrow · First Prayer" : "Next Prayer"}
             </Text>
             <Text style={[styles.nextPrayerName, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" }]}>
               {nextInfo.prayer.name}
             </Text>
-            <Text style={[styles.countdown, { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_400Regular" }]}>
+            <Text style={[styles.countdown, { color: colors.accent, fontFamily: "PlayfairDisplay_400Regular" }]}>
               {countdown}
             </Text>
-            <Text style={[styles.nextTime, { color: colors.primaryForeground + "80" }]}>
+            <Text style={[styles.nextTime, { color: colors.primaryForeground + "CC" }]}>
               {formatTime12(nextInfo.prayer.adhan)}
             </Text>
           </Animated.View>
