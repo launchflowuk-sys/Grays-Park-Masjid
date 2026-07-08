@@ -28,8 +28,7 @@
         "EXPO_PUBLIC_PROJECT_ID": "5d3b6a65-dbb5-43ba-99bf-9932eb98e602"
       },
       "ios": {
-        "autoIncrement": true,
-        "xcode": "16.2"
+        "autoIncrement": true
       },
       "android": {
         "autoIncrement": true,
