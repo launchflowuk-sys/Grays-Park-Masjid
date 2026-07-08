@@ -118,13 +118,14 @@ export async function fetchAyahTafsir(
 
   return getCached(`qf:tafsir:${verseKey}:${tafsirId}`, "tafsir", ttl, async () => {
     // Use the dedicated per-ayah tafsir endpoint (works with or without OAuth)
-    const data = await qfFetch<{
-      tafsir: {
-        text?: string;
-        resource_name?: string;
-        resource_id?: number;
-      };
-    }>(`/tafsirs/${tafsirId}/by_ayah/${verseKey}`);
+    let data: { tafsir: { text?: string; resource_name?: string; resource_id?: number } };
+    try {
+      data = await qfFetch<typeof data>(`/tafsirs/${tafsirId}/by_ayah/${verseKey}`);
+    } catch (err) {
+      // QF returns 404 for verses not covered by a given tafsir — treat as "not available"
+      if (err instanceof Error && err.message.includes("404")) return null;
+      throw err;
+    }
 
     if (!data.tafsir?.text) return null;
 

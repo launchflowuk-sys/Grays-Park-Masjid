@@ -83,7 +83,7 @@ function TafsirPanel({
 }) {
   const [data, setData] = useState<TafsirEntry | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"not_available" | "error" | false>(false);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -94,11 +94,15 @@ function TafsirPanel({
     const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
     fetch(`${base}/api/quran/tafsir/${surahNumber}/${ayahNumber}?tafsir=${tafsirId}`)
       .then(async (res) => {
-        if (!res.ok) throw new Error("not found");
+        if (res.status === 404) throw new Error("not_available");
+        if (!res.ok) throw new Error("error");
         return res.json() as Promise<TafsirEntry>;
       })
       .then((d) => { setData(d); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+      .catch((e: Error) => {
+        setError(e.message === "not_available" ? "not_available" : "error");
+        setLoading(false);
+      });
   }, [surahNumber, ayahNumber, tafsirId]);
 
   const PREVIEW_CHARS = 420;
@@ -134,9 +138,14 @@ function TafsirPanel({
             Loading tafsir…
           </div>
         )}
-        {error && (
+        {error === "not_available" && (
           <p className="text-xs text-muted-foreground py-1">
-            Could not load tafsir for this verse. Please try again.
+            This tafsir does not have commentary for this verse.
+          </p>
+        )}
+        {error === "error" && (
+          <p className="text-xs text-muted-foreground py-1">
+            Could not load tafsir. Please try again.
           </p>
         )}
         {data && (
@@ -231,20 +240,21 @@ export default function QuranSurahPage() {
     [chapters, surahNumber],
   );
 
-  const { current, isPlaying, playTrack, togglePlay } = useQuranAudio();
+  const { current, isPlaying, play, togglePlay } = useQuranAudio();
 
   function playAyah(ayahNumber: number, audioUrl: string | null) {
     if (!audioUrl) return;
     const track: QuranAudioTrack = {
       surahNumber,
       ayahNumber,
+      numberInSurah: ayahNumber,
       audioUrl,
       surahName: chapter?.name_simple ?? `Surah ${surahNumber}`,
     };
     if (current?.surahNumber === surahNumber && current?.ayahNumber === ayahNumber) {
       togglePlay();
     } else {
-      playTrack(track);
+      play(track);
     }
   }
 
