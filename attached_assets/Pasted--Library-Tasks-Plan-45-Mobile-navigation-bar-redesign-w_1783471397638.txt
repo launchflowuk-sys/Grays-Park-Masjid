@@ -1,0 +1,301 @@
+
+Library
+Tasks
+Plan #45 - Mobile navigation bar redesign with burger menu
+#45 - Mobile navigation bar redesign
+
+What & Why
+
+The current bottom tab bar has 6 tabs which is cluttered on small screens. Redesign to show exactly 5 items: Prayer, Qur'an, Qibla (centre — promoted as the focal point with a larger decorative icon), Events, and a Burger/More button. The burger opens a slide-in drawer with Islamic decoration that houses the remaining items (Blog, Alerts/notifications settings, and any future items) — keeping the primary bar clean and the secondary navigation beautiful.
+
+Done looks like
+
+Bottom bar shows exactly: Prayer | Qur'an | Qibla (elevated centre button) | Events | ☰
+The Qibla button is visually distinct — larger, gold accent, slightly raised above the bar
+Tapping ☰ slides in a drawer from the right (or bottom sheet) with:
+A decorative Islamic geometric header in brand-green with gold accents
+Blog entry
+Alerts (notification settings) entry
+Each row has an icon and label, tapping navigates and closes the drawer
+Both iOS NativeTabs path and Android/web ClassicTabs path are updated
+No existing screens are removed — they all remain navigable
+Out of scope
+
+Redesigning the individual screens
+Adding new screens or features
+Web layout changes
+Steps
+
+Build an AppDrawer component — a Modal or Animated slide-in panel (bottom sheet style or right-slide). Render a decorative header: deep-green background, gold geometric Islamic star/pattern overlay, "Menu" title. Below it render rows for Blog and Alerts (each with icon + label). Tapping any row navigates via router.push(...) and closes the drawer. Use useSafeAreaInsets for safe area padding.
+Redesign ClassicTabLayout — reduce to 5 Tabs.Screen entries: index (Prayer), quran, qibla (centre), events, and a dummy "more" screen. Override the More tab icon with a hamburger icon. Intercept its tabBarButton press to open the AppDrawer instead of navigating — using a TouchableOpacity wrapper that sets drawer state. Hide the blog and settings Tabs.Screen entries from the bar (use tabBarItemStyle: { display: 'none' }) while keeping them navigable.
+Redesign NativeTabLayout — mirror the same 5-item order. Since NativeTabs doesn't support a fake tab, render a custom tabBar overlay button for the More slot that opens the AppDrawer. If that API is too limited, fall back to using ClassicTabLayout for all platforms so both paths use the same custom bar.
+Style the Qibla centre button — in ClassicTabLayout give the qibla tab a custom tabBarButton that renders a raised circular gold-bordered button slightly above the bar baseline. In NativeTabs, use a larger SF Symbol with the accent colour.
+Wire and test — confirm Blog and Alerts screens are still reachable via the drawer, deep-links still work, and the onboarding flow is unaffected.
+Relevant files
+
+artifacts/mobile/app/(tabs)/_layout.tsx
+artifacts/mobile/app/(tabs)/blog.tsx (still needs to be navigable)
+artifacts/mobile/app/(tabs)/settings.tsx (Alerts — still needs to be navigable)
+artifacts/mobile/hooks/useColors.ts
+Plan #45 - Mobile navigation bar redesign with burger menu
+#45 - Mobile navigation bar redesign
+
+What & Why
+
+The current bottom tab bar has 6 tabs which is cluttered on small screens. Redesign to show exactly 5 items: Prayer, Qur'an, Qibla (centre — promoted as the focal point with a larger decorative icon), Events, and a Burger/More button. The burger opens a slide-in drawer with Islamic decoration that houses the remaining items (Blog, Alerts/notifications settings, and any future items) — keeping the primary bar clean and the secondary navigation beautiful.
+
+Done looks like
+
+Bottom bar shows exactly: Prayer | Qur'an | Qibla (elevated centre button) | Events | ☰
+The Qibla button is visually distinct — larger, gold accent, slightly raised above the bar
+Tapping ☰ slides in a drawer from the right (or bottom sheet) with:
+A decorative Islamic geometric header in brand-green with gold accents
+Blog entry
+Alerts (notification settings) entry
+Each row has an icon and label, tapping navigates and closes the drawer
+Both iOS NativeTabs path and Android/web ClassicTabs path are updated
+No existing screens are removed — they all remain navigable
+Out of scope
+
+Redesigning the individual screens
+Adding new screens or features
+Web layout changes
+Steps
+
+Build an AppDrawer component — a Modal or Animated slide-in panel (bottom sheet style or right-slide). Render a decorative header: deep-green background, gold geometric Islamic star/pattern overlay, "Menu" title. Below it render rows for Blog and Alerts (each with icon + label). Tapping any row navigates via router.push(...) and closes the drawer. Use useSafeAreaInsets for safe area padding.
+Redesign ClassicTabLayout — reduce to 5 Tabs.Screen entries: index (Prayer), quran, qibla (centre), events, and a dummy "more" screen. Override the More tab icon with a hamburger icon. Intercept its tabBarButton press to open the AppDrawer instead of navigating — using a TouchableOpacity wrapper that sets drawer state. Hide the blog and settings Tabs.Screen entries from the bar (use tabBarItemStyle: { display: 'none' }) while keeping them navigable.
+Redesign NativeTabLayout — mirror the same 5-item order. Since NativeTabs doesn't support a fake tab, render a custom tabBar overlay button for the More slot that opens the AppDrawer. If that API is too limited, fall back to using ClassicTabLayout for all platforms so both paths use the same custom bar.
+Style the Qibla centre button — in ClassicTabLayout give the qibla tab a custom tabBarButton that renders a raised circular gold-bordered button slightly above the bar baseline. In NativeTabs, use a larger SF Symbol with the accent colour.
+Wire and test — confirm Blog and Alerts screens are still reachable via the drawer, deep-links still work, and the onboarding flow is unaffected.
+Relevant files
+
+artifacts/mobile/app/(tabs)/_layout.tsx
+artifacts/mobile/app/(tabs)/blog.tsx (still needs to be navigable)
+artifacts/mobile/app/(tabs)/settings.tsx (Alerts — still needs to be navigable)
+artifacts/mobile/hooks/useColors.ts
+Preview
+Publishing
+Publish your app
+Domain
+Available
+
+.replit.app
+What you're publishing
+Grays Park Masjid
+Grays Park Masjid
+URL
+https://mosque-visitor-tracker.replit.app/
+Grays Park Masjid
+Grays Park Masjid
+URL
+https://mosque-visitor-tracker.replit.app/mobile/
+Grays Park Masjid
+Who can access your app
+Database settings
+Monitoring tools
+Enable app monitoring
+Be the first to know when your app is down. We'll continuously check if your app is online and notify you via email if things go wrong.
+
+Security tools
+Run a deep security scan
+Security Agent combines LLMs with leading static analysis tools to deliver a pen-test-grade security scan of your project.
+Adjust settings
+Manually configure machine settings, secrets, ports, and more.
+Shell
+Enable "Accessible Terminal" in Workspace Settings to use a screen reader with the shell.
+
+Agent
+u didnt apply the brand yellow color to current displayed prayer card on home screen mobile app even after claiming that u did
+35 minutes ago
+take a screenshot and show me where?
+33 minutes ago
+the sunrise card marked in red on dekstop had not been changed toa prominent color marking a signifcance evenb after assuring
+32 minutes ago
+I am not trying to be funny, but can you please patiently tell me where is that yellow colour that you Claim that I am looking at? Because this big Card showing fur at the moment being the next prayer should be right yellow and also why you cannot fix the bottom menu look at the more link it is disappearing into something what is wrong with you? Why can't you fix Small? Stupid things? It's the basic thing
+29 minutes ago
+mate r u having me on... i want the card background to be yellow and the text to be contrasting black or green why r u hell bent on just font colors i am talking background wat the hell mate. i had to stop u but fix both issues the card background and the menu links at the bottom come on
+27 minutes ago
+I have just pushed the latest git. Now my main priority is to check the Mobile website only for now to see if it works and to end with the backend admin.
+23 minutes ago
+they can keep failing in here in Replit. I don't really care because my Life deployment is on Cooler for the exact same reason because I don't know why it keeps failing here wanting us to restart it.
+23 minutes ago
+No, I just want to check and verify all the admin functions back and start to front but most importantly I want the events and the announcements and the blog posts all to have an option to add image so it displays with the announcement with the events et cetera, and with the blog post specially with prophet Mohammad PP upon him page and that option should not be informed of image URL it should be in every section when you create a new post or create a new announcement or create a new event a file upload should be available which ones uploaded in a certain format will display at the front and then you can also leave a helpful note. What dimensions are optimal to display the graphic at the front with that specific module do you understand?
+21 minutes ago
+The most important thing to do is this first chanhing the public facing info showing replit in description change thai immediately so in title of website app and anywhere it doesnt ahow this come onn whatttyytt?
+17 minutes ago
+That's the OpenGraph meta description — it's the default Replit placeholder. Let me find and fix it right now:
+Found it — all three meta tags have the Replit placeholder. Fixing all of them now:
+Done. All three tags fixed — meta description, og:description, and twitter:description now all read:
+
+"Grays Park Masjid — A welcoming centre for worship, education and community in Thurrock, Essex. Prayer times, events, Qur'an and more."
+I also added og:url pointing to graysparkmasjid.org.uk while I was in there.
+
+Push this to GitHub and Coolify will redeploy — once live, that WhatsApp/iMessage link preview will show the proper description instead of the Replit placeholder. Note that WhatsApp and iMessage cache previews, so the first share after the deploy might still show the old one; a fresh link share will pick up the new text.
+All workflows are running and the fix is live. Just push to GitHub and Coolify will deploy it — the Replit placeholder will be gone from every link preview.
+Admin image uploads for content
+The admin forms for Events, Announcements, and Blog Posts currently use a plain text input for imageUrl / featureImageUrl. Replace this with a proper file-upload widget in every create/edit form so admins can upload an image directly from their device. The uploaded image must be stored via object storage and displayed on the corresponding public-facing page alongside the content.
+Object storage (useUpload hook + signed-URL API) is already in place. All three DB columns already exist. This task wires the upload UI into the admin forms and ensures the image renders correctly on the frontend.
+Web app
+I can see the full picture. The blog editor already has file upload working — I just need to:
+
+Extract that into a shared ImageUpload component with dimension hints
+Add it to Events and Announcements admin forms
+Check the blog post detail page renders featureImageUrl
+Let me check what's missing:
+Now I have the full picture. Here's what needs doing:
+
+Blog editor: Already has file upload ✅ — just needs dimension hint + refactor to shared component
+Blog post detail: Already renders featureImageUrl ✅
+Blog listing: Already renders featureImageUrl ✅
+Public events/announcements: Already render images ✅
+Events admin form: Has plain URL text input — needs replacing ❌
+Announcements admin form: Has plain URL text input — needs replacing ❌
+Memory note: Both dialog forms need useEffect reset on open (stale defaultValues bug)
+Building the shared ImageUpload component first, then updating all three admin forms:
+Now update all three admin forms in parallel:
+Now add the useEffect reset and replace the URL inputs with ImageUpload in both dialogs simultaneously:
+Now replace the URL text inputs with ImageUpload in both forms simultaneously:
+Now update the blog editor to use the shared ImageUpload component with the aspect hint:
+Now remove the old useUpload hook call and replace the Feature Image card in the blog editor:
+Now replace the Feature Image card in the blog editor with the shared component:
+Good — all workflows are running. Let me check the website build for any TypeScript errors and also clean up an unused import from blog-editor:
+All workflows running, HMR updates applied cleanly — no errors. Let me screenshot the admin pages to verify visually, and read the follow-up skill simultaneously:
+All changes applied cleanly. Now proposing follow-ups before marking complete:
+All good. Let me write the commit message and mark complete:
+Suggested next tasks
+Select a task to view the plan
+There is already a gallery page so why again?
+ Explain task 51 
+
+51 - Community photo gallery
+
+What & Why
+
+Mosques regularly share photos from community iftars, lectures, Eid prayers, and children's activities. A simple gallery section gives the Masjid a place to show community life, making the website feel active and welcoming to newcomers.
+
+Done looks like
+
+A new Gallery page at /gallery on the public website, showing a grid of uploaded photos with optional caption
+An admin section at /admin/gallery to upload photos (using the existing ImageUpload component), add a caption, and delete/unpublish photos
+Gallery link added to the main site navigation
+New gallery_photos table in the database: id, imageUrl, caption, published, createdAt
+Relevant files
+
+artifacts/website/src/components/admin/image-upload.tsx
+artifacts/website/src/App.tsx (routing)
+artifacts/website/src/components/site/site-header.tsx (nav)
+lib/db/src/schema/
+artifacts/api-server/src/routes/
+Dependencies
+
+
+
+49 - Inline image insertion in blog post body
+
+What & Why
+
+The TipTap rich-text editor in the blog post editor currently has no image-insertion tool. Admins writing articles (especially for the Prophet Muhammad ﷺ category or Islamic history posts) need to embed images inline within the body content, not just the feature/hero image at the top.
+
+Done looks like
+
+The TipTap toolbar includes an "Insert Image" button
+Clicking it opens the existing ImageUpload component (or a similar file-picker dialog)
+Uploaded image is inserted at the cursor position in the article body
+Images render correctly in the published blog post (respecting the prose styles already on the article)
+Relevant files
+
+artifacts/website/src/components/admin/tiptap-editor.tsx
+artifacts/website/src/components/admin/image-upload.tsx
+artifacts/website/src/pages/admin/blog-editor.tsx
+artifacts/website/src/pages/blog-post.tsx
+Dependencies
+
+Plan #51 - Add a photo gallery to showcase community events and Masjid life
+#51 - Community photo gallery
+
+What & Why
+
+Mosques regularly share photos from community iftars, lectures, Eid prayers, and children's activities. A simple gallery section gives the Masjid a place to show community life, making the website feel active and welcoming to newcomers.
+
+Done looks like
+
+A new Gallery page at /gallery on the public website, showing a grid of uploaded photos with optional caption
+An admin section at /admin/gallery to upload photos (using the existing ImageUpload component), add a caption, and delete/unpublish photos
+Gallery link added to the main site navigation
+New gallery_photos table in the database: id, imageUrl, caption, published, createdAt
+Relevant files
+
+artifacts/website/src/components/admin/image-upload.tsx
+artifacts/website/src/App.tsx (routing)
+artifacts/website/src/components/site/site-header.tsx (nav)
+lib/db/src/schema/
+artifacts/api-server/src/routes/
+Dependencies
+Plan #49 - Let admins embed images inside blog post articles, not just the cover photo
+#49 - Inline image insertion in blog post body
+
+What & Why
+
+The TipTap rich-text editor in the blog post editor currently has no image-insertion tool. Admins writing articles (especially for the Prophet Muhammad ﷺ category or Islamic history posts) need to embed images inline within the body content, not just the feature/hero image at the top.
+
+Done looks like
+
+The TipTap toolbar includes an "Insert Image" button
+Clicking it opens the existing ImageUpload component (or a similar file-picker dialog)
+Uploaded image is inserted at the cursor position in the article body
+Images render correctly in the published blog post (respecting the prose styles already on the article)
+Relevant files
+
+artifacts/website/src/components/admin/tiptap-editor.tsx
+artifacts/website/src/components/admin/image-upload.tsx
+artifacts/website/src/pages/admin/blog-editor.tsx
+artifacts/website/src/pages/blog-post.tsx
+Dependencies
+Plan #48 - Admin image uploads for content
+#48 - Admin image uploads for content
+
+What & Why
+
+The admin forms for Events, Announcements, and Blog Posts currently use a plain text input for imageUrl / featureImageUrl. Replace this with a proper file-upload widget in every create/edit form so admins can upload an image directly from their device. The uploaded image must be stored via object storage and displayed on the corresponding public-facing page alongside the content.
+
+Object storage (useUpload hook + signed-URL API) is already in place. All three DB columns already exist. This task wires the upload UI into the admin forms and ensures the image renders correctly on the frontend.
+
+Done looks like
+
+Events admin (/admin/events) — create and edit forms show a file upload widget instead of a URL text box. After upload, a thumbnail preview appears in the form. The uploaded image displays on the public events list and event detail page. Helper text reads: "Recommended: 1200 × 630 px (16:9 landscape)"
+Announcements admin (/admin/announcements) — same file upload widget. Image renders in the announcement card on the public announcements page. Helper text: "Recommended: 800 × 450 px (16:9)"
+Blog post editor (/admin/blog/new and /admin/blog/:id/edit) — feature image field replaced with file upload. Image renders as the full-width hero above the article body. Helper text: "Recommended: 1200 × 630 px (16:9 landscape)"
+Accepted formats shown in the UI: JPG, PNG, WebP — max 5 MB
+Uploading shows a progress indicator; errors surface inline
+If an existing record already has an imageUrl the current image is shown as a preview with an option to replace it
+Out of scope
+
+Image cropping or resizing in-browser
+Video or audio attachments
+Bulk image replacement across existing records
+Gallery / multi-image support
+Steps
+
+Shared ImageUpload component — Build a reusable <ImageUpload> component in the website's components/ folder. It wraps the existing useUpload hook, accepts an aspectHint prop (shown as helper text), renders a drag-and-drop zone with a file picker fallback, shows an upload progress bar, and displays a thumbnail preview once complete. On success it calls onUploaded(url: string).
+Events admin form — Replace the URL text input in the events create/edit form with <ImageUpload aspectHint="Recommended: 1200 × 630 px (16:9 landscape)" />. Wire the returned URL into the form state and submit it as imageUrl.
+Announcements admin form — Same substitution with aspectHint="Recommended: 800 × 450 px (16:9)".
+Blog post editor — Replace the feature-image URL field with <ImageUpload aspectHint="Recommended: 1200 × 630 px (16:9 landscape)" /> wired to featureImageUrl.
+Public Events pages — Ensure the event card and event detail page render the imageUrl when present (check if already wired; add if missing).
+Public Announcements page — Ensure announcement cards render imageUrl when present.
+Public Blog pages — Ensure the blog post detail page renders featureImageUrl as a full-width hero image above the article body; blog list cards should show a thumbnail if present.
+Admin audit pass — While touching each admin section, verify the full CRUD flow (create, read, update, delete, publish toggle) works end-to-end and fix any obvious breakages found during the audit.
+Relevant files
+
+artifacts/website/src/pages/admin/events.tsx
+artifacts/website/src/pages/admin/announcements.tsx
+artifacts/website/src/pages/admin/blog.tsx
+artifacts/website/src/pages/admin/blog-editor.tsx
+artifacts/website/src/pages/events.tsx
+artifacts/website/src/pages/announcements.tsx
+lib/object-storage-web/src/use-upload.ts
+lib/db/src/schema/events.ts
+lib/db/src/schema/announcements.ts
+lib/db/src/schema/blog.ts
+artifacts/api-server/src/routes/storage.ts
+Plan #50 - Prevent event and announcement dialogs from clipping the image upload area on small screens
+#
