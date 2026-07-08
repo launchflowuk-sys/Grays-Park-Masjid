@@ -38,10 +38,12 @@ async function signPutUrl(bucketName: string, objectName: string): Promise<strin
   return signed_url;
 }
 
-async function uploadImage(localFilePath: string): Promise<string | null> {
+async function uploadImage(localFilePath: string): Promise<string> {
   if (!IS_REPLIT) {
-    console.log(`  (non-Replit) skipping upload for ${path.basename(localFilePath)}`);
-    return null;
+    throw new Error(
+      "This seed script requires the Replit environment (GCS sidecar) to upload cover images. " +
+      "Run it from within the Replit workspace, not from a Coolify container or local machine.",
+    );
   }
   const privateObjectDir = process.env.PRIVATE_OBJECT_DIR;
   if (!privateObjectDir) throw new Error("PRIVATE_OBJECT_DIR not set");
