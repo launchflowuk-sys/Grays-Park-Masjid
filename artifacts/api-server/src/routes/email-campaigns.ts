@@ -50,6 +50,41 @@ router.get(
 );
 
 router.post(
+  "/admin/email-campaigns/preview",
+  requireAuth,
+  requireRole(...ALL_ROLES),
+  async (req: Request, res: Response) => {
+    const { subject, bannerImageUrl, bodyText, ctaLabel, ctaUrl } = req.body as {
+      subject?: string;
+      bannerImageUrl?: string | null;
+      bodyText?: string;
+      ctaLabel?: string | null;
+      ctaUrl?: string | null;
+    };
+
+    const resolvedBody = bodyText ?? "";
+    const resolvedSubject = subject ?? "Preview";
+
+    const bodyHtml = emailParagraphs(
+      resolvedBody
+        .split("\n")
+        .map((line) => escapeHtml(line))
+        .filter(Boolean),
+    ) || `<p style="margin:0 0 14px 0;">Your email body will appear here.</p>`;
+
+    const html = renderEmailTemplate({
+      heading: resolvedSubject,
+      bodyHtml,
+      bannerImageUrl: bannerImageUrl ?? undefined,
+      ctaLabel: ctaLabel ?? undefined,
+      ctaUrl: ctaUrl ?? undefined,
+    });
+
+    res.json({ html });
+  },
+);
+
+router.post(
   "/admin/email-campaigns",
   requireAuth,
   requireRole(...MASJID_WRITE),

@@ -207,18 +207,15 @@ function CampaignEditorDialog({
           ctaUrl: form.ctaUrl || null,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setPreviewHtml(data.html);
-        setPreviewOpen(true);
-      } else {
-        const { subject, bannerImageUrl, bodyText, ctaLabel, ctaUrl } = form;
-        setPreviewHtml(buildLocalPreview({ subject, bannerImageUrl, bodyText, ctaLabel, ctaUrl }));
-        setPreviewOpen(true);
+      if (!res.ok) {
+        toast({ title: "Could not load preview", variant: "destructive" });
+        return;
       }
-    } catch {
-      setPreviewHtml(buildLocalPreview(form));
+      const data = await res.json();
+      setPreviewHtml(data.html);
       setPreviewOpen(true);
+    } catch {
+      toast({ title: "Could not load preview", variant: "destructive" });
     } finally {
       setLoadingPreview(false);
     }
@@ -417,54 +414,6 @@ function CampaignEditorDialog({
       </Dialog>
     </>
   );
-}
-
-function buildLocalPreview(opts: {
-  subject: string;
-  bannerImageUrl: string;
-  bodyText: string;
-  ctaLabel: string;
-  ctaUrl: string;
-}): string {
-  const { subject, bannerImageUrl, bodyText, ctaLabel, ctaUrl } = opts;
-  const escHtml = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const paragraphs = bodyText
-    .split("\n")
-    .filter((l) => l.trim())
-    .map((l) => `<p style="margin:0 0 14px 0;">${escHtml(l)}</p>`)
-    .join("");
-  const banner = bannerImageUrl
-    ? `<img src="${bannerImageUrl}" alt="" style="width:100%;max-width:560px;display:block;" />`
-    : "";
-  const cta =
-    ctaLabel && ctaUrl
-      ? `<a href="${ctaUrl}" style="display:inline-block;padding:12px 26px;background:#1f4d20;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:24px 0 8px 0;">${escHtml(ctaLabel)}</a>`
-      : "";
-  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f1e8;font-family:sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
-      <tr><td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e7e2d5;">
-          <tr><td style="background:#1f4d20;padding:28px 32px;text-align:center;">
-            <p style="margin:0;color:#fff;font-size:19px;font-family:Georgia,serif;">Grays Park Masjid</p>
-            <p style="margin:4px 0 0;color:#c9a84c;font-size:12px;text-transform:uppercase;letter-spacing:.08em;">Serving the community</p>
-          </td></tr>
-          ${banner ? `<tr><td style="padding:0;line-height:0;">${banner}</td></tr>` : ""}
-          <tr><td style="padding:36px 32px 8px;">
-            <h1 style="margin:0 0 18px;font-size:22px;font-family:Georgia,serif;">${escHtml(subject || "Your subject line")}</h1>
-            <div style="font-size:15px;line-height:1.7;">${paragraphs || "<p>Your email body will appear here.</p>"}</div>
-            ${cta}
-          </td></tr>
-          <tr><td style="padding:24px 32px 32px;">
-            <div style="border-top:1px solid #e7e2d5;padding-top:20px;font-size:13px;color:#6b6b63;">
-              <p style="margin:0 0 4px;">Grays Park Masjid</p>
-              <p style="margin:0;font-size:12px;">Grays Park Masjid, Grays, Essex</p>
-            </div>
-          </td></tr>
-        </table>
-      </td></tr>
-    </table>
-  </body></html>`;
 }
 
 function SendConfirmDialog({
