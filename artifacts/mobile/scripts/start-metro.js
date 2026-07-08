@@ -12,13 +12,19 @@
  *
  * We do this at 2 s and again at 5 s in case the first attempt
  * lands before the prompt is ready.
+ *
+ * NOTE: Do NOT set CI=1 here. CI mode tells Expo that no interactive
+ * input is allowed at all, causing a hard 500 error when Expo Go
+ * tries to load the app manifest on a physical device. Instead we
+ * let Expo run normally and answer the login prompt via stdin.
  */
 const { spawn } = require("child_process");
 
 const port = process.env.PORT || "18115";
 
-// CI=1 tells Expo CLI to skip interactive login prompts
-const env = { ...process.env, CI: "1" };
+// EXPO_NO_TELEMETRY suppresses analytics prompts without disabling
+// interactive mode entirely (unlike CI=1 which breaks Expo Go).
+const env = { ...process.env, EXPO_NO_TELEMETRY: "1" };
 
 const proc = spawn(
   "pnpm",
