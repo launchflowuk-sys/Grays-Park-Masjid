@@ -172,8 +172,8 @@ export default function QuranSurahPage() {
   const { data: reciters } = useListQuranReciters();
   const { data: translations } = useListQuranTranslations();
 
-  const [translation, setTranslation] = useState<string>("");
-  const [reciter, setReciter] = useState<string>("");
+  const [translation, setTranslation] = useState<string>("en.sahih");
+  const [reciter, setReciter] = useState<string>("ar.alafasy");
   const [bookmarks, setBookmarks] = useState<string[]>([]);
 
   // Tafsir state
@@ -185,10 +185,14 @@ export default function QuranSurahPage() {
     setBookmarks(readBookmarks());
   }, []);
 
+  const settingsAppliedRef = useRef(false);
   useEffect(() => {
-    if (settings && !translation) setTranslation(settings.defaultTranslation);
-    if (settings && !reciter) setReciter(settings.defaultReciter);
-  }, [settings, translation, reciter]);
+    if (settings && !settingsAppliedRef.current) {
+      settingsAppliedRef.current = true;
+      setTranslation(settings.defaultTranslation);
+      setReciter(settings.defaultReciter);
+    }
+  }, [settings]);
 
   // Fetch tafsir list once
   useEffect(() => {

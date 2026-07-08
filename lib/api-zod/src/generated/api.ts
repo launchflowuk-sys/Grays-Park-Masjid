@@ -2647,13 +2647,16 @@ export const GetQuranChapterVersesQueryParams = zod.object({
 })
 
 export const GetQuranChapterVersesResponseItem = zod.object({
-  "surahNumber": zod.number(),
-  "ayahNumber": zod.number(),
-  "numberInSurah": zod.number(),
-  "arabic": zod.string(),
-  "translation": zod.string(),
-  "translationSource": zod.string(),
-  "audioUrl": zod.string().nullable()
+  "id": zod.string(),
+  "verse_key": zod.string(),
+  "verse_number": zod.number(),
+  "text_uthmani": zod.string(),
+  "translations": zod.array(zod.object({
+    "text": zod.string(),
+    "resource_id": zod.number(),
+    "resource_name": zod.string()
+  })),
+  "audio": zod.object({ "url": zod.string() }).nullable()
 })
 export const GetQuranChapterVersesResponse = zod.array(GetQuranChapterVersesResponseItem)
 
@@ -2672,13 +2675,16 @@ export const GetQuranAyahQueryParams = zod.object({
 })
 
 export const GetQuranAyahResponse = zod.object({
-  "surahNumber": zod.number(),
-  "ayahNumber": zod.number(),
-  "numberInSurah": zod.number(),
-  "arabic": zod.string(),
-  "translation": zod.string(),
-  "translationSource": zod.string(),
-  "audioUrl": zod.string().nullable()
+  "id": zod.string(),
+  "verse_key": zod.string(),
+  "verse_number": zod.number(),
+  "text_uthmani": zod.string(),
+  "translations": zod.array(zod.object({
+    "text": zod.string(),
+    "resource_id": zod.number(),
+    "resource_name": zod.string()
+  })),
+  "audio": zod.object({ "url": zod.string() }).nullable()
 })
 
 

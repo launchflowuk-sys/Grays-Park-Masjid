@@ -1068,15 +1068,24 @@ export interface QuranChapter {
   revelationType: string;
 }
 
+export interface QuranVerseTranslation {
+  text: string;
+  resource_id: number;
+  resource_name: string;
+}
+
+export interface QuranVerseAudio {
+  url: string;
+}
+
 export interface QuranVerse {
-  surahNumber: number;
-  ayahNumber: number;
-  numberInSurah: number;
-  arabic: string;
-  translation: string;
-  translationSource: string;
+  id: string;
+  verse_key: string;
+  verse_number: number;
+  text_uthmani: string;
+  translations: QuranVerseTranslation[];
   /** @nullable */
-  audioUrl: string | null;
+  audio: QuranVerseAudio | null;
 }
 
 export interface QuranSearchResult {
