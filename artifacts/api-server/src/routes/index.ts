@@ -24,6 +24,7 @@ import deviceTokensRouter from "./device-tokens";
 import pushNotificationsRouter from "./push-notifications";
 import googleMapsRouter from "./google-maps";
 import emailCampaignsRouter from "./email-campaigns";
+import seedBlogsRouter from "./seed-blogs";
 
 const router: IRouter = Router();
 
@@ -52,5 +53,6 @@ router.use(deviceTokensRouter);
 router.use(pushNotificationsRouter);
 router.use(googleMapsRouter);
 router.use(emailCampaignsRouter);
+router.use(seedBlogsRouter);
 
 export default router;
