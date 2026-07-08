@@ -97,11 +97,23 @@ const STATS = [
 ];
 
 function SmartPrayerCard() {
-  const { isLocal, coords } = useVisitorLocation();
-  if (!isLocal && coords) {
-    return <LocalPrayerTimesCard coords={coords} />;
-  }
-  return <HeroPrayerCard />;
+  const { status, isLocal, coords } = useVisitorLocation();
+  const isDetecting = status === "idle" || status === "detecting";
+
+  return (
+    <div>
+      {!isLocal && coords ? (
+        <LocalPrayerTimesCard coords={coords} />
+      ) : (
+        <HeroPrayerCard />
+      )}
+      {isDetecting && (
+        <p className="mt-2 text-center text-xs text-white/40 animate-pulse">
+          Detecting your location…
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function Home() {

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Maximize2 } from "lucide-react";
 import { calcLocalPrayerTimes, computeLocalNext } from "@/lib/local-prayer-calc";
 import { formatCountdown } from "@/components/prayer-times-widget";
+import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { Button } from "@/components/ui/button";
 
 function formatTime12h(hhmm: string): string {
   const [h, m] = hhmm.split(":").map(Number);
@@ -71,8 +73,11 @@ const PRAYER_LABELS: Record<string, string> = {
 
 interface Props {
   coords: GeolocationCoordinates;
-  /** Variant: "card" (homepage floating card) or "page" (prayer times page hero) */
-  variant?: "card" | "page";
+  /**
+   * - "card"  — homepage floating card (matches HeroPrayerCard layout)
+   * - "hero"  — full-width hero section swap for prayer-times page
+   */
+  variant?: "card" | "hero";
 }
 
 export function LocalPrayerTimesCard({ coords, variant = "card" }: Props) {
@@ -84,78 +89,98 @@ export function LocalPrayerTimesCard({ coords, variant = "card" }: Props) {
   const now = useNow(1000);
   const next = computeLocalNext(times, now);
 
-  if (variant === "page") {
+  /* ── "hero" variant — full-width section replacing prayer-times page hero ── */
+  if (variant === "hero") {
     return (
-      <div
-        className="relative overflow-hidden bg-primary text-primary-foreground rounded-2xl px-6 py-7 mb-6"
-        data-testid="local-prayer-times-page"
+      <section
+        className="relative bg-primary text-primary-foreground overflow-hidden"
+        data-testid="local-prayer-times-hero"
       >
-        <ArabesqueBg />
-        <div className="relative">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-secondary shrink-0" />
-              <div>
-                <p className="text-sm font-semibold text-white leading-tight">
-                  Your Local Prayer Times
-                </p>
-                <p className="text-[11px] text-white/50 leading-tight">
-                  {times.locationLabel} · Hanafi · Moonsighting
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/prayer-times"
-              className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 transition-colors"
-            >
-              Grays Park times below
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+        <IslamicPattern className="absolute inset-0 w-full h-full text-white/5 [background-size:60px_60px]" />
+        <IslamicStar className="absolute -top-6 -left-6 w-40 h-40 text-white/5" />
+        <IslamicStar className="absolute -bottom-6 -right-6 w-40 h-40 text-white/5" />
+
+        <div className="relative mx-auto max-w-4xl px-6 py-14 md:py-20 text-center">
+          <p
+            className="font-serif text-secondary text-2xl md:text-3xl mb-3 tracking-wider"
+            aria-label="Bismillah"
+          >
+            بسم الله الرحمن الرحيم
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl mt-2">Prayer Times</h1>
+          <div className="mt-2 flex items-center justify-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-secondary/70 shrink-0" />
+            <p className="text-primary-foreground/70 text-sm tracking-wide">
+              {times.locationLabel} · your local times
+            </p>
           </div>
 
-          {/* Next prayer + all prayers row */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="shrink-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-1">
-                {next.isTomorrow ? "Tomorrow · " : ""}Next Prayer
-              </p>
-              <p className="font-serif text-3xl text-white leading-none">{next.label}</p>
-              <p className="font-bold text-xl tabular-nums text-white mt-1">
-                {formatCountdown(next.countdownMs)}
-              </p>
-              <p className="text-xs text-white/50 mt-0.5">
-                at {formatTime12h(next.time)}
-              </p>
-            </div>
+          {/* Next prayer countdown — same styling as masjid hero */}
+          <div className="mt-8 inline-flex flex-col items-center gap-1 bg-white/10 rounded-2xl px-8 py-5 backdrop-blur-sm border border-white/15">
+            <span className="text-xs font-semibold tracking-widest uppercase text-primary-foreground/60">
+              {next.isTomorrow ? "Tomorrow's" : "Next"} Prayer
+            </span>
+            <span className="font-serif text-3xl md:text-4xl text-secondary">
+              {next.label}
+            </span>
+            <span className="text-xl md:text-2xl font-bold tabular-nums">
+              {formatCountdown(next.countdownMs)}
+            </span>
+            <span className="text-xs text-primary-foreground/60">
+              starts at {formatTime12h(next.time)}
+            </span>
+          </div>
 
-            <div className="h-px sm:h-auto sm:w-px bg-white/10 sm:self-stretch shrink-0" />
-
-            <div className="grid grid-cols-5 gap-1 flex-1">
-              {PRAYER_KEYS.map((key) => {
-                const isNext = next.key === key && !next.isTomorrow;
-                return (
-                  <div
-                    key={key}
-                    className={`flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-colors ${isNext ? "bg-white/10" : ""}`}
+          {/* 5-prayer quick-glance strip */}
+          <div className="mt-6 flex items-center justify-center gap-4 sm:gap-7 flex-wrap">
+            {PRAYER_KEYS.map((key) => {
+              const isNext = next.key === key && !next.isTomorrow;
+              return (
+                <div
+                  key={key}
+                  className={`flex flex-col items-center gap-0.5 transition-opacity ${
+                    isNext ? "opacity-100" : "opacity-50"
+                  }`}
+                >
+                  <p className="text-[10px] uppercase tracking-widest text-primary-foreground/70">
+                    {PRAYER_LABELS[key]}
+                  </p>
+                  <p
+                    className={`text-sm font-semibold tabular-nums ${
+                      isNext ? "text-secondary" : "text-white"
+                    }`}
                   >
-                    <p className={`text-[10px] font-semibold uppercase tracking-wide ${isNext ? "text-secondary" : "text-white/40"}`}>
-                      {PRAYER_LABELS[key]}
-                    </p>
-                    <p className={`text-sm font-bold tabular-nums leading-tight ${isNext ? "text-white" : "text-white/65"}`}>
-                      {formatTime12h(times[key])}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+                    {formatTime12h(times[key])}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Actions */}
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            <Link href="/prayer-times/display">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/30 text-primary-foreground hover:bg-white/10"
+                data-testid="button-kiosk-display"
+              >
+                <Maximize2 className="h-3.5 w-3.5 mr-2" />
+                Full-Screen Display
+              </Button>
+            </Link>
+            <span className="text-xs text-white/30">·</span>
+            <p className="text-xs text-white/50">
+              Grays Park Masjid timetable below ↓
+            </p>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
-  // Default: "card" variant — matches HeroPrayerCard layout exactly
+  /* ── "card" variant — homepage floating card matching HeroPrayerCard ── */
   return (
     <div className="w-full max-w-[720px]" data-testid="local-prayer-times-card">
       <div className="relative bg-primary rounded-3xl overflow-hidden shadow-2xl shadow-black/30">
@@ -226,12 +251,22 @@ export function LocalPrayerTimesCard({ coords, variant = "card" }: Props) {
             return (
               <div
                 key={key}
-                className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-colors ${isNext ? "bg-white/10" : ""}`}
+                className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-colors ${
+                  isNext ? "bg-white/10" : ""
+                }`}
               >
-                <p className={`text-[10px] font-semibold uppercase tracking-wide ${isNext ? "text-secondary" : "text-white/40"}`}>
+                <p
+                  className={`text-[10px] font-semibold uppercase tracking-wide ${
+                    isNext ? "text-secondary" : "text-white/40"
+                  }`}
+                >
                   {PRAYER_LABELS[key]}
                 </p>
-                <p className={`text-sm font-bold tabular-nums leading-tight ${isNext ? "text-white" : "text-white/65"}`}>
+                <p
+                  className={`text-sm font-bold tabular-nums leading-tight ${
+                    isNext ? "text-white" : "text-white/65"
+                  }`}
+                >
                   {formatTime12h(times[key])}
                 </p>
                 {isNext && (
@@ -249,7 +284,10 @@ export function LocalPrayerTimesCard({ coords, variant = "card" }: Props) {
         <div className="relative px-6 pb-5">
           <p className="text-[10px] text-white/30 text-center">
             Visiting Grays Park Masjid?{" "}
-            <Link href="/prayer-times" className="underline text-white/50 hover:text-white/70 transition-colors">
+            <Link
+              href="/prayer-times"
+              className="underline text-white/50 hover:text-white/70 transition-colors"
+            >
               See our full timetable →
             </Link>
           </p>

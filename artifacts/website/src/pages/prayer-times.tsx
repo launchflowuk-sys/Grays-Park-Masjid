@@ -115,61 +115,61 @@ export default function PrayerTimesPage() {
       <SiteHeader />
       <main className="flex-1">
 
-        {/* ── Hero ───────────────────────────────────────────────── */}
-        <section className="relative bg-primary text-primary-foreground overflow-hidden">
-          <IslamicPattern className="absolute inset-0 w-full h-full text-white/5 [background-size:60px_60px]" />
-          <IslamicStar className="absolute -top-6 -left-6 w-40 h-40 text-white/5" />
-          <IslamicStar className="absolute -bottom-6 -right-6 w-40 h-40 text-white/5" />
+        {/* ── Hero ─────────────────────────────────────────────────
+             Non-local visitors see their own local prayer times here.
+             Local / unknown visitors see the Grays Park masjid hero.
+        ──────────────────────────────────────────────────────────── */}
+        {!isLocal && coords ? (
+          <LocalPrayerTimesCard coords={coords} variant="hero" />
+        ) : (
+          <section className="relative bg-primary text-primary-foreground overflow-hidden">
+            <IslamicPattern className="absolute inset-0 w-full h-full text-white/5 [background-size:60px_60px]" />
+            <IslamicStar className="absolute -top-6 -left-6 w-40 h-40 text-white/5" />
+            <IslamicStar className="absolute -bottom-6 -right-6 w-40 h-40 text-white/5" />
 
-          <div className="relative mx-auto max-w-4xl px-6 py-14 md:py-20 text-center">
-            <p className="font-serif text-secondary text-2xl md:text-3xl mb-3 tracking-wider" aria-label="Bismillah">
-              بسم الله الرحمن الرحيم
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl mt-2">Prayer Times</h1>
-            {todayRow && (
-              <p className="mt-3 text-primary-foreground/70 text-sm tracking-wide">
-                {format(parseISO(todayRow.date), "EEEE, d MMMM yyyy")}
+            <div className="relative mx-auto max-w-4xl px-6 py-14 md:py-20 text-center">
+              <p className="font-serif text-secondary text-2xl md:text-3xl mb-3 tracking-wider" aria-label="Bismillah">
+                بسم الله الرحمن الرحيم
               </p>
-            )}
+              <h1 className="font-serif text-4xl md:text-5xl mt-2">Prayer Times</h1>
+              {todayRow && (
+                <p className="mt-3 text-primary-foreground/70 text-sm tracking-wide">
+                  {format(parseISO(todayRow.date), "EEEE, d MMMM yyyy")}
+                </p>
+              )}
 
-            {current && (
-              <div className="mt-8 inline-flex flex-col items-center gap-1 bg-white/10 rounded-2xl px-8 py-5 backdrop-blur-sm border border-white/15">
-                <span className="text-xs font-semibold tracking-widest uppercase text-primary-foreground/60">
-                  {current.isNextTomorrow ? "Tomorrow's" : "Next"} Prayer
-                </span>
-                <span className="font-serif text-3xl md:text-4xl text-secondary">
-                  {current.nextLabel}
-                </span>
-                <span className="text-xl md:text-2xl font-bold tabular-nums">
-                  {formatCountdown(current.countdownMs)}
-                </span>
-                <span className="text-xs text-primary-foreground/60">
-                  starts at {formatTime12h(current.nextTime)}
-                </span>
+              {current && (
+                <div className="mt-8 inline-flex flex-col items-center gap-1 bg-white/10 rounded-2xl px-8 py-5 backdrop-blur-sm border border-white/15">
+                  <span className="text-xs font-semibold tracking-widest uppercase text-primary-foreground/60">
+                    {current.isNextTomorrow ? "Tomorrow's" : "Next"} Prayer
+                  </span>
+                  <span className="font-serif text-3xl md:text-4xl text-secondary">
+                    {current.nextLabel}
+                  </span>
+                  <span className="text-xl md:text-2xl font-bold tabular-nums">
+                    {formatCountdown(current.countdownMs)}
+                  </span>
+                  <span className="text-xs text-primary-foreground/60">
+                    starts at {formatTime12h(current.nextTime)}
+                  </span>
+                </div>
+              )}
+
+              <div className="mt-8">
+                <Link href="/prayer-times/display">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/30 text-primary-foreground hover:bg-white/10"
+                    data-testid="button-kiosk-display"
+                  >
+                    <Maximize2 className="h-3.5 w-3.5 mr-2" />
+                    Full-Screen Display
+                  </Button>
+                </Link>
               </div>
-            )}
-
-            <div className="mt-8">
-              <Link href="/prayer-times/display">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-white/30 text-primary-foreground hover:bg-white/10"
-                  data-testid="button-kiosk-display"
-                >
-                  <Maximize2 className="h-3.5 w-3.5 mr-2" />
-                  Full-Screen Display
-                </Button>
-              </Link>
             </div>
-          </div>
-        </section>
-
-        {/* ── Local Prayer Times (non-local visitors only) ─────────── */}
-        {!isLocal && coords && (
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-10">
-            <LocalPrayerTimesCard coords={coords} variant="page" />
-          </div>
+          </section>
         )}
 
         {/* ── Today's Prayer Cards ────────────────────────────────── */}
