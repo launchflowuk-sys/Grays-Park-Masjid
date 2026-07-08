@@ -24,7 +24,8 @@
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "graysparkmasjid.org.uk"
+        "EXPO_PUBLIC_DOMAIN": "graysparkmasjid.org.uk",
+        "EXPO_PUBLIC_PROJECT_ID": "5d3b6a65-dbb5-43ba-99bf-9932eb98e602"
       },
       "ios": {
         "autoIncrement": true,
