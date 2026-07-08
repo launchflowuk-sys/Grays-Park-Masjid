@@ -23,6 +23,9 @@
       }
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_DOMAIN": "graysparkmasjid.org.uk"
+      },
       "ios": {
         "autoIncrement": true,
         "xcode": "16.2"

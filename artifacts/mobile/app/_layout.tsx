@@ -25,7 +25,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SplashAnimation } from "@/components/SplashAnimation";
 import { AudioProvider } from "@/context/AudioContext";
 
-setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
+setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN ?? "graysparkmasjid.org.uk"}`);
 
 SplashScreen.preventAutoHideAsync();
 
