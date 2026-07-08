@@ -377,3 +377,9 @@ id = "DrFLuI9oEwtaywxDGj1hF"
 uri = "file://attached_assets/stock_images/muslim_community_celebration_5.jpg"
 type = "image"
 title = "Muslim community gathering mosque celebration traditional clothing"
+
+[[outputs]]
+id = "5Rcu-HDz18OUV8eC6SWtM"
+uri = "file://production-db-setup.zip"
+type = "unspecified"
+title = "Production Database Setup — 2 SQL files inside"
