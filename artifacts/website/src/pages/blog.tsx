@@ -139,13 +139,17 @@ export default function BlogPage() {
                 <button
                   key={cat}
                   onClick={() => handleCategoryChange(cat)}
-                  className={`relative inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold overflow-hidden transition-all border ${
+                  className={`group relative inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold overflow-hidden transition-all border ${
                     isActive
                       ? "bg-primary text-secondary border-secondary/50 shadow-lg shadow-primary/40 ring-1 ring-secondary/40 scale-[1.02]"
                       : "bg-primary/90 text-secondary border-secondary/30 shadow-md shadow-primary/20 hover:bg-primary hover:border-secondary/50"
                   }`}
                 >
-                  <IslamicPattern className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.08]" />
+                  <IslamicPattern
+                    className={`pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-500 ${
+                      isActive ? "opacity-0" : "text-white/[0.08] opacity-100 group-hover:opacity-0"
+                    }`}
+                  />
                   <Star className="h-3 w-3 shrink-0 relative" />
                   <span className="relative">{BLOG_CATEGORY_LABELS[cat]}</span>
                 </button>
