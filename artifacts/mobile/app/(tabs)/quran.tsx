@@ -428,6 +428,7 @@ export default function QuranScreen() {
           data={filtered}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
           scrollEnabled={filtered.length > 0}
           ListHeaderComponent={
