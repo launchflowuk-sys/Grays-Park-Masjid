@@ -1,0 +1,329 @@
+2026-Jul-08 05:48:59.778907 Docker 29.5.1 with BuildKit and Buildx detected on deployment server (localhost).
+2026-Jul-08 05:48:59.794372 Starting deployment of grays--park--masjid:main-b2x3tzw42paqq8t4gb8kg5k7 to localhost.
+2026-Jul-08 05:48:59.963493 Preparing container with helper image: ghcr.io/coollabsio/coolify-helper:1.0.14
+2026-Jul-08 05:49:00.086375 [DEBUG] [CMD]: docker stop --time=30 ghifr665g5whlpkrf7jqplp6
+2026-Jul-08 05:49:00.086375 [DEBUG] Flag --time has been deprecated, use --timeout instead
+2026-Jul-08 05:49:00.087997 [DEBUG] Error response from daemon: No such container: ghifr665g5whlpkrf7jqplp6
+2026-Jul-08 05:49:00.236620 [DEBUG] [CMD]: docker run -d --network 'coolify' --name ghifr665g5whlpkrf7jqplp6  --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/coollabsio/coolify-helper:1.0.14
+2026-Jul-08 05:49:00.236620 [DEBUG] 3a2a85f350b845119f887c7eaa18d8ce16d08285769b78f57cf2d5549e6edd42
+2026-Jul-08 05:49:01.776691 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'GIT_SSH_COMMAND="ssh -o ConnectTimeout=30 -p 22 -o Port=22 -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote https://x-access-token:<REDACTED>@github.com/launchflowuk-sys/Grays-Park-Masjid.git refs/heads/main'
+2026-Jul-08 05:49:01.776691 [DEBUG] 39f90e7d3ddbce6ef55aab300077b0b49148238d	refs/heads/main
+2026-Jul-08 05:49:02.005317 ----------------------------------------
+2026-Jul-08 05:49:02.015960 Importing launchflowuk-sys/Grays-Park-Masjid:main (commit sha 39f90e7d3ddbce6ef55aab300077b0b49148238d) to /artifacts/ghifr665g5whlpkrf7jqplp6.
+2026-Jul-08 05:49:02.221748 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'git clone --depth=1 --recurse-submodules --shallow-submodules -b '\''main'\'' '\''https://x-access-token:<REDACTED>@github.com/launchflowuk-sys/Grays-Park-Masjid.git'\'' '\''/artifacts/ghifr665g5whlpkrf7jqplp6'\'' && cd '\''/artifacts/ghifr665g5whlpkrf7jqplp6'\'' && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git fetch --depth=1 origin '\''39f90e7d3ddbce6ef55aab300077b0b49148238d'\'' && git -c advice.detachedHead=false checkout '\''39f90e7d3ddbce6ef55aab300077b0b49148238d'\'' >/dev/null 2>&1 && cd '\''/artifacts/ghifr665g5whlpkrf7jqplp6'\'' && if [ -f .gitmodules ]; then git submodule sync && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git submodule update --init --recursive --depth=1; fi && cd '\''/artifacts/ghifr665g5whlpkrf7jqplp6'\'' && GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git lfs pull'
+2026-Jul-08 05:49:02.221748 [DEBUG] Cloning into '/artifacts/ghifr665g5whlpkrf7jqplp6'...
+2026-Jul-08 05:49:08.618125 [DEBUG] From https://github.com/launchflowuk-sys/Grays-Park-Masjid
+2026-Jul-08 05:<REDACTED>@workspace/api-server run build
+2026-Jul-08 05:49:16.297963 [DEBUG] RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-08 05:49:16.297963 [DEBUG] 
+2026-Jul-08 05:49:16.297963 [DEBUG] FROM node:24-bookworm-slim AS runtime
+2026-Jul-08 05:49:16.297963 [DEBUG] WORKDIR /app
+2026-Jul-08 05:49:16.297963 [DEBUG] 
+2026-Jul-08 05:49:16.297963 [DEBUG] ENV NODE_ENV=production
+2026-Jul-08 05:49:16.297963 [DEBUG] COPY --from=builder /app/deploy/api-server/node_modules ./node_modules
+2026-Jul-08 05:49:16.297963 [DEBUG] COPY --from=builder /app/artifacts/api-server/dist ./dist
+2026-Jul-08 05:49:16.297963 [DEBUG] 
+2026-Jul-08 05:49:16.297963 [DEBUG] EXPOSE 8080
+2026-Jul-08 05:49:16.297963 [DEBUG] 
+2026-Jul-08 05:49:16.297963 [DEBUG] CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
+2026-Jul-08 05:49:16.452807 Added 24 ARG declarations to Dockerfile for service api-server (multi-stage build, added to 2 stages).
+2026-Jul-08 05:49:16.595470 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'test -f /artifacts/ghifr665g5whlpkrf7jqplp6/Dockerfile.api-server && echo '\''exists'\'' || echo '\''not found'\'''
+2026-Jul-08 05:49:16.595470 [DEBUG] exists
+2026-Jul-08 05:49:16.740445 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'cat /artifacts/ghifr665g5whlpkrf7jqplp6/Dockerfile.api-server'
+2026-Jul-08 05:49:16.740445 [DEBUG] # syntax=docker/dockerfile:1
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] FROM node:24-bookworm-slim AS builder
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG COOLIFY_FQDN
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG LOG_LEVEL
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG JWT_SECRET
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG APP_BASE_URL
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_PORT
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG MAIL_FROM
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_USER
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_PASS
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SERVICE_URL_WEBSITE
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SERVICE_FQDN_WEBSITE
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_HOST
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG DATABASE_URL
+2026-Jul-08 05:49:16.740445 [DEBUG] WORKDIR /app
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] RUN corepack enable
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY lib lib
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY scripts scripts
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] # Fetch full dependency graph before copying source, for better layer caching.
+2026-Jul-08 05:49:16.740445 [DEBUG] RUN pnpm install --frozen-lockfile
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY . .
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] ENV NODE_ENV=production
+2026-Jul-08 05:49:16.740445 [DEBUG] RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:16.740445 [DEBUG] RUN pnpm --filter @workspace/api-server run build
+2026-Jul-08 05:49:16.740445 [DEBUG] RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] FROM node:24-bookworm-slim AS runtime
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG COOLIFY_FQDN
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG LOG_LEVEL
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG JWT_SECRET
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG APP_BASE_URL
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_PORT
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG MAIL_FROM
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_USER
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_PASS
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SERVICE_URL_WEBSITE
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SERVICE_FQDN_WEBSITE
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG SMTP_HOST
+2026-Jul-08 05:49:16.740445 [DEBUG] ARG DATABASE_URL
+2026-Jul-08 05:49:16.740445 [DEBUG] WORKDIR /app
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] ENV NODE_ENV=production
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY --from=builder /app/deploy/api-server/node_modules ./node_modules
+2026-Jul-08 05:49:16.740445 [DEBUG] COPY --from=builder /app/artifacts/api-server/dist ./dist
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] EXPOSE 8080
+2026-Jul-08 05:49:16.740445 [DEBUG] 
+2026-Jul-08 05:49:16.740445 [DEBUG] CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
+2026-Jul-08 05:49:16.747073 Service db-push: All required ARG declarations already exist.
+2026-Jul-08 05:49:16.900146 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'test -f /artifacts/ghifr665g5whlpkrf7jqplp6/Dockerfile.website && echo '\''exists'\'' || echo '\''not found'\'''
+2026-Jul-08 05:49:16.900146 [DEBUG] exists
+2026-Jul-08 05:49:17.103364 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'cat /artifacts/ghifr665g5whlpkrf7jqplp6/Dockerfile.website'
+2026-Jul-08 05:49:17.103364 [DEBUG] # syntax=docker/dockerfile:1
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] FROM node:24-bookworm-slim AS builder
+2026-Jul-08 05:49:17.103364 [DEBUG] WORKDIR /app
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] RUN corepack enable
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY lib lib
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY scripts scripts
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] RUN pnpm install --frozen-lockfile
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY . .
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] # BASE_PATH/PORT only affect the build-time Vite config; the built assets are
+2026-Jul-08 05:49:17.103364 [DEBUG] # static and served by nginx afterwards. Override BASE_PATH at build time if
+2026-Jul-08 05:49:17.103364 [DEBUG] # the site will be hosted under a sub-path instead of the domain root.
+2026-Jul-08 05:49:17.103364 [DEBUG] ARG BASE_PATH=/
+2026-Jul-08 05:49:17.103364 [DEBUG] ARG VITE_BUILD_PORT=5173
+2026-Jul-08 05:49:17.103364 [DEBUG] ENV NODE_ENV=production
+2026-Jul-08 05:49:17.103364 [DEBUG] ENV BASE_PATH=${BASE_PATH}
+2026-Jul-08 05:49:17.103364 [DEBUG] ENV PORT=${VITE_BUILD_PORT}
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:17.103364 [DEBUG] RUN pnpm --filter @workspace/website run build
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] FROM nginx:1.27-alpine AS runtime
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY --from=builder /app/artifacts/website/dist/public /usr/share/nginx/html
+2026-Jul-08 05:49:17.103364 [DEBUG] COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] ENV PORT=80
+2026-Jul-08 05:49:17.103364 [DEBUG] EXPOSE 80
+2026-Jul-08 05:49:17.103364 [DEBUG] 
+2026-Jul-08 05:49:17.103364 [DEBUG] CMD ["nginx", "-g", "daemon off;"]
+2026-Jul-08 05:49:17.317413 Added 24 ARG declarations to Dockerfile for service website (multi-stage build, added to 2 stages).
+2026-Jul-08 05:49:17.325712 Pulling & building required images.
+2026-Jul-08 05:49:17.381752 [DEBUG] Creating build-time .env file in /artifacts (outside Docker context).
+2026-Jul-08 05:49:17.558025 Adding build arguments to Docker Compose build command.
+2026-Jul-08 05:49:18.008415 [DEBUG] [CMD]: docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'DOCKER_BUILDKIT=1 COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=b2x3tzw42paqq8t4gb8kg5k7  docker compose --env-file /artifacts/build-time.env --project-name b2x3tzw42paqq8t4gb8kg5k7 --project-directory /artifacts/ghifr665g5whlpkrf7jqplp6 -f /artifacts/ghifr665g5whlpkrf7jqplp6/docker-compose.yml build --pull --build-arg COOLIFY_FQDN --build-arg LOG_LEVEL --build-arg JWT_SECRET --build-arg APP_BASE_URL --build-arg SMTP_PORT --build-arg MAIL_FROM --build-arg SMTP_USER --build-arg SMTP_PASS --build-arg SERVICE_URL_WEBSITE --build-arg SERVICE_FQDN_WEBSITE --build-arg SMTP_HOST --build-arg DATABASE_URL --build-arg COOLIFY_BUILD_SECRETS_HASH=7ec0fba771e5fc4de1b405c709938e4d2bd7dfb89f724b5396979096a87b89dc'
+2026-Jul-08 05:49:18.008415 [DEBUG] #1 [internal] load local bake definitions
+2026-Jul-08 05:49:18.109154 [DEBUG] #1 reading from stdin 3.85kB done
+2026-Jul-08 05:49:18.109154 [DEBUG] #1 DONE 0.0s
+2026-Jul-08 05:49:18.283343 [DEBUG] #2 [website internal] load build definition from Dockerfile.website
+2026-Jul-08 05:49:18.283343 [DEBUG] #2 transferring dockerfile: 1.57kB done
+2026-Jul-08 05:49:18.283343 [DEBUG] #2 DONE 0.0s
+2026-Jul-08 05:49:18.283343 [DEBUG] 
+2026-Jul-08 05:49:18.283343 [DEBUG] #3 [db-push internal] load build definition from Dockerfile.api-server
+2026-Jul-08 05:49:18.283343 [DEBUG] #3 transferring dockerfile: 1.45kB done
+2026-Jul-08 05:49:18.283343 [DEBUG] #3 DONE 0.0s
+2026-Jul-08 05:49:18.283343 [DEBUG] 
+2026-Jul-08 05:49:18.283343 [DEBUG] #4 [api-server] resolve image config for docker-image://docker.io/docker/dockerfile:1
+2026-Jul-08 05:49:18.916762 [DEBUG] #4 DONE 0.6s
+2026-Jul-08 05:49:18.916762 [DEBUG] 
+2026-Jul-08 05:49:18.916762 [DEBUG] #5 [website] docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-Jul-08 05:49:18.916762 [DEBUG] #5 resolve docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89 0.0s done
+2026-Jul-08 05:49:18.916762 [DEBUG] #5 CACHED
+2026-Jul-08 05:49:18.920664 [DEBUG] #6 [api-server internal] load metadata for docker.io/library/node:24-bookworm-slim
+2026-Jul-08 05:49:19.517009 [DEBUG] #6 ...
+2026-Jul-08 05:49:19.517009 [DEBUG] 
+2026-Jul-08 05:49:19.517009 [DEBUG] #7 [website internal] load metadata for docker.io/library/nginx:1.27-alpine
+2026-Jul-08 05:49:19.517009 [DEBUG] #7 DONE 0.6s
+2026-Jul-08 05:49:19.676243 [DEBUG] 
+2026-Jul-08 05:49:19.681075 [DEBUG] #6 [api-server internal] load metadata for docker.io/library/node:24-bookworm-slim
+2026-Jul-08 05:49:19.681075 [DEBUG] #6 DONE 0.6s
+2026-Jul-08 05:49:19.681075 [DEBUG] 
+2026-Jul-08 05:49:19.681075 [DEBUG] #8 [db-push internal] load .dockerignore
+2026-Jul-08 05:49:19.681075 [DEBUG] #8 transferring context: 190B done
+2026-Jul-08 05:49:19.681075 [DEBUG] #8 DONE 0.0s
+2026-Jul-08 05:49:19.789947 [DEBUG] #9 [website builder  1/13] FROM docker.io/library/node:24-bookworm-slim@sha256:cb4e8f7c443347358b7875e717c29e27bf9befc8f5a26cf18af3c3dec80e58c5
+2026-Jul-08 05:49:19.789947 [DEBUG] #9 resolve docker.io/library/node:24-bookworm-slim@sha256:cb4e8f7c443347358b7875e717c29e27bf9befc8f5a26cf18af3c3dec80e58c5 0.0s done
+2026-Jul-08 05:49:19.789947 [DEBUG] #9 DONE 0.0s
+2026-Jul-08 05:49:19.789947 [DEBUG] 
+2026-Jul-08 05:49:19.789947 [DEBUG] #10 [website runtime 1/3] FROM docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+2026-Jul-08 05:49:19.789947 [DEBUG] #10 resolve docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 0.0s done
+2026-Jul-08 05:49:19.789947 [DEBUG] #10 DONE 0.0s
+2026-Jul-08 05:49:19.789947 [DEBUG] 
+2026-Jul-08 05:49:19.789947 [DEBUG] #11 [api-server internal] load build context
+2026-Jul-08 05:49:19.897980 [DEBUG] #11 transferring context: 31.20MB 0.1s done
+2026-Jul-08 05:49:19.897980 [DEBUG] #11 DONE 0.2s
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #12 [api-server builder  4/13] COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+2026-Jul-08 05:49:19.897980 [DEBUG] #12 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #13 [api-server builder  5/13] COPY artifacts/api-server/package.json artifacts/api-server/package.json
+2026-Jul-08 05:49:19.897980 [DEBUG] #13 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #14 [api-server builder  6/13] COPY artifacts/website/package.json artifacts/website/package.json
+2026-Jul-08 05:49:19.897980 [DEBUG] #14 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #15 [api-server builder  2/13] WORKDIR /app
+2026-Jul-08 05:49:19.897980 [DEBUG] #15 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #16 [api-server builder  3/13] RUN corepack enable
+2026-Jul-08 05:49:19.897980 [DEBUG] #16 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #17 [db-push builder  7/13] COPY artifacts/mockup-sandbox/package.json artifacts/mockup-sandbox/package.json
+2026-Jul-08 05:49:19.897980 [DEBUG] #17 CACHED
+2026-Jul-08 05:49:19.897980 [DEBUG] 
+2026-Jul-08 05:49:19.897980 [DEBUG] #18 [db-push builder  8/13] COPY lib lib
+2026-Jul-08 05:49:20.071784 [DEBUG] #18 DONE 0.1s
+2026-Jul-08 05:49:20.071784 [DEBUG] 
+2026-Jul-08 05:49:20.071784 [DEBUG] #19 [api-server builder  9/13] COPY scripts scripts
+2026-Jul-08 05:49:20.071784 [DEBUG] #19 DONE 0.0s
+2026-Jul-08 05:49:20.071784 [DEBUG] 
+2026-Jul-08 05:49:20.071784 [DEBUG] #20 [api-server builder 10/13] RUN pnpm install --frozen-lockfile
+2026-Jul-08 05:49:20.169676 [DEBUG] #20 0.248 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.26.1.tgz
+2026-Jul-08 05:<REDACTED>@11.10.0   │
+2026-Jul-08 05:49:21.708872 [DEBUG] #20 1.636    │                                               │
+2026-Jul-08 05:49:21.708872 [DEBUG] #20 1.636    ╰───────────────────────────────────────────────╯
+2026-Jul-08 05:49:21.708872 [DEBUG] #20 1.636
+2026-Jul-08 05:49:22.427058 [DEBUG] #20 2.355 Progress: resolved 719, reused 0, downloaded 223, added 211
+2026-Jul-08 05:49:23.277186 [DEBUG] #20 3.355 Progress: resolved 719, reused 0, downloaded 329, added 320
+2026-Jul-08 05:49:24.285786 [DEBUG] #20 4.358 Progress: resolved 719, reused 0, downloaded 508, added 481
+2026-Jul-08 05:49:25.447494 [DEBUG] #20 5.363 Progress: resolved 719, reused 0, downloaded 552, added 499
+2026-Jul-08 05:49:26.510294 [DEBUG] #20 6.363 Progress: resolved 719, reused 0, downloaded 718, added 651
+2026-Jul-08 05:49:26.510294 [DEBUG] #20 6.439 Progress: resolved 719, reused 0, downloaded 719, added 719, done
+2026-Jul-08 05:49:26.585118 [DEBUG] #20 6.664 .../esbuild@0.28.1/node_modules/esbuild postinstall$ node install.js
+2026-Jul-08 05:49:26.698779 [DEBUG] #20 6.665 .../esbuild@0.18.20/node_modules/esbuild postinstall$ node install.js
+2026-Jul-08 05:49:26.698779 [DEBUG] #20 6.665 .../esbuild@0.27.3/node_modules/esbuild postinstall$ node install.js
+2026-Jul-08 05:49:26.698779 [DEBUG] #20 6.667 .../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+2026-Jul-08 05:49:26.920271 [DEBUG] #20 6.777 .../esbuild@0.28.1/node_modules/esbuild postinstall: Done
+2026-Jul-08 05:49:26.920271 [DEBUG] #20 6.779 .../esbuild@0.18.20/node_modules/esbuild postinstall: Done
+2026-Jul-08 05:49:26.920271 [DEBUG] #20 6.821 .../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+2026-Jul-08 05:49:26.920271 [DEBUG] #20 6.848 .../esbuild@0.27.3/node_modules/esbuild postinstall: Done
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.099
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.099 devDependencies:
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.099 + prettier 3.8.4
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.099 + typescript 5.9.3
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.099
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.130 . preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+2026-Jul-08 05:49:27.245934 [DEBUG] #20 7.173 . preinstall: Done
+2026-Jul-08 05:49:27.254529 [DEBUG] #20 7.333 Done in 6.4s using pnpm v10.26.1
+2026-Jul-08 05:49:27.895957 [DEBUG] #20 DONE 7.8s
+2026-Jul-08 05:49:27.895957 [DEBUG] 
+2026-Jul-08 05:49:27.895957 [DEBUG] #21 [website builder 11/13] COPY . .
+2026-Jul-08 05:49:29.128566 [DEBUG] #21 DONE 1.2s
+2026-Jul-08 05:49:29.128566 [DEBUG] 
+2026-Jul-08 05:49:29.128566 [DEBUG] #22 [api-server builder 12/14] RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:29.574056 [DEBUG] #22 0.444
+2026-Jul-08 05:49:29.574056 [DEBUG] #22 0.444 > workspace@0.0.0 typecheck:libs /app
+2026-Jul-08 05:49:29.574056 [DEBUG] #22 0.444 > tsc --build
+2026-Jul-08 05:49:29.574056 [DEBUG] #22 0.444
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.767 lib/db/src/seed-blog-categories.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.768 lib/db/src/seed-prophet-blog.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.768 lib/db/src/seed-whatsapp-content.ts(14,36): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.768 lib/db/src/seed-whatsapp-content.ts(15,29): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.768 lib/db/src/update-blog-categories-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:31.855878 [DEBUG] #22 2.768 lib/db/src/update-prophet-blog-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.269086 [DEBUG] #22 6.291  ELIFECYCLE  Command failed with exit code 2.
+2026-Jul-08 05:49:35.388032 [DEBUG] #22 ERROR: process "/bin/sh -c pnpm run typecheck:libs" did not complete successfully: exit code: 2
+2026-Jul-08 05:49:35.388032 [DEBUG] 
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 [website builder 12/13] RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 0.443
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 0.443 > workspace@0.0.0 typecheck:libs /app
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 0.443 > tsc --build
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 0.443
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.875 lib/db/src/seed-blog-categories.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.878 lib/db/src/seed-prophet-blog.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.878 lib/db/src/seed-whatsapp-content.ts(14,36): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.878 lib/db/src/seed-whatsapp-content.ts(15,29): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.878 lib/db/src/update-blog-categories-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 2.878 lib/db/src/update-prophet-blog-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.388032 [DEBUG] #23 6.410  ELIFECYCLE  Command failed with exit code 2.
+2026-Jul-08 05:49:35.452351 [DEBUG] #23 CANCELED
+2026-Jul-08 05:49:35.452351 [DEBUG] ------
+2026-Jul-08 05:49:35.452351 [DEBUG] > [db-push builder 12/14] RUN pnpm run typecheck:libs:
+2026-Jul-08 05:49:35.452351 [DEBUG] 0.444 > workspace@0.0.0 typecheck:libs /app
+2026-Jul-08 05:49:35.452351 [DEBUG] 0.444 > tsc --build
+2026-Jul-08 05:49:35.452351 [DEBUG] 0.444
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.767 lib/db/src/seed-blog-categories.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.768 lib/db/src/seed-prophet-blog.ts(11,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.768 lib/db/src/seed-whatsapp-content.ts(14,36): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.768 lib/db/src/seed-whatsapp-content.ts(15,29): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.768 lib/db/src/update-blog-categories-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 2.768 lib/db/src/update-prophet-blog-wordcount.ts(9,32): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+2026-Jul-08 05:49:35.452351 [DEBUG] 6.291  ELIFECYCLE  Command failed with exit code 2.
+2026-Jul-08 05:49:35.452351 [DEBUG] ------
+2026-Jul-08 05:49:35.457010 [DEBUG] Dockerfile.api-server:33
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] --------------------
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] 31 |
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] 32 |     ENV NODE_ENV=production
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] 33 | >>> RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] 34 |     RUN pnpm --filter @workspace/api-server run build
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] 35 |     RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] --------------------
+2026-Jul-08 05:49:35.457010 [DEBUG] 
+2026-Jul-08 05:49:35.457010 [DEBUG] target api-server: failed to solve: process "/bin/sh -c pnpm run typecheck:libs" did not complete successfully: exit code: 2
+2026-Jul-08 05:49:35.459967 [DEBUG] exit status 1
+2026-Jul-08 05:49:35.511751 ========================================
+2026-Jul-08 05:49:35.518287 Deployment failed: Command execution failed (exit code 1): docker exec ghifr665g5whlpkrf7jqplp6 bash -c 'DOCKER_BUILDKIT=1 COOLIFY_BRANCH=main COOLIFY_RESOURCE_UUID=b2x3tzw42paqq8t4gb8kg5k7  docker compose --env-file /artifacts/build-time.env --project-name b2x3tzw42paqq8t4gb8kg5k7 --project-directory /artifacts/ghifr665g5whlpkrf7jqplp6 -f /artifacts/ghifr665g5whlpkrf7jqplp6/docker-compose.yml build --pull --build-arg COOLIFY_FQDN --build-arg LOG_LEVEL --build-arg JWT_SECRET --build-arg APP_BASE_URL --build-arg SMTP_PORT --build-arg MAIL_FROM --build-arg SMTP_USER --build-arg SMTP_PASS --build-arg SERVICE_URL_WEBSITE --build-arg SERVICE_FQDN_WEBSITE --build-arg SMTP_HOST --build-arg DATABASE_URL --build-arg COOLIFY_BUILD_SECRETS_HASH=7ec0fba771e5fc4de1b405c709938e4d2bd7dfb89f724b5396979096a87b89dc'
+2026-Jul-08 05:49:35.518287 Error: Dockerfile.api-server:33
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 --------------------
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 31 |
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 32 |     ENV NODE_ENV=production
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 33 | >>> RUN pnpm run typecheck:libs
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 34 |     RUN pnpm --filter @workspace/api-server run build
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 35 |     RUN pnpm deploy --filter @workspace/api-server --prod --legacy /app/deploy/api-server
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 --------------------
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 target api-server: failed to solve: process "/bin/sh -c pnpm run typecheck:libs" did not complete successfully: exit code: 2
+2026-Jul-08 05:49:35.518287 
+2026-Jul-08 05:49:35.518287 exit status 1
+2026-Jul-08 05:49:35.525016 [DEBUG] Error type: App\Exceptions\DeploymentException
+2026-Jul-08 05:49:35.531031 [DEBUG] Error code: 0
+2026-Jul-08 05:49:35.537464 [DEBUG] Location: /var/www/html/app/Traits/ExecuteRemoteCommand.php:242
+2026-Jul-08 05:49:35.544683 [DEBUG] Stack trace (first 5 lines):
+2026-Jul-08 05:49:35.550891 [DEBUG] #0 /var/www/html/app/Traits/ExecuteRemoteCommand.php(106): App\Jobs\ApplicationDeploymentJob->executeCommandWithProcess()
+2026-Jul-08 05:49:35.556459 [DEBUG] #1 /var/www/html/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(275): App\Jobs\ApplicationDeploymentJob->{closure:App\Traits\ExecuteRemoteCommand::execute_remote_command():72}()
+2026-Jul-08 05:49:35.562109 [DEBUG] #2 /var/www/html/app/Traits/ExecuteRemoteCommand.php(72): Illuminate\Support\Collection->each()
+2026-Jul-08 05:49:35.567328 [DEBUG] #3 /var/www/html/app/Jobs/ApplicationDeploymentJob.php(772): App\Jobs\ApplicationDeploymentJob->execute_remote_command()
+2026-Jul-08 05:49:35.572388 [DEBUG] #4 /var/www/html/app/Jobs/ApplicationDeploymentJob.php(496): App\Jobs\ApplicationDeploymentJob->deploy_docker_compose_buildpack()
+2026-Jul-08 05:49:35.577463 ========================================
+2026-Jul-08 05:49:35.847457 Gracefully shutting down build container: ghifr665g5whlpkrf7jqplp6
+2026-Jul-08 05:49:35.951935 [DEBUG] [CMD]: docker stop --time=30 ghifr665g5whlpkrf7jqplp6
+2026-Jul-08 05:49:35.951935 [DEBUG] Flag --time has been deprecated, use --timeout instead
+2026-Jul-08 05:49:36.138164 [DEBUG] ghifr665g5whlpkrf7jqplp6
