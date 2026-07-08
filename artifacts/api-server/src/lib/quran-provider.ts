@@ -195,12 +195,10 @@ interface QFChapter {
 }
 
 interface QFSearchResult {
-  id: string;
   verse_key: string;
-  verse_number: number;
-  chapter_id: number;
-  text_uthmani: string;
-  translations?: { resource_id: number; text: string; resource_name: string }[];
+  verse_id: number;
+  text: string;
+  translations?: { resource_id: number; text: string; name: string; language_name: string }[];
 }
 
 // ── AlQuran.cloud response shapes ────────────────────────────────────────────
@@ -309,13 +307,28 @@ export async function searchQuran(
       (chs) => new Map(chs.map((c) => [c.number, c.englishName])),
     );
 
-    return data.search.results.map((r) => ({
-      surahNumber: r.chapter_id,
-      surahName: chaptersMap.get(r.chapter_id) ?? `Surah ${r.chapter_id}`,
-      ayahNumber: r.verse_number,
-      arabic: r.text_uthmani,
-      translation: r.translations?.[0]?.text ?? "",
-    }));
+    return data.search.results.map((r) => {
+      // verse_key is "surahNumber:ayahNumber" e.g. "7:151"
+      const [surahStr, ayahStr] = r.verse_key.split(":");
+      const surahNumber = parseInt(surahStr, 10);
+      const ayahNumber = parseInt(ayahStr, 10);
+
+      // Prefer the requested translation, fall back to first available.
+      // Strip <em> highlight tags the search API wraps around matched words.
+      const rawTranslation =
+        r.translations?.find((t) => t.resource_id === qfTranslation)?.text ??
+        r.translations?.[0]?.text ??
+        "";
+      const translation = rawTranslation.replace(/<[^>]*>/g, "");
+
+      return {
+        surahNumber,
+        surahName: chaptersMap.get(surahNumber) ?? `Surah ${surahNumber}`,
+        ayahNumber,
+        arabic: r.text,
+        translation,
+      };
+    });
   } catch {
     return [];
   }

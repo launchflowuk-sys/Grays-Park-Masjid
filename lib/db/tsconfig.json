@@ -9,5 +9,15 @@
     "types": ["node"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "src/seed.ts", "src/reset-admin-password.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/seed.ts",
+    "src/reset-admin-password.ts",
+    "src/seed-blog-categories.ts",
+    "src/seed-prophet-blog.ts",
+    "src/seed-whatsapp-content.ts",
+    "src/update-blog-categories-wordcount.ts",
+    "src/update-prophet-blog-wordcount.ts"
+  ]
 }
