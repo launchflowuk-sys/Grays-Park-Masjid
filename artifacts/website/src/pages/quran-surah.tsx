@@ -242,6 +242,18 @@ export default function QuranSurahPage() {
 
   const { current, isPlaying, play, togglePlay } = useQuranAudio();
 
+  function buildQueue(): QuranAudioTrack[] {
+    return (verses ?? [])
+      .filter((v) => v.audio?.url)
+      .map((v) => ({
+        surahNumber,
+        ayahNumber: v.verse_number,
+        numberInSurah: v.verse_number,
+        audioUrl: v.audio!.url,
+        surahName: chapter?.name_simple ?? `Surah ${surahNumber}`,
+      }));
+  }
+
   function playAyah(ayahNumber: number, audioUrl: string | null) {
     if (!audioUrl) return;
     const track: QuranAudioTrack = {
@@ -254,8 +266,14 @@ export default function QuranSurahPage() {
     if (current?.surahNumber === surahNumber && current?.ayahNumber === ayahNumber) {
       togglePlay();
     } else {
-      play(track);
+      play(track, buildQueue());
     }
+  }
+
+  function playSurah() {
+    const queue = buildQueue();
+    if (queue.length === 0) return;
+    play(queue[0], queue);
   }
 
   function toggleBookmark(ayahNumber: number) {
@@ -307,6 +325,19 @@ export default function QuranSurahPage() {
                 {chapter.translated_name?.name} · {chapter.verses_count} verses ·{" "}
                 {chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"}
               </p>
+              {verses && verses.some((v) => v.audio?.url) && (
+                <button
+                  onClick={playSurah}
+                  data-testid="button-play-surah"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-colors"
+                  style={{ background: "#C9A84C", color: "#1B3D2F" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#b8953e"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#C9A84C"; }}
+                >
+                  <Play className="h-4 w-4" />
+                  Play Surah
+                </button>
+              )}
             </>
           ) : (
             <div className="space-y-2">
