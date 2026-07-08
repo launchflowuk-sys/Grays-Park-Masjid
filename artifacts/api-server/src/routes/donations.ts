@@ -25,7 +25,7 @@ const router: IRouter = Router();
 registerPublicList(router, "/donation-campaigns", donationCampaignsTable, eq(donationCampaignsTable.active, true));
 
 router.get("/donation-campaigns/:slug", async (req: Request, res: Response) => {
-  const slug: string = req.params.slug;
+  const slug = String(req.params.slug);
   const [campaign] = await db
     .select()
     .from(donationCampaignsTable)
