@@ -46,6 +46,7 @@ const tables: { name: string; conflictKey: string }[] = [
   { name: "gallery_albums", conflictKey: "id" },
   { name: "gallery_media", conflictKey: "id" },
   { name: "donation_campaigns", conflictKey: "id" },
+  { name: "blog_posts", conflictKey: "id" },
   { name: "site_settings", conflictKey: "key" },
 ];
 
