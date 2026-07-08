@@ -240,6 +240,102 @@ uri = "file://attached_assets/generated_images/prophet_farewell_arafah.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "u9gAo3o-PZdaqQvpc_hBx"
+uri = "file://attached_assets/generated_images/blog_masjid_quba.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ZD2EYutd5jgbTmDFntkK8"
+uri = "file://attached_assets/generated_images/blog_al_andalus.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "3pcJiESIAbeUJB3flmS3j"
+uri = "file://attached_assets/generated_images/blog_golden_age.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "nIKTJSgFSOrML-WjUdZaq"
+uri = "file://attached_assets/generated_images/blog_hijri_calendar.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "g9KUOupLGxsmaUPMx2T8z"
+uri = "file://attached_assets/generated_images/blog_uwais_qarni.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ql1OtPeuRG3BIZJqngfTz"
+uri = "file://attached_assets/generated_images/blog_bilal_adhan.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "hdi86BB0MbpWAKMCeHcjx"
+uri = "file://attached_assets/generated_images/blog_generous_neighbour.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "3PCwh5Vx8YW02rcF0ozdG"
+uri = "file://attached_assets/generated_images/blog_maryam.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "VwuTXUNTcVpy7G384OGtS"
+uri = "file://attached_assets/generated_images/blog_nikkah_services.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "0JnxdupwaFeDxL06HcyO7"
+uri = "file://attached_assets/generated_images/blog_hajj_2027.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "5TuLi-3CpHWCyYzWhXxDj"
+uri = "file://attached_assets/generated_images/blog_srebrenica.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "F5SlaDt7p-Js3581Gzm36"
+uri = "file://attached_assets/generated_images/blog_new_visitors.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "kwRFVljpw_5g0gQuLFsRb"
+uri = "file://attached_assets/generated_images/blog_istighfar.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "PsmlRCGzpJ2MjOojyJWrX"
+uri = "file://attached_assets/generated_images/blog_gratitude.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "G2BVdzlfUif-1L1LvspOo"
+uri = "file://attached_assets/generated_images/blog_fajr.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "LmUpBv4kLDuvfMfMPxa7i"
+uri = "file://attached_assets/generated_images/blog_neighbour_britain.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
