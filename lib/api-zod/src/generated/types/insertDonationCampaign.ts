@@ -7,15 +7,23 @@
  */
 
 export interface InsertDonationCampaign {
+  /** @nullable */
+  slug?: string | null;
   title: string;
   description: string;
   /** @nullable */
+  longDescription?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
+  galleryImages?: string[];
   /** @nullable */
   targetAmount?: string | null;
   raisedAmount: string;
+  presetAmounts?: number[];
   /** @nullable */
   externalDonationUrl?: string | null;
+  allowOneTime?: boolean;
+  allowMonthly?: boolean;
   active: boolean;
   featured: boolean;
 }

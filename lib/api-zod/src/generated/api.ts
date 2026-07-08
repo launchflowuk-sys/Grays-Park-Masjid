@@ -1107,12 +1107,18 @@ export const AdminDeleteCourseRegistrationResponse = zod.void()
  */
 export const ListDonationCampaignsPublicResponseItem = zod.object({
   "id": zod.string(),
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
   "active": zod.boolean(),
   "featured": zod.boolean(),
   "createdAt": zod.string()
@@ -1121,16 +1127,49 @@ export const ListDonationCampaignsPublicResponse = zod.array(ListDonationCampaig
 
 
 /**
+ * @summary Get a published donation campaign by slug
+ */
+export const GetDonationCampaignBySlugParams = zod.object({
+  "slug": zod.coerce.string()
+})
+
+export const GetDonationCampaignBySlugResponse = zod.object({
+  "id": zod.string(),
+  "slug": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "longDescription": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
+  "targetAmount": zod.string().nullish(),
+  "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
+  "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
+  "active": zod.boolean(),
+  "featured": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary List all donation campaigns (admin)
  */
 export const AdminListDonationCampaignsResponseItem = zod.object({
   "id": zod.string(),
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
   "active": zod.boolean(),
   "featured": zod.boolean(),
   "createdAt": zod.string()
@@ -1142,24 +1181,36 @@ export const AdminListDonationCampaignsResponse = zod.array(AdminListDonationCam
  * @summary Create a new donation campaign (admin)
  */
 export const AdminCreateDonationCampaignBody = zod.object({
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()).optional(),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()).optional(),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean().optional(),
+  "allowMonthly": zod.boolean().optional(),
   "active": zod.boolean(),
   "featured": zod.boolean()
 })
 
 export const AdminCreateDonationCampaignResponse = zod.object({
   "id": zod.string(),
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
   "active": zod.boolean(),
   "featured": zod.boolean(),
   "createdAt": zod.string()
@@ -1175,12 +1226,18 @@ export const AdminGetDonationCampaignParams = zod.object({
 
 export const AdminGetDonationCampaignResponse = zod.object({
   "id": zod.string(),
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
   "active": zod.boolean(),
   "featured": zod.boolean(),
   "createdAt": zod.string()
@@ -1195,24 +1252,36 @@ export const AdminUpdateDonationCampaignParams = zod.object({
 })
 
 export const AdminUpdateDonationCampaignBody = zod.object({
+  "slug": zod.string().nullish(),
   "title": zod.string().optional(),
   "description": zod.string().optional(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()).optional(),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string().optional(),
+  "presetAmounts": zod.array(zod.number()).optional(),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean().optional(),
+  "allowMonthly": zod.boolean().optional(),
   "active": zod.boolean().optional(),
   "featured": zod.boolean().optional()
 })
 
 export const AdminUpdateDonationCampaignResponse = zod.object({
   "id": zod.string(),
+  "slug": zod.string().nullish(),
   "title": zod.string(),
   "description": zod.string(),
+  "longDescription": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
+  "galleryImages": zod.array(zod.string()),
   "targetAmount": zod.string().nullish(),
   "raisedAmount": zod.string(),
+  "presetAmounts": zod.array(zod.number()),
   "externalDonationUrl": zod.string().nullish(),
+  "allowOneTime": zod.boolean(),
+  "allowMonthly": zod.boolean(),
   "active": zod.boolean(),
   "featured": zod.boolean(),
   "createdAt": zod.string()

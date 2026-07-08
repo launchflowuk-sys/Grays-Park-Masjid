@@ -521,44 +521,68 @@ export interface PatchCourseRegistration {
 
 export interface DonationCampaign {
   id: string;
+  /** @nullable */
+  slug?: string | null;
   title: string;
   description: string;
   /** @nullable */
+  longDescription?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
+  galleryImages: string[];
   /** @nullable */
   targetAmount?: string | null;
   raisedAmount: string;
+  presetAmounts: number[];
   /** @nullable */
   externalDonationUrl?: string | null;
+  allowOneTime: boolean;
+  allowMonthly: boolean;
   active: boolean;
   featured: boolean;
   createdAt: string;
 }
 
 export interface InsertDonationCampaign {
+  /** @nullable */
+  slug?: string | null;
   title: string;
   description: string;
   /** @nullable */
+  longDescription?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
+  galleryImages?: string[];
   /** @nullable */
   targetAmount?: string | null;
   raisedAmount: string;
+  presetAmounts?: number[];
   /** @nullable */
   externalDonationUrl?: string | null;
+  allowOneTime?: boolean;
+  allowMonthly?: boolean;
   active: boolean;
   featured: boolean;
 }
 
 export interface PatchDonationCampaign {
+  /** @nullable */
+  slug?: string | null;
   title?: string;
   description?: string;
   /** @nullable */
+  longDescription?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
+  galleryImages?: string[];
   /** @nullable */
   targetAmount?: string | null;
   raisedAmount?: string;
+  presetAmounts?: number[];
   /** @nullable */
   externalDonationUrl?: string | null;
+  allowOneTime?: boolean;
+  allowMonthly?: boolean;
   active?: boolean;
   featured?: boolean;
 }

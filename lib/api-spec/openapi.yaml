@@ -1159,6 +1159,30 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/DonationCampaign"
+  /donation-campaigns/{slug}:
+    parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getDonationCampaignBySlug
+      tags: [donations]
+      summary: Get a published donation campaign by slug
+      responses:
+        "200":
+          description: The donation campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationCampaign"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /admin/donation-campaigns:
     get:
       operationId: adminListDonationCampaigns
@@ -3948,18 +3972,34 @@ components:
       properties:
         id:
           type: string
+        slug:
+          type: ["string", "null"]
         title:
           type: string
         description:
           type: string
+        longDescription:
+          type: ["string", "null"]
         imageUrl:
           type: ["string", "null"]
+        galleryImages:
+          type: array
+          items:
+            type: string
         targetAmount:
           type: ["string", "null"]
         raisedAmount:
           type: string
+        presetAmounts:
+          type: array
+          items:
+            type: number
         externalDonationUrl:
           type: ["string", "null"]
+        allowOneTime:
+          type: boolean
+        allowMonthly:
+          type: boolean
         active:
           type: boolean
         featured:
@@ -3970,25 +4010,45 @@ components:
         - id
         - title
         - description
+        - galleryImages
         - raisedAmount
+        - presetAmounts
+        - allowOneTime
+        - allowMonthly
         - active
         - featured
         - createdAt
     InsertDonationCampaign:
       type: object
       properties:
+        slug:
+          type: ["string", "null"]
         title:
           type: string
         description:
           type: string
+        longDescription:
+          type: ["string", "null"]
         imageUrl:
           type: ["string", "null"]
+        galleryImages:
+          type: array
+          items:
+            type: string
         targetAmount:
           type: ["string", "null"]
         raisedAmount:
           type: string
+        presetAmounts:
+          type: array
+          items:
+            type: number
         externalDonationUrl:
           type: ["string", "null"]
+        allowOneTime:
+          type: boolean
+        allowMonthly:
+          type: boolean
         active:
           type: boolean
         featured:
@@ -4002,18 +4062,34 @@ components:
     PatchDonationCampaign:
       type: object
       properties:
+        slug:
+          type: ["string", "null"]
         title:
           type: string
         description:
           type: string
+        longDescription:
+          type: ["string", "null"]
         imageUrl:
           type: ["string", "null"]
+        galleryImages:
+          type: array
+          items:
+            type: string
         targetAmount:
           type: ["string", "null"]
         raisedAmount:
           type: string
+        presetAmounts:
+          type: array
+          items:
+            type: number
         externalDonationUrl:
           type: ["string", "null"]
+        allowOneTime:
+          type: boolean
+        allowMonthly:
+          type: boolean
         active:
           type: boolean
         featured:

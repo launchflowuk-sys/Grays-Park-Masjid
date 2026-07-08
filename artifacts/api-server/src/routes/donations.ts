@@ -23,6 +23,22 @@ import { renderEmailTemplate, emailParagraphs, emailInfoBox, escapeHtml } from "
 const router: IRouter = Router();
 
 registerPublicList(router, "/donation-campaigns", donationCampaignsTable, eq(donationCampaignsTable.active, true));
+
+router.get("/donation-campaigns/:slug", async (req: Request, res: Response) => {
+  const slug: string = req.params.slug;
+  const [campaign] = await db
+    .select()
+    .from(donationCampaignsTable)
+    .where(eq(donationCampaignsTable.slug, slug))
+    .limit(1);
+
+  if (!campaign || !campaign.active) {
+    res.status(404).json({ error: "Campaign not found" });
+    return;
+  }
+
+  res.json(campaign);
+});
 registerAdminList(router, "/admin/donation-campaigns", donationCampaignsTable, ALL_ROLES);
 registerAdminCreate(
   router,

@@ -4108,6 +4108,83 @@ export function useListDonationCampaignsPublic<TData = Awaited<ReturnType<typeof
 
 
 
+export const getGetDonationCampaignBySlugUrl = (slug: string,) => {
+
+
+
+
+  return `/api/donation-campaigns/${slug}`
+}
+
+/**
+ * @summary Get a published donation campaign by slug
+ */
+export const getDonationCampaignBySlug = async (slug: string, options?: RequestInit): Promise<DonationCampaign> => {
+
+  return customFetch<DonationCampaign>(getGetDonationCampaignBySlugUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDonationCampaignBySlugQueryKey = (slug: string,) => {
+    return [
+    `/api/donation-campaigns/${slug}`
+    ] as const;
+    }
+
+
+export const getGetDonationCampaignBySlugQueryOptions = <TData = Awaited<ReturnType<typeof getDonationCampaignBySlug>>, TError = ErrorType<ErrorResponse>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDonationCampaignBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDonationCampaignBySlugQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDonationCampaignBySlug>>> = ({ signal }) => getDonationCampaignBySlug(slug, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDonationCampaignBySlug>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDonationCampaignBySlugQueryResult = NonNullable<Awaited<ReturnType<typeof getDonationCampaignBySlug>>>
+export type GetDonationCampaignBySlugQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a published donation campaign by slug
+ */
+
+export function useGetDonationCampaignBySlug<TData = Awaited<ReturnType<typeof getDonationCampaignBySlug>>, TError = ErrorType<ErrorResponse>>(
+ slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDonationCampaignBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDonationCampaignBySlugQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getAdminListDonationCampaignsUrl = () => {
 
 

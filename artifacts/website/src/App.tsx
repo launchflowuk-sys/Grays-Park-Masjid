@@ -11,6 +11,7 @@ import TimetablePage from "@/pages/timetable";
 import AboutPage from "@/pages/about";
 import ServicesPage from "@/pages/services";
 import DonatePage from "@/pages/donate";
+import DonateCampaignPage from "@/pages/donate-campaign";
 import ContactPage from "@/pages/contact";
 import AnnouncementsPage from "@/pages/announcements";
 import EventsPage from "@/pages/events";
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/timetable" component={TimetablePage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/services" component={ServicesPage} />
+      <Route path="/donate/:slug" component={DonateCampaignPage} />
       <Route path="/donate" component={DonatePage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/announcements" component={AnnouncementsPage} />
