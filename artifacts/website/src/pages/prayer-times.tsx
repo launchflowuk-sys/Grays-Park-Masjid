@@ -199,26 +199,27 @@ export default function PrayerTimesPage() {
                   const isCurrent = current?.currentKey === prayer.key;
                   const isNext = current?.nextKey === prayer.key;
 
-                  // Sunrise: small, pale, dashed-border info card
+                  // Sunrise: prominent amber/dawn card
                   if (isSunrise) {
                     return (
                       <div
                         key={prayer.key}
                         data-testid="card-prayer-sunrise"
-                        className="flex flex-col items-center justify-center text-center rounded-xl border border-dashed border-muted-foreground/25 bg-muted/30 px-3 py-4 gap-0.5"
+                        className="relative flex flex-col items-center justify-center text-center rounded-2xl border border-amber-300/60 bg-amber-50 px-3 py-6 gap-1 overflow-hidden shadow-sm"
                       >
-                        <Sunrise className="h-4 w-4 text-secondary/60 mb-1" />
-                        <p className="font-serif text-sm tracking-wide text-muted-foreground">
+                        <div className="absolute inset-0 bg-gradient-to-b from-amber-100/80 to-orange-50/40 pointer-events-none" />
+                        <Sunrise className="h-6 w-6 text-amber-600 mb-0.5 relative z-10" />
+                        <p className="font-serif text-base tracking-wide text-amber-800 relative z-10">
                           {ARABIC_LABELS.sunrise}
                         </p>
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700/80 relative z-10">
                           Sunrise
                         </p>
-                        <p className="font-serif text-lg font-medium tabular-nums text-muted-foreground mt-1.5">
+                        <p className="font-serif text-2xl font-semibold tabular-nums text-amber-900 mt-1.5 relative z-10">
                           {formatTime12h(adhan)}
                         </p>
-                        <p className="text-[9px] text-muted-foreground/50 uppercase tracking-wide mt-0.5">
-                          No Prayer
+                        <p className="text-[9px] text-amber-700/70 uppercase tracking-wide mt-0.5 relative z-10">
+                          Fajr ends
                         </p>
                       </div>
                     );
