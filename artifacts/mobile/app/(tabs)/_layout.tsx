@@ -111,7 +111,7 @@ export default function TabLayout() {
             title: "More",
             tabBarButton: () => (
               <TouchableOpacity
-                style={[styles.moreBtn, { paddingBottom: insets.bottom + 4 }]}
+                style={styles.moreBtn}
                 onPress={() => setDrawerOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="More options"
@@ -137,8 +137,9 @@ const styles = StyleSheet.create({
   moreBtn: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-end",
-    paddingTop: 8,
+    justifyContent: "center",
+    paddingTop: 10,
+    paddingBottom: 4,
     gap: 3,
   },
   moreLabel: {
@@ -146,6 +147,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 0.2,
     color: "rgba(250,248,243,0.45)",
-    marginBottom: 0,
+    marginBottom: 4,
   },
 });
