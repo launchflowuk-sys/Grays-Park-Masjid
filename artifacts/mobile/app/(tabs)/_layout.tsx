@@ -16,7 +16,8 @@ export default function TabLayout() {
 
   const ACTIVE = colors.accent;
   const INACTIVE = "rgba(250,248,243,0.45)";
-  const BAR_HEIGHT = 56 + insets.bottom;
+  // 64px content area + safe area bottom padding
+  const BAR_HEIGHT = 64 + insets.bottom;
 
   return (
     <>
@@ -32,15 +33,17 @@ export default function TabLayout() {
             borderTopColor: "rgba(201,168,76,0.25)",
             elevation: 0,
             shadowOpacity: 0,
+            paddingBottom: insets.bottom,
           },
           tabBarLabelStyle: {
             fontSize: 10,
             fontFamily: "Inter_600SemiBold",
             letterSpacing: 0.2,
-            marginBottom: insets.bottom > 0 ? insets.bottom - 2 : 6,
+            marginBottom: 4,
           },
           tabBarItemStyle: {
-            paddingTop: 8,
+            paddingTop: 10,
+            paddingBottom: 4,
           },
         }}
       >
@@ -108,7 +111,7 @@ export default function TabLayout() {
             title: "More",
             tabBarButton: () => (
               <TouchableOpacity
-                style={[styles.moreBtn, { paddingBottom: insets.bottom > 0 ? insets.bottom - 2 : 6 }]}
+                style={[styles.moreBtn, { paddingBottom: insets.bottom + 4 }]}
                 onPress={() => setDrawerOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="More options"

@@ -20,7 +20,7 @@ interface AppDrawerProps {
   onClose: () => void;
 }
 
-const DRAWER_CONTENT_HEIGHT = 300;
+const DRAWER_CONTENT_HEIGHT = 420;
 
 const ITEMS = [
   {
@@ -103,7 +103,7 @@ export function AppDrawer({ visible, onClose }: AppDrawerProps) {
         <Animated.View
           style={[
             styles.drawer,
-            { paddingBottom: insets.bottom + 8, transform: [{ translateY: slideAnim }] },
+            { paddingBottom: insets.bottom + 24, transform: [{ translateY: slideAnim }] },
           ]}
         >
           {/* ── Islamic header ── */}

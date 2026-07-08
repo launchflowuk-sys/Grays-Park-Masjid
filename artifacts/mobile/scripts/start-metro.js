@@ -17,7 +17,8 @@ const { spawn } = require("child_process");
 
 const port = process.env.PORT || "18115";
 
-const env = { ...process.env };
+// CI=1 tells Expo CLI to skip interactive login prompts
+const env = { ...process.env, CI: "1" };
 
 const proc = spawn(
   "pnpm",
