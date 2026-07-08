@@ -15,6 +15,23 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+/**
+ * Resolve a potentially relative image URL to an absolute one.
+ * Relative URLs (starting with "/") break in actual email clients because they
+ * have no origin to resolve against. Use APP_BASE_URL if set, otherwise derive
+ * from the incoming request host.
+ */
+function resolveImageUrl(url: string | null | undefined, req: Request): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith("/")) {
+    const appBaseUrl =
+      process.env.APP_BASE_URL ||
+      `${(req.headers["x-forwarded-proto"] as string | undefined) ?? req.protocol}://${(req.headers["x-forwarded-host"] as string | undefined) ?? req.get("host")}`;
+    return `${appBaseUrl.replace(/\/$/, "")}${url}`;
+  }
+  return url;
+}
+
 router.get(
   "/admin/email-campaigns",
   requireAuth,
@@ -75,7 +92,7 @@ router.post(
     const html = renderEmailTemplate({
       heading: resolvedSubject,
       bodyHtml,
-      bannerImageUrl: bannerImageUrl ?? undefined,
+      bannerImageUrl: resolveImageUrl(bannerImageUrl, req),
       ctaLabel: ctaLabel ?? undefined,
       ctaUrl: ctaUrl ?? undefined,
     });
@@ -246,7 +263,7 @@ router.post(
       const htmlBody = renderEmailTemplate({
         heading: campaign.subject,
         bodyHtml,
-        bannerImageUrl: campaign.bannerImageUrl ?? undefined,
+        bannerImageUrl: resolveImageUrl(campaign.bannerImageUrl, req),
         ctaLabel: campaign.ctaLabel ?? undefined,
         ctaUrl: campaign.ctaUrl ?? undefined,
         unsubscribeUrl,

@@ -22,7 +22,10 @@ export function ImageUpload({ value, onChange, aspectHint, disabled, className }
 
   const { uploadFile, isUploading, progress, error: uploadError } = useUpload({
     onSuccess: (res) => {
-      onChange(`/api/storage/objects/${res.objectPath}`);
+      // objectPath may start with "/objects/..." — strip any leading slashes before
+      // joining so we never produce a double-slash URL like /api/storage/objects//objects/…
+      const cleanPath = res.objectPath.replace(/^\/+/, "");
+      onChange(`/api/storage/objects/${cleanPath}`);
     },
   });
 

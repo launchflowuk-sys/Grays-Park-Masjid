@@ -148,11 +148,27 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   try {
     const raw = req.params.path;
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
-    const objectPath = `/objects/${wildcardPath}`;
+    // Strip any leading slashes from wildcardPath before joining — a double-slash
+    // in the request URL (e.g. /storage/objects//objects/…) would otherwise produce
+    // an incorrect objectPath like /objects//objects/….
+    const objectPath = `/objects/${wildcardPath.replace(/^\/+/, "")}`;
 
     if (!IS_REPLIT_ENVIRONMENT) {
       const filePath = await localObjectStorageService.getObjectEntityFilePath(objectPath);
       const stat = fs.statSync(filePath);
+      // Derive Content-Type from the file extension so browsers treat WebP/PNG/etc correctly.
+      const ext = filePath.split(".").pop()?.toLowerCase() ?? "";
+      const contentTypeMap: Record<string, string> = {
+        webp: "image/webp",
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif",
+        svg: "image/svg+xml",
+        pdf: "application/pdf",
+      };
+      const contentType = contentTypeMap[ext] ?? "application/octet-stream";
+      res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Length", String(stat.size));
       res.setHeader("Cache-Control", "private, max-age=3600");
       createReadStream(filePath).pipe(res);
