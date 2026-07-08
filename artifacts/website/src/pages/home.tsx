@@ -98,7 +98,9 @@ const STATS = [
 
 function SmartPrayerCard() {
   const { status, isLocal, coords } = useVisitorLocation();
-  const isDetecting = status === "idle" || status === "detecting";
+  // Only show the detecting text when GPS is actively pending (after IP said remote).
+  // During the silent IP pre-check (status "idle") we show nothing extra.
+  const isDetecting = status === "detecting";
 
   return (
     <div>
