@@ -15,12 +15,14 @@ import { coerceDates, serialize, registerAdminItemRoutes } from "../lib/crud";
 import {
   RECITERS,
   DEFAULT_TRANSLATIONS,
+  DEFAULT_TAFSIRS,
   getQuranSettings,
   fetchChapters,
   fetchChapter,
   fetchChapterVerses,
   fetchAyah,
   searchQuran,
+  fetchAyahTafsir,
 } from "../lib/quran-provider";
 
 const router: IRouter = Router();
@@ -202,6 +204,36 @@ router.get("/quran/reflections/:surah/:ayah", async (req: Request, res: Response
   );
 
   res.json(filtered.map(serialize));
+});
+
+// ── On-demand tafsir from Quran Foundation API ────────────────────────────────
+router.get("/quran/tafsirs", (_req: Request, res: Response) => {
+  res.json(DEFAULT_TAFSIRS);
+});
+
+router.get("/quran/tafsir/:surah/:ayah", async (req: Request, res: Response) => {
+  const surah = Number(req.params.surah);
+  const ayah = Number(req.params.ayah);
+  const tafsirId = Number(req.query.tafsir ?? 169);
+
+  if (
+    !Number.isInteger(surah) || surah < 1 || surah > 114 ||
+    !Number.isInteger(ayah) || ayah < 1
+  ) {
+    res.status(400).json({ error: "Invalid surah or ayah number" });
+    return;
+  }
+
+  try {
+    const result = await fetchAyahTafsir(surah, ayah, tafsirId);
+    if (!result) {
+      res.status(404).json({ error: "Tafsir not available for this verse" });
+      return;
+    }
+    res.json(result);
+  } catch {
+    res.status(502).json({ error: "Failed to fetch tafsir from Qur'an Foundation" });
+  }
 });
 
 router.put(

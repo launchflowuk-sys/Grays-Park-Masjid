@@ -87,6 +87,69 @@ function revelationPlace(surahNumber: number): string {
   return MADINAH_SURAHS.has(surahNumber) ? "Medinan" : "Meccan";
 }
 
+// ── Tafsir support ────────────────────────────────────────────────────────────
+export interface QuranTafsir {
+  id: number;
+  name: string;
+  author: string;
+  language: string;
+}
+
+export const DEFAULT_TAFSIRS: QuranTafsir[] = [
+  { id: 169, name: "Ibn Kathir (Abridged)", author: "Ibn Kathir", language: "en" },
+  { id: 168, name: "Ma'arif al-Qur'an", author: "Mufti Muhammad Shafi", language: "en" },
+  { id: 817, name: "Tazkirul Quran", author: "Maulana Wahiduddin Khan", language: "en" },
+];
+
+export interface TafsirResult {
+  tafsirId: number;
+  tafsirName: string;
+  verseKey: string;
+  text: string;
+}
+
+export async function fetchAyahTafsir(
+  surahNumber: number,
+  ayahNumber: number,
+  tafsirId: number,
+): Promise<TafsirResult | null> {
+  const verseKey = `${surahNumber}:${ayahNumber}`;
+  const ttl = await getCacheDurationMinutes();
+
+  return getCached(`qf:tafsir:${verseKey}:${tafsirId}`, "tafsir", ttl, async () => {
+    // Use the dedicated per-ayah tafsir endpoint (works with or without OAuth)
+    const data = await qfFetch<{
+      tafsir: {
+        text?: string;
+        resource_name?: string;
+        resource_id?: number;
+      };
+    }>(`/tafsirs/${tafsirId}/by_ayah/${verseKey}`);
+
+    if (!data.tafsir?.text) return null;
+
+    // Strip all HTML tags — tafsir text contains <h2>, <p>, <br>, etc.
+    const text = data.tafsir.text
+      .replace(/<h[1-6][^>]*>/gi, "\n\n")
+      .replace(/<\/h[1-6]>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<p[^>]*>/gi, "")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
+    const def = DEFAULT_TAFSIRS.find((t) => t.id === tafsirId);
+
+    return {
+      tafsirId,
+      tafsirName: def?.name ?? data.tafsir.resource_name ?? "Tafsir",
+      verseKey,
+      text,
+    };
+  });
+}
+
 // ── Public API surface ────────────────────────────────────────────────────────
 export const RECITERS = [
   { id: "ar.alafasy", name: "Mishary Rashid Alafasy" },

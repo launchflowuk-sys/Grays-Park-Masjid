@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -33,6 +33,11 @@ import {
   BookmarkCheck,
   Volume2,
   LayoutGrid,
+  BookOpen,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from "lucide-react";
 
 const BOOKMARKS_KEY = "gpm-quran-bookmarks";
@@ -50,6 +55,113 @@ function writeBookmarks(bookmarks: string[]) {
   localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
 }
 
+interface TafsirEntry {
+  tafsirId: number;
+  tafsirName: string;
+  verseKey: string;
+  text: string;
+}
+
+interface TafsirDef {
+  id: number;
+  name: string;
+  author: string;
+  language: string;
+}
+
+// ── Per-ayah tafsir panel ──────────────────────────────────────────────────────
+function TafsirPanel({
+  surahNumber,
+  ayahNumber,
+  tafsirId,
+  onClose,
+}: {
+  surahNumber: number;
+  ayahNumber: number;
+  tafsirId: number;
+  onClose: () => void;
+}) {
+  const [data, setData] = useState<TafsirEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    setData(null);
+    setExpanded(false);
+    const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+    fetch(`${base}/api/quran/tafsir/${surahNumber}/${ayahNumber}?tafsir=${tafsirId}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("not found");
+        return res.json() as Promise<TafsirEntry>;
+      })
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [surahNumber, ayahNumber, tafsirId]);
+
+  const PREVIEW_CHARS = 420;
+  const isLong = (data?.text.length ?? 0) > PREVIEW_CHARS;
+  const displayText =
+    data && isLong && !expanded
+      ? data.text.slice(0, PREVIEW_CHARS).trimEnd() + "…"
+      : data?.text ?? "";
+
+  return (
+    <div
+      className="mt-3 rounded-xl border border-[#C9A84C]/30 bg-[#1B3D2F]/[0.04] overflow-hidden"
+      data-testid={`tafsir-panel-${ayahNumber}`}
+    >
+      {/* header */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#C9A84C]/20 bg-[#1B3D2F]/[0.05]">
+        <span className="text-[11px] font-semibold tracking-widest uppercase text-[#1B3D2F]/60">
+          {data?.tafsirName ?? "Tafsir"}
+        </span>
+        <button
+          onClick={onClose}
+          className="rounded p-0.5 text-[#1B3D2F]/40 hover:text-[#1B3D2F] transition-colors"
+          aria-label="Close tafsir"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <div className="px-4 py-3 text-sm leading-relaxed text-[#1B3D2F]/85">
+        {loading && (
+          <div className="flex items-center gap-2 py-2 text-muted-foreground text-xs">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Loading tafsir…
+          </div>
+        )}
+        {error && (
+          <p className="text-xs text-muted-foreground py-1">
+            Could not load tafsir for this verse. Please try again.
+          </p>
+        )}
+        {data && (
+          <>
+            <p className="whitespace-pre-line">{displayText}</p>
+            {isLong && (
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="mt-2 flex items-center gap-1 text-xs font-medium text-[#1B3D2F]/60 hover:text-[#1B3D2F] transition-colors"
+              >
+                {expanded ? (
+                  <><ChevronUp className="h-3 w-3" /> Show less</>
+                ) : (
+                  <><ChevronDown className="h-3 w-3" /> Read full tafsir</>
+                )}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ──────────────────────────────────────────────────────────────────
 export default function QuranSurahPage() {
   const params = useParams<{ number: string }>();
   const surahNumber = Number(params.number);
@@ -64,6 +176,11 @@ export default function QuranSurahPage() {
   const [reciter, setReciter] = useState<string>("");
   const [bookmarks, setBookmarks] = useState<string[]>([]);
 
+  // Tafsir state
+  const [tafsirList, setTafsirList] = useState<TafsirDef[]>([]);
+  const [selectedTafsir, setSelectedTafsir] = useState<number>(169); // Ibn Kathir default
+  const [openTafsirAyah, setOpenTafsirAyah] = useState<number | null>(null);
+
   useEffect(() => {
     setBookmarks(readBookmarks());
   }, []);
@@ -73,12 +190,21 @@ export default function QuranSurahPage() {
     if (settings && !reciter) setReciter(settings.defaultReciter);
   }, [settings, translation, reciter]);
 
+  // Fetch tafsir list once
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+    fetch(`${base}/api/quran/tafsirs`)
+      .then((r) => r.json())
+      .then((list: TafsirDef[]) => setTafsirList(list))
+      .catch(() => {});
+  }, []);
+
   const { data: verses, isLoading: versesLoading } = useGetQuranChapterVerses(
     surahNumber,
     { translation: translation || undefined, reciter: reciter || undefined },
     {
       query: {
-        enabled: !!surahNumber && !!translation && !!reciter,
+        enabled: surahNumber >= 1 && surahNumber <= 114 && !!translation && !!reciter,
         queryKey: getGetQuranChapterVersesQueryKey(surahNumber, {
           translation: translation || undefined,
           reciter: reciter || undefined,
@@ -87,119 +213,98 @@ export default function QuranSurahPage() {
     },
   );
 
-  const chapter = chapters?.find((c) => c.id === surahNumber);
-  const { current, isPlaying, play, togglePlay } = useQuranAudio();
+  const chapter = useMemo(
+    () => chapters?.find((c) => c.id === surahNumber),
+    [chapters, surahNumber],
+  );
 
-  useEffect(() => {
-    if (!chapter) return;
-    document.getElementById(`ayah-${window.location.hash.replace("#ayah-", "")}`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  }, [chapter, verses]);
+  const prevChapter = useMemo(
+    () => (chapters && surahNumber > 1 ? chapters.find((c) => c.id === surahNumber - 1) : null),
+    [chapters, surahNumber],
+  );
+  const nextChapter = useMemo(
+    () => (chapters && surahNumber < 114 ? chapters.find((c) => c.id === surahNumber + 1) : null),
+    [chapters, surahNumber],
+  );
 
-  const queue: QuranAudioTrack[] = useMemo(() => {
-    if (!verses || !chapter) return [];
-    return verses
-      .filter((v) => v.audio?.url)
-      .map((v) => ({
-        surahNumber,
-        ayahNumber: v.verse_number,
-        numberInSurah: v.verse_number,
-        audioUrl: v.audio!.url,
-        surahName: chapter.name_simple,
-      }));
-  }, [verses, chapter, surahNumber]);
+  const { current, isPlaying, playTrack, togglePlay } = useQuranAudio();
+
+  function playAyah(ayahNumber: number, audioUrl: string | null) {
+    if (!audioUrl) return;
+    const track: QuranAudioTrack = {
+      surahNumber,
+      ayahNumber,
+      audioUrl,
+      surahName: chapter?.name_simple ?? `Surah ${surahNumber}`,
+    };
+    if (current?.surahNumber === surahNumber && current?.ayahNumber === ayahNumber) {
+      togglePlay();
+    } else {
+      playTrack(track);
+    }
+  }
 
   function toggleBookmark(ayahNumber: number) {
     const key = `${surahNumber}:${ayahNumber}`;
-    const next = bookmarks.includes(key)
-      ? bookmarks.filter((b) => b !== key)
-      : [...bookmarks, key];
-    setBookmarks(next);
-    writeBookmarks(next);
-    toast({ title: bookmarks.includes(key) ? "Bookmark removed" : "Ayah bookmarked" });
+    setBookmarks((prev) => {
+      const next = prev.includes(key) ? prev.filter((b) => b !== key) : [...prev, key];
+      writeBookmarks(next);
+      return next;
+    });
   }
 
   function shareAyah(ayahNumber: number) {
     const url = `${window.location.origin}${window.location.pathname}#ayah-${ayahNumber}`;
-    if (navigator.share) {
-      navigator.share({ title: `${chapter?.name_simple} ${surahNumber}:${ayahNumber}`, url }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Link copied to clipboard" });
-    }
+    navigator.clipboard
+      .writeText(url)
+      .then(() => toast({ title: "Link copied", description: `Ayah ${surahNumber}:${ayahNumber}` }))
+      .catch(() => {});
   }
 
-  function playSurahFromStart() {
-    if (queue.length === 0) return;
-    play(queue[0], queue);
+  function toggleTafsir(ayahNumber: number) {
+    setOpenTafsirAyah((prev) => (prev === ayahNumber ? null : ayahNumber));
   }
 
-  function playAyah(verseNumber: number, audioUrl: string | null) {
-    if (!audioUrl || !chapter) return;
-    const track: QuranAudioTrack = {
-      surahNumber,
-      ayahNumber: verseNumber,
-      numberInSurah: verseNumber,
-      audioUrl,
-      surahName: chapter.name_simple,
-    };
-    if (current?.surahNumber === surahNumber && current?.ayahNumber === verseNumber) {
-      togglePlay();
-    } else {
-      play(track, queue);
-    }
+  if (!chapter && chapters) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Surah not found.
+      </div>
+    );
   }
-
-  const prevChapter = chapters?.find((c) => c.id === surahNumber - 1);
-  const nextChapter = chapters?.find((c) => c.id === surahNumber + 1);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col" style={{ background: "#FAF8F3" }}>
       <SiteHeader />
 
-      <section className="relative bg-primary overflow-hidden">
-        <IslamicPattern className="pointer-events-none absolute inset-0 w-full h-full text-primary-foreground/[0.04]" />
-        <div className="relative mx-auto max-w-4xl px-6 py-10 sm:py-14 text-center">
+      {/* ── Hero ── */}
+      <section className="relative bg-primary text-primary-foreground pt-12 pb-10 overflow-hidden">
+        <IslamicPattern className="pointer-events-none absolute inset-0 opacity-[0.05] w-full h-full" />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
           {chapter ? (
             <>
-              <p className="text-xs uppercase tracking-[0.15em] text-secondary font-semibold mb-3">
-                Surah {chapter.id} &middot; {chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"} &middot; {chapter.verses_count} verses
-              </p>
-              <h1 className="font-serif text-3xl sm:text-4xl text-primary-foreground mb-2">
-                {chapter.name_simple}
-                <span className="block text-sm font-sans font-normal text-primary-foreground/70 mt-1">
-                  {chapter.translated_name?.name}
-                </span>
-              </h1>
-              <p dir="rtl" className="font-serif text-4xl text-secondary mt-4">
+              <p className="font-arabic text-4xl sm:text-5xl mb-2 leading-relaxed text-secondary">
                 {chapter.name_arabic}
               </p>
-              <div className="mt-6">
-                <Button
-                  onClick={playSurahFromStart}
-                  className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2"
-                  data-testid="button-play-surah"
-                >
-                  {isPlaying && current?.surahNumber === surahNumber ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                  {isPlaying && current?.surahNumber === surahNumber ? "Playing Surah" : "Play Surah"}
-                </Button>
-              </div>
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
+                {chapter.name_simple}
+              </h1>
+              <p className="text-primary-foreground/60 text-sm">
+                {chapter.translated_name?.name} · {chapter.verses_count} verses ·{" "}
+                {chapter.revelation_place === "makkah" ? "Meccan" : "Medinan"}
+              </p>
             </>
           ) : (
-            <Skeleton className="h-24 w-full max-w-md mx-auto bg-primary-foreground/10" />
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-32 mx-auto bg-primary-foreground/10" />
+              <Skeleton className="h-6 w-48 mx-auto bg-primary-foreground/10" />
+            </div>
           )}
         </div>
       </section>
 
       {/* ── Filter bar ── */}
       <div className="sticky top-[57px] z-30 bg-[#FAF8F3] border-b border-[#C9A84C]/30">
-        {/* gold shimmer line at top */}
         <div className="h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent" />
         <div className="mx-auto max-w-4xl px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2 justify-between">
 
@@ -225,10 +330,10 @@ export default function QuranSurahPage() {
           </div>
 
           {/* Centre: selects */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Select value={translation} onValueChange={setTranslation}>
               <SelectTrigger
-                className="h-8 w-[150px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
+                className="h-8 w-[140px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
                 data-testid="select-translation"
               >
                 <SelectValue placeholder="Translation" />
@@ -242,12 +347,11 @@ export default function QuranSurahPage() {
               </SelectContent>
             </Select>
 
-            {/* small diamond separator */}
             <span className="text-[#C9A84C]/60 text-xs select-none">◆</span>
 
             <Select value={reciter} onValueChange={setReciter}>
               <SelectTrigger
-                className="h-8 w-[150px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
+                className="h-8 w-[140px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
                 data-testid="select-reciter"
               >
                 <SelectValue placeholder="Reciter" />
@@ -260,6 +364,34 @@ export default function QuranSurahPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            {tafsirList.length > 0 && (
+              <>
+                <span className="text-[#C9A84C]/60 text-xs select-none">◆</span>
+                <Select
+                  value={String(selectedTafsir)}
+                  onValueChange={(v) => {
+                    setSelectedTafsir(Number(v));
+                    setOpenTafsirAyah(null);
+                  }}
+                >
+                  <SelectTrigger
+                    className="h-8 w-[150px] text-[11px] bg-white border-[#C9A84C]/40 text-[#1B3D2F] rounded-sm focus:ring-1 focus:ring-[#C9A84C]/60 focus:border-[#C9A84C]"
+                    data-testid="select-tafsir"
+                  >
+                    <BookOpen className="h-3 w-3 mr-1 text-[#C9A84C]" />
+                    <SelectValue placeholder="Tafsir" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tafsirList.map((t) => (
+                      <SelectItem key={t.id} value={String(t.id)} className="text-xs">
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
           </div>
 
           {/* Right: next */}
@@ -293,6 +425,8 @@ export default function QuranSurahPage() {
               const isBookmarked = bookmarks.includes(key);
               const isCurrentAudio =
                 current?.surahNumber === surahNumber && current?.ayahNumber === verse.verse_number;
+              const isTafsirOpen = openTafsirAyah === verse.verse_number;
+
               return (
                 <Card
                   key={verse.verse_key}
@@ -324,6 +458,18 @@ export default function QuranSurahPage() {
                             )}
                           </Button>
                         )}
+                        {/* Tafsir / reflection button */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className={`h-8 w-8 ${isTafsirOpen ? "bg-primary/10 text-primary" : ""}`}
+                          onClick={() => toggleTafsir(verse.verse_number)}
+                          aria-label={isTafsirOpen ? "Close tafsir" : "Show tafsir / reflection"}
+                          data-testid={`button-tafsir-ayah-${verse.verse_number}`}
+                          title="Show tafsir / reflection"
+                        >
+                          <BookOpen className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"
@@ -350,10 +496,23 @@ export default function QuranSurahPage() {
                         </Button>
                       </div>
                     </div>
+
                     <p dir="rtl" className="font-serif text-2xl sm:text-3xl leading-[2.1] mb-4 text-right">
                       {verse.text_uthmani}
                     </p>
-                    <p className="text-muted-foreground leading-relaxed">{verse.translations?.[0]?.text ?? ""}</p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {verse.translations?.[0]?.text ?? ""}
+                    </p>
+
+                    {/* Inline tafsir panel */}
+                    {isTafsirOpen && (
+                      <TafsirPanel
+                        surahNumber={surahNumber}
+                        ayahNumber={verse.verse_number}
+                        tafsirId={selectedTafsir}
+                        onClose={() => setOpenTafsirAyah(null)}
+                      />
+                    )}
                   </CardContent>
                 </Card>
               );
