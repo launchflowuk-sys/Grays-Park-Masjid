@@ -114,37 +114,52 @@ function TafsirPanel({
 
   return (
     <div
-      className="mt-3 rounded-xl border border-[#C9A84C]/30 bg-[#1B3D2F]/[0.04] overflow-hidden"
+      className="relative mt-3 rounded-xl overflow-hidden"
+      style={{ background: "#1B3D2F" }}
       data-testid={`tafsir-panel-${ayahNumber}`}
     >
-      {/* header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#C9A84C]/20 bg-[#1B3D2F]/[0.05]">
-        <span className="text-[11px] font-semibold tracking-widest uppercase text-[#1B3D2F]/60">
-          {data?.tafsirName ?? "Tafsir"}
-        </span>
+      {/* Islamic pattern overlay */}
+      <IslamicPattern className="pointer-events-none absolute inset-0 opacity-[0.07] w-full h-full" />
+
+      {/* Header */}
+      <div
+        className="relative flex items-center justify-between px-4 py-3 border-b"
+        style={{ borderColor: "rgba(201,168,76,0.25)" }}
+      >
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} />
+          <span
+            className="text-[11px] font-semibold tracking-widest uppercase"
+            style={{ color: "#C9A84C" }}
+          >
+            {data?.tafsirName ?? "Tafsir"}
+          </span>
+        </div>
         <button
           onClick={onClose}
-          className="rounded p-0.5 text-[#1B3D2F]/40 hover:text-[#1B3D2F] transition-colors"
+          className="rounded p-0.5 transition-opacity opacity-60 hover:opacity-100"
+          style={{ color: "#C9A84C" }}
           aria-label="Close tafsir"
         >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      <div className="px-4 py-3 text-sm leading-relaxed text-[#1B3D2F]/85">
+      {/* Body */}
+      <div className="relative px-5 py-4 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.90)" }}>
         {loading && (
-          <div className="flex items-center gap-2 py-2 text-muted-foreground text-xs">
+          <div className="flex items-center gap-2 py-1 text-xs" style={{ color: "rgba(201,168,76,0.7)" }}>
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             Loading tafsir…
           </div>
         )}
         {error === "not_available" && (
-          <p className="text-xs text-muted-foreground py-1">
+          <p className="text-xs py-1" style={{ color: "rgba(255,255,255,0.5)" }}>
             This tafsir does not have commentary for this verse.
           </p>
         )}
         {error === "error" && (
-          <p className="text-xs text-muted-foreground py-1">
+          <p className="text-xs py-1" style={{ color: "rgba(255,255,255,0.5)" }}>
             Could not load tafsir. Please try again.
           </p>
         )}
@@ -154,7 +169,8 @@ function TafsirPanel({
             {isLong && (
               <button
                 onClick={() => setExpanded((v) => !v)}
-                className="mt-2 flex items-center gap-1 text-xs font-medium text-[#1B3D2F]/60 hover:text-[#1B3D2F] transition-colors"
+                className="mt-3 flex items-center gap-1 text-xs font-semibold transition-opacity opacity-70 hover:opacity-100"
+                style={{ color: "#C9A84C" }}
               >
                 {expanded ? (
                   <><ChevronUp className="h-3 w-3" /> Show less</>
