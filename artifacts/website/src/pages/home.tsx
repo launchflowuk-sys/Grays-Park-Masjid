@@ -549,17 +549,12 @@ function ThisWeekSection() {
                 data-testid={`item-home-event-${event.id}`}
               >
                 <div className="relative h-44 overflow-hidden bg-primary">
-                  {event.imageUrl ? (
-                    <img
-                      src={event.imageUrl}
-                      alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <CalendarDays className="h-8 w-8 text-primary-foreground/50" />
-                    </div>
-                  )}
+                  <img
+                    src={event.imageUrl || masjidBuildingImage}
+                    alt={event.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <div className="absolute top-3 left-3 bg-card/95 rounded-xl px-3 py-1.5 text-center leading-none shadow-sm">
                     <p className="text-lg font-serif text-primary">{day}</p>
                     <p className="text-[10px] font-semibold tracking-wide text-muted-foreground mt-0.5">{month}</p>

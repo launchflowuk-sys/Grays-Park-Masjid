@@ -3,6 +3,7 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { useListEventsPublic } from "@workspace/api-client-react";
 import { CalendarDays, MapPin } from "lucide-react";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import masjidBuildingImage from "@/assets/generated_images/masjid_building.webp";
 
 function formatDateRange(startsAt: string, endsAt?: string | null) {
   const start = new Date(startsAt);
@@ -64,16 +65,14 @@ export default function EventsPage() {
                       data-testid={`card-event-${event.id}`}
                       className="group relative overflow-hidden rounded-2xl border border-card-border bg-card hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col"
                     >
-                      {event.imageUrl ? (
-                        <div className="relative h-44 overflow-hidden">
-                          <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                        </div>
-                      ) : (
-                        <div className="h-2 bg-gradient-to-r from-primary to-primary/60 relative overflow-hidden">
-                          <IslamicPattern className="absolute inset-0 h-full w-full text-white/20 [background-size:20px_20px]" />
-                        </div>
-                      )}
+                      <div className="relative h-44 overflow-hidden">
+                        <img
+                          src={event.imageUrl || masjidBuildingImage}
+                          alt={event.title}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      </div>
                       <div className="p-6 flex-1 flex flex-col">
                         <p className="font-serif text-lg mb-3 leading-snug">{event.title}</p>
                         <div className="flex items-start gap-2 text-xs text-muted-foreground mb-2">
