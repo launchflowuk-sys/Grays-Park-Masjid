@@ -19,3 +19,4 @@ export * from "./quran";
 export * from "./blog";
 export * from "./device-tokens";
 export * from "./notification-broadcasts";
+export * from "./email-campaigns";

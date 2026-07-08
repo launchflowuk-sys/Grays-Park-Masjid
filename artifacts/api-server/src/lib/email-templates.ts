@@ -18,10 +18,11 @@ export function renderEmailTemplate(options: {
   preheader?: string;
   heading: string;
   bodyHtml: string;
+  bannerImageUrl?: string;
   ctaLabel?: string;
   ctaUrl?: string;
 }): string {
-  const { preheader, heading, bodyHtml, ctaLabel, ctaUrl } = options;
+  const { preheader, heading, bodyHtml, bannerImageUrl, ctaLabel, ctaUrl } = options;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -53,6 +54,15 @@ export function renderEmailTemplate(options: {
                 </p>
               </td>
             </tr>
+            ${
+              bannerImageUrl
+                ? `<tr>
+              <td style="padding:0;line-height:0;">
+                <img src="${bannerImageUrl}" alt="" width="560" style="width:100%;max-width:560px;height:auto;display:block;border:0;" />
+              </td>
+            </tr>`
+                : ""
+            }
             <tr>
               <td style="padding:36px 32px 8px 32px;">
                 <h1 style="margin:0 0 18px 0;font-size:22px;line-height:1.35;color:${TEXT_DARK};font-family:Georgia,'Times New Roman',serif;">

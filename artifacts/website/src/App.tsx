@@ -59,6 +59,7 @@ import AdminHelpPage from "@/pages/admin/help";
 import AdminPushNotificationsPage from "@/pages/admin/push-notifications";
 import AdminBlogPage from "@/pages/admin/blog";
 import AdminBlogEditorPage from "@/pages/admin/blog-editor";
+import AdminEmailCampaignsPage from "@/pages/admin/email-campaigns";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
 import ProphetPage from "@/pages/prophet";
@@ -145,6 +146,7 @@ function Router() {
       <Route path="/admin/blog/new" component={AdminBlogEditorPage} />
       <Route path="/admin/blog/:id/edit" component={AdminBlogEditorPage} />
       <Route path="/admin/blog" component={AdminBlogPage} />
+      <Route path="/admin/email-campaigns" component={AdminEmailCampaignsPage} />
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>

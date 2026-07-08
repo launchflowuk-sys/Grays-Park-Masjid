@@ -26,6 +26,7 @@ import {
   NotebookText,
   HelpCircle,
   Smartphone,
+  Mail,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -46,6 +47,7 @@ const NAV_ITEMS = [
   { href: "/admin/quran-settings", label: "Qur'an Settings", icon: BookOpen },
   { href: "/admin/quran-featured-ayah", label: "Featured Ayah", icon: Sparkles },
   { href: "/admin/quran-reflections", label: "Qur'an Reflections", icon: NotebookText },
+  { href: "/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
   { href: "/admin/settings", label: "Site Settings", icon: Settings },
   { href: "/admin/help", label: "Help & Docs", icon: HelpCircle },
 ];
