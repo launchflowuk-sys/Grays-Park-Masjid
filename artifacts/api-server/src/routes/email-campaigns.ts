@@ -189,32 +189,40 @@ router.post(
       return;
     }
 
-    let recipientEmails: string[] = [];
+    type Recipient = { email: string; statusToken: string };
+    let recipients: Recipient[] = [];
 
     if (campaign.recipientType === "all_members") {
-      const members = await db
-        .select({ email: membersTable.email })
+      const rows = await db
+        .select({ email: membersTable.email, statusToken: membersTable.statusToken })
         .from(membersTable)
-        .where(isNotNull(membersTable.email));
-      recipientEmails = members.map((m) => m.email).filter(Boolean) as string[];
+        .where(eq(membersTable.emailOptOut, false));
+      recipients = rows.filter((r) => r.email) as Recipient[];
     } else {
       const storedEmails = (campaign.recipientEmails ?? []).filter(Boolean);
       if (storedEmails.length > 0) {
-        const members = await db
-          .select({ email: membersTable.email })
+        const rows = await db
+          .select({ email: membersTable.email, statusToken: membersTable.statusToken, emailOptOut: membersTable.emailOptOut })
           .from(membersTable)
           .where(inArray(membersTable.email, storedEmails));
-        recipientEmails = members.map((m) => m.email).filter(Boolean) as string[];
+        recipients = rows.filter((r) => r.email && !r.emailOptOut) as Recipient[];
       }
     }
 
-    const uniqueEmails = [...new Set(recipientEmails)];
+    // Deduplicate by email, keeping the first occurrence
+    const seen = new Set<string>();
+    const uniqueRecipients = recipients.filter((r) => {
+      if (seen.has(r.email)) return false;
+      seen.add(r.email);
+      return true;
+    });
 
-    if (uniqueEmails.length === 0) {
-      res.status(400).json({ error: "No recipients found" });
+    if (uniqueRecipients.length === 0) {
+      res.status(400).json({ error: "No recipients found (all may have unsubscribed)" });
       return;
     }
 
+    const appBaseUrl = process.env.APP_BASE_URL ?? "";
     const bodyLines = campaign.bodyText.split("\n").filter((l) => l.trim());
 
     const bodyHtml = emailParagraphs(bodyLines.map((line) => escapeHtml(line)));
@@ -230,29 +238,30 @@ router.post(
       "Grays Park Masjid, Grays, Essex",
     ].join("\n");
 
-    const htmlBody = renderEmailTemplate({
-      heading: campaign.subject,
-      bodyHtml,
-      bannerImageUrl: campaign.bannerImageUrl ?? undefined,
-      ctaLabel: campaign.ctaLabel ?? undefined,
-      ctaUrl: campaign.ctaUrl ?? undefined,
-    });
-
     let sent = 0;
     let failed = 0;
 
-    for (const email of uniqueEmails) {
+    for (const recipient of uniqueRecipients) {
+      const unsubscribeUrl = `${appBaseUrl}/unsubscribe?token=${encodeURIComponent(recipient.statusToken)}`;
+      const htmlBody = renderEmailTemplate({
+        heading: campaign.subject,
+        bodyHtml,
+        bannerImageUrl: campaign.bannerImageUrl ?? undefined,
+        ctaLabel: campaign.ctaLabel ?? undefined,
+        ctaUrl: campaign.ctaUrl ?? undefined,
+        unsubscribeUrl,
+      });
       try {
         await sendEmail({
-          to: email,
+          to: recipient.email,
           subject: campaign.subject,
-          text: plainText,
+          text: `${plainText}\n\nUnsubscribe: ${unsubscribeUrl}`,
           html: htmlBody,
         });
         sent++;
       } catch (err) {
         failed++;
-        logger.error({ err, email }, "Failed to send campaign email");
+        logger.error({ err, email: recipient.email }, "Failed to send campaign email");
       }
     }
 

@@ -64,6 +64,7 @@ import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
 import ProphetPage from "@/pages/prophet";
 import StoriesPage from "@/pages/stories";
+import UnsubscribePage from "@/pages/unsubscribe";
 import { QuranAudioProvider } from "@/lib/quran-audio-player";
 import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
 
@@ -103,6 +104,7 @@ function Router() {
       <Route path="/volunteer" component={VolunteerPage} />
       <Route path="/join" component={JoinPage} />
       <Route path="/membership-status/:token" component={MembershipStatusPage} />
+      <Route path="/unsubscribe" component={UnsubscribePage} />
       <Route path="/gallery" component={GalleryPage} />
       <Route path="/madrassah" component={MadrassahPage} />
       <Route path="/sisters-facilities" component={SistersFacilitiesPage} />

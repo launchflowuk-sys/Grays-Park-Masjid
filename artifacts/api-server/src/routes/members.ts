@@ -20,6 +20,7 @@ function serialize(row: typeof membersTable.$inferSelect) {
     message: row.message,
     status: row.status,
     adminNotes: row.adminNotes,
+    emailOptOut: row.emailOptOut,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -74,6 +75,38 @@ router.post("/members", async (req: Request, res: Response) => {
       ctaUrl: statusUrl,
     }),
   });
+});
+
+router.post("/unsubscribe", async (req: Request, res: Response) => {
+  const token = req.query.token as string | undefined;
+
+  if (!token) {
+    res.status(400).json({ error: "Missing token" });
+    return;
+  }
+
+  const [row] = await db
+    .select()
+    .from(membersTable)
+    .where(eq(membersTable.statusToken, token))
+    .limit(1);
+
+  if (!row) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  if (row.emailOptOut) {
+    res.json({ alreadyOptedOut: true });
+    return;
+  }
+
+  await db
+    .update(membersTable)
+    .set({ emailOptOut: true, updatedAt: new Date() })
+    .where(eq(membersTable.id, row.id));
+
+  res.json({ success: true, alreadyOptedOut: false });
 });
 
 router.get("/members/status/:token", async (req: Request, res: Response) => {

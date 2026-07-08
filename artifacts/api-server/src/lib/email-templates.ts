@@ -21,8 +21,9 @@ export function renderEmailTemplate(options: {
   bannerImageUrl?: string;
   ctaLabel?: string;
   ctaUrl?: string;
+  unsubscribeUrl?: string;
 }): string {
-  const { preheader, heading, bodyHtml, bannerImageUrl, ctaLabel, ctaUrl } = options;
+  const { preheader, heading, bodyHtml, bannerImageUrl, ctaLabel, ctaUrl, unsubscribeUrl } = options;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -94,6 +95,9 @@ export function renderEmailTemplate(options: {
                   <p style="margin:14px 0 0 0;font-size:11px;color:${MUTED};">
                     You are receiving this email because of your interaction with ${MASJID_NAME}. If you believe this was sent in error, please contact us.
                   </p>
+                  ${unsubscribeUrl ? `<p style="margin:8px 0 0 0;font-size:11px;color:${MUTED};">
+                    <a href="${unsubscribeUrl}" style="color:${MUTED};text-decoration:underline;">Unsubscribe from future emails</a>
+                  </p>` : ""}
                 </div>
               </td>
             </tr>

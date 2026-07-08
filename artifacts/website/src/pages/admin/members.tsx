@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +32,7 @@ import {
   type Member,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Trash2, Download, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
+import { Eye, Trash2, Download, CheckCircle2, XCircle, HelpCircle, MailX, MailCheck } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { MASJID_WRITE, useCanWrite } from "@/lib/permissions";
 
@@ -54,6 +54,11 @@ function MemberDialog({
   const queryClient = useQueryClient();
   const canWrite = useCanWrite(MASJID_WRITE);
   const [adminNotes, setAdminNotes] = useState("");
+  const [optOutPending, setOptOutPending] = useState(false);
+
+  useEffect(() => {
+    if (!member) setAdminNotes("");
+  }, [member]);
 
   const updateMutation = useAdminUpdateMember({
     mutation: {
@@ -80,6 +85,31 @@ function MemberDialog({
       data: { status, adminNotes: adminNotes.trim() ? adminNotes.trim() : undefined },
     });
   }
+
+  async function handleResubscribe() {
+    if (!member) return;
+    setOptOutPending(true);
+    try {
+      const baseUrl = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+      const res = await fetch(`${baseUrl}/api/admin/members/${member.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOptOut: false }),
+        credentials: "include",
+      });
+      if (res.ok) {
+        queryClient.invalidateQueries({ queryKey: getAdminListMembersQueryKey() });
+        toast({ title: "Re-subscribed", description: `${member.fullName} will now receive campaign emails.` });
+        onOpenChange(false);
+      } else {
+        toast({ title: "Error", description: "Could not update preference.", variant: "destructive" });
+      }
+    } finally {
+      setOptOutPending(false);
+    }
+  }
+
+  const emailOptOut = (member as (Member & { emailOptOut?: boolean }))?.emailOptOut;
 
   return (
     <Dialog
@@ -124,6 +154,39 @@ function MemberDialog({
                 <p className="text-muted-foreground mb-1">Current Status</p>
                 <Badge variant={statusVariant(member.status)}>{member.status.replace("_", " ")}</Badge>
               </div>
+
+              {/* Email opt-out status */}
+              <div className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
+                <div className="flex items-center gap-2">
+                  {emailOptOut ? (
+                    <MailX className="h-4 w-4 text-destructive shrink-0" />
+                  ) : (
+                    <MailCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                  )}
+                  <div>
+                    <p className="font-medium leading-none mb-0.5">
+                      {emailOptOut ? "Unsubscribed from campaigns" : "Subscribed to campaigns"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {emailOptOut
+                        ? "This member will not receive campaign emails."
+                        : "This member receives campaign emails."}
+                    </p>
+                  </div>
+                </div>
+                {canWrite && emailOptOut && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleResubscribe}
+                    disabled={optOutPending}
+                    className="shrink-0 text-xs"
+                  >
+                    Re-subscribe
+                  </Button>
+                )}
+              </div>
+
               {member.adminNotes && (
                 <div>
                   <p className="text-muted-foreground mb-1">Previous Admin Notes</p>
@@ -230,55 +293,72 @@ export default function AdminMembersPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : sorted.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       No membership applications yet.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  sorted.map((row) => (
-                    <TableRow key={row.id} data-testid={`row-member-${row.id}`}>
-                      <TableCell>{format(parseISO(row.createdAt), "d MMM yyyy")}</TableCell>
-                      <TableCell className="font-medium">{row.fullName}</TableCell>
-                      <TableCell className="capitalize">{row.membershipType}</TableCell>
-                      <TableCell>
-                        <Badge variant={statusVariant(row.status)}>{row.status.replace("_", " ")}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right space-x-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setViewing(row)}
-                          data-testid={`button-view-member-${row.id}`}
-                          aria-label={`View application from ${row.fullName}`}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {canWrite && (
+                  sorted.map((row) => {
+                    const optOut = (row as Member & { emailOptOut?: boolean }).emailOptOut;
+                    return (
+                      <TableRow key={row.id} data-testid={`row-member-${row.id}`}>
+                        <TableCell>{format(parseISO(row.createdAt), "d MMM yyyy")}</TableCell>
+                        <TableCell className="font-medium">{row.fullName}</TableCell>
+                        <TableCell className="capitalize">{row.membershipType}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusVariant(row.status)}>{row.status.replace("_", " ")}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {optOut ? (
+                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                              <MailX className="h-3 w-3 text-destructive" />
+                              Unsubscribed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-xs text-emerald-700">
+                              <MailCheck className="h-3 w-3" />
+                              Subscribed
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right space-x-1">
                           <Button
                             size="icon"
                             variant="ghost"
-                            onClick={() => setDeleteId(row.id)}
-                            data-testid={`button-delete-member-${row.id}`}
-                            aria-label={`Delete application from ${row.fullName}`}
+                            onClick={() => setViewing(row)}
+                            data-testid={`button-view-member-${row.id}`}
+                            aria-label={`View application from ${row.fullName}`}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Eye className="h-4 w-4" />
                           </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                          {canWrite && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setDeleteId(row.id)}
+                              data-testid={`button-delete-member-${row.id}`}
+                              aria-label={`Delete application from ${row.fullName}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
