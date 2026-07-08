@@ -9,7 +9,8 @@
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "login": "eas login",
-    "ship": "eas build --platform all --profile production --non-interactive"
+    "ship": "eas build --platform all --profile production --non-interactive",
+    "update": "eas update --branch preview --message preview"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

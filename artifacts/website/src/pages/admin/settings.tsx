@@ -108,6 +108,16 @@ const KNOWN_SETTINGS: { key: string; label: string; description: string; multili
     multiline: true,
   },
   {
+    key: "ramadan_start_date",
+    label: "Ramadan Start Date",
+    description: "First day of Ramadan (YYYY-MM-DD). Used to send Suhoor/Iftar notifications at Fajr and Maghrib times.",
+  },
+  {
+    key: "ramadan_end_date",
+    label: "Ramadan End Date",
+    description: "Last day of Ramadan (YYYY-MM-DD), i.e. the day before Eid al-Fitr. Leave blank outside Ramadan.",
+  },
+  {
     key: "square_access_token",
     label: "Square Access Token",
     description: "Secret access token from your Square developer dashboard. Required to accept donations.",
