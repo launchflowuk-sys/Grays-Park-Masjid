@@ -36,7 +36,7 @@ export const insertEmailCampaignSchema = createInsertSchema(emailCampaignsTable)
 export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
 
 export const patchEmailCampaignSchema = createInsertSchema(emailCampaignsTable)
-  .omit({ id: true, sentAt: true, sentCount: true, createdAt: true, updatedAt: true })
+  .omit({ id: true, status: true, sentAt: true, sentCount: true, createdAt: true, updatedAt: true })
   .partial();
 export type PatchEmailCampaign = z.infer<typeof patchEmailCampaignSchema>;
 

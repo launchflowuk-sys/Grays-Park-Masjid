@@ -256,6 +256,15 @@ router.post(
       }
     }
 
+    if (sent === 0) {
+      res.status(500).json({
+        error: "No emails were delivered. The campaign remains a draft and can be retried.",
+        sent: 0,
+        failed,
+      });
+      return;
+    }
+
     const [updated] = await db
       .update(emailCampaignsTable)
       .set({ status: "sent", sentAt: new Date(), sentCount: sent, updatedAt: new Date() })
