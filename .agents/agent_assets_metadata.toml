@@ -180,6 +180,36 @@ uri = "file://artifacts/mobile/assets/images/icon.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "VIs_QzK6UGLbJ21BAdre7"
+uri = "file://attached_assets/generated_images/condolence_inna_lillahi.png"
+type = "image"
+title = "condolence islamic calligraphy"
+
+[[generated]]
+id = "G4YfhX07li5f9TJzyoabJ"
+uri = "file://attached_assets/generated_images/hajj_2027.png"
+type = "image"
+title = "hajj 2027 mecca kaabah"
+
+[[generated]]
+id = "3NO2iAb1NECNcO3YnxgTS"
+uri = "file://attached_assets/generated_images/jumuah_friday_prayer.png"
+type = "image"
+title = "jumuah friday mosque interior"
+
+[[generated]]
+id = "1D3hf34i3Xx6C3TwYFche"
+uri = "file://attached_assets/generated_images/love_for_allah_event.png"
+type = "image"
+title = "islamic event poster mosque silhouette"
+
+[[generated]]
+id = "0p0-q4vX9pJChUKexws8j"
+uri = "file://attached_assets/generated_images/srebrenica_memorial.png"
+type = "image"
+title = "srebrenica memorial dove candle"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
