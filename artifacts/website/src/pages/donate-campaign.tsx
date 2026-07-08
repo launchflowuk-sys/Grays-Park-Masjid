@@ -8,6 +8,7 @@ import { DonationWidget } from "@/components/donations/donation-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 import { ArrowLeft, HandHeart } from "lucide-react";
 import { useState } from "react";
+import { ShareQRButton } from "@/components/donations/share-qr-button";
 
 function formatCurrency(value: string | null | undefined) {
   const num = Number(value ?? 0);
@@ -139,6 +140,14 @@ export default function DonateCampaignPage() {
             </div>
             <h1 className="font-serif text-3xl md:text-5xl leading-tight mb-4">{campaign.title}</h1>
             <p className="text-primary-foreground/80 max-w-2xl text-lg leading-relaxed">{campaign.description}</p>
+            <div className="mt-6">
+              <ShareQRButton
+                path={`/donate/${slug}`}
+                label={campaign.title}
+                variant="outline"
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white"
+              />
+            </div>
           </div>
         </section>
 

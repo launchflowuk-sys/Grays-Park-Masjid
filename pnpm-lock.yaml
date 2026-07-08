@@ -557,6 +557,9 @@ importers:
       dompurify:
         specifier: ^3.4.11
         version: 3.4.11
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.1.0)
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -7430,6 +7433,11 @@ packages:
   qrcode-terminal@0.12.0:
     resolution: {integrity: sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==}
     hasBin: true
+
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: 19.1.0
 
   qs@6.15.2:
     resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
@@ -16545,6 +16553,10 @@ snapshots:
   qrcode-terminal@0.11.0: {}
 
   qrcode-terminal@0.12.0: {}
+
+  qrcode.react@4.2.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
 
   qs@6.15.2:
     dependencies:

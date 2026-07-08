@@ -86,6 +86,7 @@
     "@uppy/core": "^5.2.0",
     "@uppy/dashboard": "^5.1.1",
     "@uppy/react": "^5.2.0",
-    "dompurify": "^3.4.11"
+    "dompurify": "^3.4.11",
+    "qrcode.react": "^4.2.0"
   }
 }

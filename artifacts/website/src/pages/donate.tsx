@@ -17,6 +17,7 @@ import {
 import { DonationWidget } from "@/components/donations/donation-widget";
 import { HandHeart, ArrowRight } from "lucide-react";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
+import { ShareQRButton } from "@/components/donations/share-qr-button";
 
 function formatCurrency(value: string | null | undefined) {
   const num = Number(value ?? 0);
@@ -75,6 +76,13 @@ function CampaignCard({
                 "Donate to this campaign"
               )}
             </span>
+            {campaign.slug && (
+              <ShareQRButton
+                path={`/donate/${campaign.slug}`}
+                label={campaign.title}
+                variant="icon"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -129,6 +137,14 @@ export default function DonatePage() {
             <p className="mt-4 text-primary-foreground/70 max-w-xl mx-auto text-lg leading-relaxed">
               Your Sadaqah and Zakat help us maintain the masjid and serve our community throughout the year.
             </p>
+            <div className="mt-6 flex justify-center">
+              <ShareQRButton
+                path="/donate"
+                label="Grays Park Masjid — Donations"
+                variant="outline"
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white"
+              />
+            </div>
           </div>
         </section>
 
