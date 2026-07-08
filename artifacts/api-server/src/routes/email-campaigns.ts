@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, desc, isNotNull } from "drizzle-orm";
+import { eq, desc, isNotNull, inArray } from "drizzle-orm";
 import {
   db,
   emailCampaignsTable,
@@ -198,20 +198,37 @@ router.post(
         .where(isNotNull(membersTable.email));
       recipientEmails = members.map((m) => m.email).filter(Boolean) as string[];
     } else {
-      recipientEmails = (campaign.recipientEmails ?? []).filter(Boolean);
+      const storedEmails = (campaign.recipientEmails ?? []).filter(Boolean);
+      if (storedEmails.length > 0) {
+        const members = await db
+          .select({ email: membersTable.email })
+          .from(membersTable)
+          .where(inArray(membersTable.email, storedEmails));
+        recipientEmails = members.map((m) => m.email).filter(Boolean) as string[];
+      }
     }
 
-    if (recipientEmails.length === 0) {
+    const uniqueEmails = [...new Set(recipientEmails)];
+
+    if (uniqueEmails.length === 0) {
       res.status(400).json({ error: "No recipients found" });
       return;
     }
 
-    const bodyHtml = emailParagraphs(
-      campaign.bodyText
-        .split("\n")
-        .map((line) => escapeHtml(line))
-        .filter(Boolean),
-    );
+    const bodyLines = campaign.bodyText.split("\n").filter((l) => l.trim());
+
+    const bodyHtml = emailParagraphs(bodyLines.map((line) => escapeHtml(line)));
+
+    const plainText = [
+      campaign.subject,
+      "",
+      ...bodyLines,
+      ...(campaign.ctaLabel && campaign.ctaUrl
+        ? ["", `${campaign.ctaLabel}: ${campaign.ctaUrl}`]
+        : []),
+      "",
+      "Grays Park Masjid, Grays, Essex",
+    ].join("\n");
 
     const htmlBody = renderEmailTemplate({
       heading: campaign.subject,
@@ -224,11 +241,12 @@ router.post(
     let sent = 0;
     let failed = 0;
 
-    for (const email of recipientEmails) {
+    for (const email of uniqueEmails) {
       try {
         await sendEmail({
           to: email,
           subject: campaign.subject,
+          text: plainText,
           html: htmlBody,
         });
         sent++;
