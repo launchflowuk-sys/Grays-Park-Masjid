@@ -210,6 +210,36 @@ uri = "file://attached_assets/generated_images/srebrenica_memorial.png"
 type = "image"
 title = "srebrenica memorial dove candle"
 
+[[generated]]
+id = "hEABAAhNb7FgJQPV9hoNn"
+uri = "file://attached_assets/generated_images/prophet_birth_makkah.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "reU0yuu1SUsEBR7eAK3OU"
+uri = "file://attached_assets/generated_images/prophet_cave_hira.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "zYuQ-BmeAiNA8SguCDmD5"
+uri = "file://attached_assets/generated_images/prophet_makkah_persecution.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "HAM_zZ9ut9FBtL8e19Kko"
+uri = "file://attached_assets/generated_images/prophet_hijrah_madinah.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "mcqrCLm34sOVk-vD0Q426"
+uri = "file://attached_assets/generated_images/prophet_farewell_arafah.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "XAdGBGB8p0a7i6d64EpU2"
 uri = "file://.local/exports/production-content-seed.txt"
