@@ -10,7 +10,7 @@ const DEFAULT_CONTENT = `Jumu'ah (Friday) prayer is held weekly at Grays Park Ma
 
 The khutbah is delivered in English with key reminders also given in Urdu/Bengali where relevant, focusing on practical guidance for daily life alongside Qur'an and Sunnah teachings.
 
-Car parking is limited, so we encourage walking, cycling, or car-sharing where possible. Overflow prayer space is available in the main hall extension during busier weeks such as Ramadan.`;
+Overflow prayer space is available in the main hall extension during busier weeks such as Ramadan.`;
 
 const FEATURES = [
   {

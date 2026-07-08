@@ -13,7 +13,6 @@ type Faq = { question: string; answer: string };
 
 const DEFAULT_FAQS: Faq[] = [
   { question: "What are the masjid's opening hours?", answer: "The masjid is open daily from before Fajr until after Isha prayer. Exact times vary with the season — see our Prayer Times page for today's timings." },
-  { question: "Is there parking available?", answer: "Limited on-site parking is available, and it fills up quickly during Jumu'ah and Ramadan. Please consider walking, cycling, or car-sharing where possible." },
   { question: "Do I need to book to attend Jumu'ah or Eid prayers?", answer: "No booking is required for regular Jumu'ah prayers. For Eid prayers, please check our Events page closer to the date as some years require registration due to capacity." },
   { question: "How can I register my child for Madrassah?", answer: "Visit our Education or Madrassah page for current class information, then register through our Education page or contact the office directly." },
   { question: "How do I make a donation?", answer: "You can donate online via our Donate page, or via bank transfer using the details listed there. Zakat, Sadaqah, and Lillah donations are all accepted." },

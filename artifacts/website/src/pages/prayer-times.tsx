@@ -47,22 +47,24 @@ function PrayerCell({
   isToday,
   fridayIqamah,
   last,
+  isFriday,
 }: {
   adhan: string | null | undefined;
   iqamah: string | null | undefined;
   isToday?: boolean;
   fridayIqamah?: boolean;
   last?: boolean;
+  isFriday?: boolean;
 }) {
   return (
-    <td className={`text-center px-3 py-3 ${last ? "" : "border-r border-border/60"}`}>
-      <p className="text-[11px] text-muted-foreground tabular-nums leading-none">
+    <td className={`text-center px-3 py-3 ${last ? "" : `border-r ${isFriday ? "border-white/15" : "border-border/60"}`}`}>
+      <p className={`text-[11px] tabular-nums leading-none ${isFriday ? "text-primary-foreground/55" : "text-muted-foreground"}`}>
         {formatTime12h(adhan)}
       </p>
-      <p className={`text-sm font-semibold tabular-nums mt-1 leading-none ${isToday ? "text-primary" : "text-foreground"}`}>
+      <p className={`text-sm font-semibold tabular-nums mt-1 leading-none ${isToday ? "text-primary" : isFriday ? "text-secondary" : "text-foreground"}`}>
         {formatTime12h(iqamah)}
         {fridayIqamah && (
-          <span className="ml-1 text-[9px] font-bold text-secondary/80 align-top">J</span>
+          <span className={`ml-1 text-[9px] font-bold align-top ${isFriday ? "text-secondary/70" : "text-secondary/80"}`}>J</span>
         )}
       </p>
     </td>
@@ -482,7 +484,7 @@ export default function PrayerTimesPage() {
                         const rowBg = isToday
                           ? "bg-secondary/20 border-secondary/30"
                           : isFri
-                            ? "bg-secondary/8 hover:bg-secondary/15"
+                            ? "bg-primary hover:bg-primary/90"
                             : idx % 2 === 0
                               ? "bg-background hover:bg-muted/40"
                               : "bg-muted/30 hover:bg-muted/50";
@@ -522,26 +524,26 @@ export default function PrayerTimesPage() {
                             </td>
 
                             {/* Fajr */}
-                            <PrayerCell adhan={row.fajrAdhan} iqamah={row.fajrIqamah} isToday={isToday} />
+                            <PrayerCell adhan={row.fajrAdhan} iqamah={row.fajrIqamah} isToday={isToday} isFriday={isFri} />
 
                             {/* Sunrise — adhan only, no iqamah */}
-                            <td className="text-center px-3 py-3 border-r border-border/60">
-                              <p className="text-sm font-medium tabular-nums text-muted-foreground">
+                            <td className={`text-center px-3 py-3 border-r ${isFri ? "border-white/15" : "border-border/60"}`}>
+                              <p className={`text-sm font-medium tabular-nums ${isFri ? "text-primary-foreground/55" : "text-muted-foreground"}`}>
                                 {formatTime12h(row.sunrise as string | null | undefined)}
                               </p>
                             </td>
 
                             {/* Dhuhr */}
-                            <PrayerCell adhan={row.dhuhrAdhan} iqamah={isFri ? (row.jummahIqamah ?? row.dhuhrIqamah) : row.dhuhrIqamah} isToday={isToday} fridayIqamah={isFri && !!row.jummahIqamah} />
+                            <PrayerCell adhan={row.dhuhrAdhan} iqamah={isFri ? (row.jummahIqamah ?? row.dhuhrIqamah) : row.dhuhrIqamah} isToday={isToday} fridayIqamah={isFri && !!row.jummahIqamah} isFriday={isFri} />
 
                             {/* Asr */}
-                            <PrayerCell adhan={row.asrAdhan} iqamah={row.asrIqamah} isToday={isToday} />
+                            <PrayerCell adhan={row.asrAdhan} iqamah={row.asrIqamah} isToday={isToday} isFriday={isFri} />
 
                             {/* Maghrib */}
-                            <PrayerCell adhan={row.maghribAdhan} iqamah={row.maghribIqamah} isToday={isToday} />
+                            <PrayerCell adhan={row.maghribAdhan} iqamah={row.maghribIqamah} isToday={isToday} isFriday={isFri} />
 
                             {/* Isha */}
-                            <PrayerCell adhan={row.ishaAdhan} iqamah={row.ishaIqamah} isToday={isToday} last />
+                            <PrayerCell adhan={row.ishaAdhan} iqamah={row.ishaIqamah} isToday={isToday} isFriday={isFri} last />
                           </tr>
                         );
                       })}

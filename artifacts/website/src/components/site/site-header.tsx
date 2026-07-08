@@ -47,11 +47,13 @@ import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicPatternBg, IslamicStar } from "@/components/site/islamic-pattern";
 import { useGetQuranSettingsPublic } from "@workspace/api-client-react";
 import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
+import quranBadge from "@/assets/Holy_Quran_1783481833583.png";
 
 const BASE_NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },
   { href: "/timetable", label: "Timetable" },
   { href: "/about", label: "About" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -109,15 +111,18 @@ function MegaPanel({
                   <Link
                     href={link.href}
                     onClick={onNavigate}
-                    className={`group flex items-start gap-3 rounded-lg p-3 hover-elevate transition-colors ${link.featured ? "ring-1 ring-secondary/40 bg-secondary/5" : ""}`}
+                    className={`group relative flex items-start gap-3 rounded-xl p-3 hover-elevate transition-all overflow-hidden ${link.featured ? "bg-primary text-primary-foreground ring-1 ring-secondary/40 shadow-md" : ""}`}
                     data-testid={`link-nav-${link.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   >
-                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-t-full rounded-b-md transition-colors ${link.featured ? "bg-secondary text-secondary-foreground group-hover:bg-secondary/80" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"}`}>
+                    {link.featured && (
+                      <IslamicPattern className="pointer-events-none absolute inset-0 h-full w-full text-secondary/[0.08]" />
+                    )}
+                    <span className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-t-full rounded-b-md transition-colors ${link.featured ? "bg-secondary/20 text-secondary group-hover:bg-secondary/30" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"}`}>
                       <Icon className="h-4 w-4" strokeWidth={1.75} />
                     </span>
-                    <span className="min-w-0">
-                      <span className={`block text-sm leading-tight ${link.featured ? "font-bold" : "font-medium"}`}>{link.label}</span>
-                      <span className="block text-xs text-muted-foreground mt-0.5 leading-snug">
+                    <span className="relative min-w-0">
+                      <span className={`block text-sm leading-tight ${link.featured ? "font-bold text-secondary" : "font-medium"}`}>{link.label}</span>
+                      <span className={`block text-xs mt-0.5 leading-snug ${link.featured ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
                         {link.desc}
                       </span>
                     </span>
@@ -193,13 +198,18 @@ export function SiteHeader() {
                       href={link.href}
                       className={
                         isQuran
-                          ? `inline-flex h-9 items-center gap-1.5 rounded-full px-4 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md shadow-secondary/25 border border-secondary/50 transition-all text-sm tracking-wide`
+                          ? "flex items-center hover:opacity-90 transition-opacity duration-200"
                           : `inline-flex h-9 items-center rounded-md px-3 hover:text-primary hover:bg-transparent transition-colors text-sm ${location === link.href ? "text-primary font-semibold" : ""}`
                       }
                       data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                     >
-                      {isQuran && <BookOpen className="h-3.5 w-3.5 shrink-0" />}
-                      {link.label}
+                      {isQuran ? (
+                        <img
+                          src={quranBadge}
+                          alt="Qur'an"
+                          className="h-11 w-11 object-contain drop-shadow-md hover:scale-105 transition-transform duration-200"
+                        />
+                      ) : link.label}
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -330,11 +340,11 @@ export function SiteHeader() {
                         key={link.href}
                         href={link.href}
                         onClick={() => setOpen(false)}
-                        className="inline-flex items-center gap-2 rounded-full mx-1 px-4 py-2.5 text-base font-bold tracking-wide bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors shadow shadow-black/20"
+                        className="flex items-center gap-3 rounded-xl mx-1 px-3 py-2 hover:bg-primary-foreground/10 transition-colors"
                         data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                       >
-                        <BookOpen className="h-4 w-4 shrink-0" />
-                        {link.label}
+                        <img src={quranBadge} alt="Qur'an" className="h-12 w-12 object-contain drop-shadow-lg" />
+                        <span className="text-base font-bold text-secondary tracking-wide">Qur'an</span>
                       </Link>
                     ) : (
                       <Link
