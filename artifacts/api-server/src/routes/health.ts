@@ -21,4 +21,26 @@ router.get("/readyz", async (_req, res) => {
   }
 });
 
+
+
+// TEMPORARY diagnostic — remove once the donation-campaigns 500 is resolved.
+// Returns only the database error message (no secrets, no stack).
+router.get("/_diag/donation-campaigns", async (_req, res) => {
+  try {
+    const cols = await db.execute(
+      sql`select column_name from information_schema.columns where table_name = 'donation_campaigns' order by column_name`,
+    );
+    const rows = (cols as unknown as { rows?: Array<{ column_name: string }> }).rows ?? [];
+    let queryError: string | null = null;
+    try {
+      await db.execute(sql`select * from donation_campaigns limit 1`);
+    } catch (err) {
+      queryError = err instanceof Error ? err.message : String(err);
+    }
+    res.json({ columns: rows.map((r) => r.column_name), queryError });
+  } catch (err) {
+    res.json({ fatal: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 export default router;
