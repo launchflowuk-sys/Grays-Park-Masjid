@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,8 +16,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/utils/apiBase";
+
 const MEMBER_ID_KEY = "@grayspark/memberId";
-const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
+const BASE_URL = API_BASE_URL;
 
 const MEMBERSHIP_TYPES = ["individual", "family", "student", "senior"] as const;
 type MembershipType = (typeof MEMBERSHIP_TYPES)[number];
@@ -56,15 +59,24 @@ export default function OnboardingSignup() {
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json() as { id: string };
-        await AsyncStorage.setItem(MEMBER_ID_KEY, data.id);
+      if (!res.ok) {
+        Alert.alert(
+          "Sign-up Failed",
+          "We couldn't register your membership right now. You can try again or skip for now."
+        );
+        return;
       }
+
+      const data = await res.json() as { id: string };
+      await AsyncStorage.setItem(MEMBER_ID_KEY, data.id);
+      router.push("/onboarding/permissions");
     } catch {
-      // Non-fatal: sign-up failure shouldn't block onboarding
+      Alert.alert(
+        "Sign-up Failed",
+        "We couldn't reach the server. Please check your connection and try again, or skip for now."
+      );
     } finally {
       setLoading(false);
-      router.push("/onboarding/permissions");
     }
   };
 

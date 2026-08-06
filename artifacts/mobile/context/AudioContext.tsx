@@ -36,7 +36,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const { setAudioModeAsync } = await import("expo-audio");
-        await setAudioModeAsync({ staysActiveInBackground: true, playsInSilentModeIOS: true });
+        await setAudioModeAsync({ shouldPlayInBackground: true, playsInSilentMode: true });
       } catch {}
     })();
     return () => {

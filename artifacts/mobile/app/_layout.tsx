@@ -24,8 +24,18 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SplashAnimation } from "@/components/SplashAnimation";
 import { AudioProvider } from "@/context/AudioContext";
+import { API_BASE_URL } from "@/utils/apiBase";
 
-setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN ?? "graysparkmasjid.org.uk"}`);
+setBaseUrl(API_BASE_URL);
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 SplashScreen.preventAutoHideAsync();
 

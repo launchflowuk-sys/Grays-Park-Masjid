@@ -216,7 +216,7 @@ export default function SurahScreen() {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const { createAudioPlayer, setAudioModeAsync } = await import("expo-audio");
-      await setAudioModeAsync({ playsInSilentModeIOS: true });
+      await setAudioModeAsync({ playsInSilentMode: true });
       const player = createAudioPlayer({ uri: url });
       player.play();
       playerRef.current = player;

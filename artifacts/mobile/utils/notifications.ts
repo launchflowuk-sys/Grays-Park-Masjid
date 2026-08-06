@@ -43,7 +43,7 @@ export async function requestAndRegisterPushToken(
     const token = tokenData.data;
     const deviceId = await getOrCreateDeviceId();
 
-    await fetch(`${baseUrl}/api/device-tokens`, {
+    const res = await fetch(`${baseUrl}/api/device-tokens`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -53,6 +53,11 @@ export async function requestAndRegisterPushToken(
         ...(memberId ? { memberId } : {}),
       }),
     });
+
+    if (!res.ok) {
+      console.error("[notifications] token registration failed:", res.status);
+      return false;
+    }
 
     return true;
   } catch (err) {

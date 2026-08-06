@@ -13,10 +13,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/utils/apiBase";
 import { updateNotificationCategories } from "@/utils/notifications";
 
 const SETTINGS_KEY = "@grayspark/notifCategories";
-const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
+const BASE_URL = API_BASE_URL;
 
 type NotifSettings = {
   announcements: boolean;

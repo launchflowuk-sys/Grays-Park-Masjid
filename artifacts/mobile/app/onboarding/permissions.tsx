@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/utils/apiBase";
 import { requestAndRegisterPushToken } from "@/utils/notifications";
 
 const ONBOARDED_KEY = "@grayspark/onboarded";
@@ -35,8 +36,7 @@ export default function OnboardingPermissions() {
   const handleEnable = async () => {
     setLoading(true);
     try {
-      const baseUrl = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
-      await requestAndRegisterPushToken(baseUrl, memberId);
+      await requestAndRegisterPushToken(API_BASE_URL, memberId);
     } finally {
       setLoading(false);
       await complete();

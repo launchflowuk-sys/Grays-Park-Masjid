@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useListPrayerTimesPublic, useGetSettingPublic } from "@workspace/api-client-react";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
@@ -20,6 +21,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/utils/apiBase";
 import { useColors } from "@/hooks/useColors";
 import { useAudio } from "@/context/AudioContext";
 import { requestAndRegisterPushToken } from "@/utils/notifications";
@@ -58,7 +60,8 @@ const DEFAULT_ADHAN_URL =
   "https://cdn.prayertimes.net/audio/adhan-masjid-al-haram.mp3";
 const DEFAULT_FAJR_ADHAN_URL =
   "https://cdn.prayertimes.net/audio/adhan-fajr-masjid-al-haram.mp3";
-const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN ?? ""}`;
+const BASE_URL = API_BASE_URL;
+const NOTIF_ENABLED_KEY = "adhan-notifications-enabled";
 
 type ViewMode = "today" | "week";
 
@@ -102,6 +105,7 @@ async function scheduleWeekNotifications(allTimes: PrayerTime[]): Promise<void> 
               title: `${prayer.name} · ${prayer.label}`,
               body: bodyMsg,
               sound: true,
+              data: { type: "adhan", prayer: prayer.name },
             },
             trigger: {
               type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -125,6 +129,7 @@ export default function PrayerTimesScreen() {
   const [adhanPrayerName, setAdhanPrayerName] = useState("");
   const [useFajrForAll, setUseFajrForAll] = useState(false);
   const adhanSoundRef = useRef<unknown>(null);
+  const rescheduledRef = useRef(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Site-setting adhan URL overrides (fallback gracefully if setting doesn't exist)
@@ -224,7 +229,7 @@ export default function PrayerTimesScreen() {
       const isFajr = prayerName === "Fajr" || useFajrForAll;
       const url = isFajr ? fajrAdhanUrl : regularAdhanUrl;
       const { createAudioPlayer, setAudioModeAsync } = await import("expo-audio");
-      await setAudioModeAsync({ playsInSilentModeIOS: true });
+      await setAudioModeAsync({ playsInSilentMode: true });
       const player = createAudioPlayer({ uri: url });
       player.play();
       adhanSoundRef.current = player;
@@ -255,8 +260,12 @@ export default function PrayerTimesScreen() {
   useEffect(() => {
     if (Platform.OS === "web") return;
     const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      const data = notification.request.content.data as
+        | { type?: string; prayer?: string }
+        | undefined;
+      if (data?.type !== "adhan") return;
       const title = notification.request.content.title ?? "";
-      const prayerName = title.split(" · ")[0];
+      const prayerName = data.prayer ?? title.split(" · ")[0];
       if (prayerName) playAdhan(prayerName);
     });
     return () => subscription.remove();
@@ -277,6 +286,24 @@ export default function PrayerTimesScreen() {
     if (Platform.OS === "web") return;
     void requestAndRegisterPushToken(BASE_URL);
   }, []);
+
+  // Restore persisted bell toggle on mount
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    AsyncStorage.getItem(NOTIF_ENABLED_KEY)
+      .then((value) => {
+        if (value === "true") setNotifEnabled(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Refresh the 7-day notification window once per launch when enabled and data is loaded
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    if (!notifEnabled || rescheduledRef.current || !allPrayerTimes?.length) return;
+    rescheduledRef.current = true;
+    void scheduleWeekNotifications(allPrayerTimes);
+  }, [notifEnabled, allPrayerTimes]);
   // ────────────────────────────────────────────────────────────────────────────
 
   const toggleNotifications = async () => {
@@ -284,12 +311,15 @@ export default function PrayerTimesScreen() {
       if (Platform.OS !== "web")
         await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
       setNotifEnabled(false);
+      await AsyncStorage.setItem(NOTIF_ENABLED_KEY, "false").catch(() => {});
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
       const granted = await requestNotificationPermission();
       if (granted && allPrayerTimes?.length) {
+        rescheduledRef.current = true;
         await scheduleWeekNotifications(allPrayerTimes);
         setNotifEnabled(true);
+        await AsyncStorage.setItem(NOTIF_ENABLED_KEY, "true").catch(() => {});
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else if (!granted) {
         Alert.alert(
