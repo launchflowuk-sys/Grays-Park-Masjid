@@ -1,6 +1,7 @@
 import fs from "fs";
 import fsp from "fs/promises";
 import path from "path";
+import type { Readable } from "stream";
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 
@@ -11,6 +12,39 @@ if (!JWT_SECRET) {
 }
 
 const UPLOAD_TOKEN_TTL_SECONDS = 15 * 60; // matches signed-URL TTL used by the Replit driver
+
+export const MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB
+
+/**
+ * Content types the admin dashboard legitimately uploads: gallery/staff/event
+ * photos (jpeg/png/webp/gif), timetable PDFs, and adhan audio / video clips.
+ * Anything else — notably SVG, which can carry scripts and would be served
+ * same-origin — is rejected with 415.
+ */
+const ALLOWED_UPLOAD_CONTENT_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/mp4",
+  "video/mp4",
+]);
+
+export function isAllowedUploadContentType(contentType: string): boolean {
+  const mediaType = contentType.split(";")[0]?.trim().toLowerCase() ?? "";
+  return ALLOWED_UPLOAD_CONTENT_TYPES.has(mediaType);
+}
+
+export class UploadTooLargeError extends Error {
+  constructor() {
+    super(`Upload exceeds maximum size of ${MAX_UPLOAD_SIZE_BYTES} bytes`);
+    this.name = "UploadTooLargeError";
+    Object.setPrototypeOf(this, UploadTooLargeError.prototype);
+  }
+}
 
 export const LOCAL_STORAGE_ROOT = path.resolve(
   process.env.LOCAL_STORAGE_DIR || path.join(process.cwd(), "data", "uploads"),
@@ -76,15 +110,40 @@ export class LocalObjectStorageService {
     return { uploadURL, objectPath };
   }
 
-  async writeUpload(objectId: string, stream: NodeJS.ReadableStream): Promise<void> {
+  async writeUpload(objectId: string, stream: Readable): Promise<void> {
     const destPath = resolveWithinRoot(path.join("uploads", objectId));
     await fsp.mkdir(path.dirname(destPath), { recursive: true });
     await new Promise<void>((resolve, reject) => {
       const writeStream = fs.createWriteStream(destPath);
+      let bytesReceived = 0;
+      let settled = false;
+
+      const fail = (err: Error) => {
+        if (settled) return;
+        settled = true;
+        stream.unpipe(writeStream);
+        stream.destroy();
+        writeStream.destroy();
+        // Best-effort cleanup of the partial file; ignore failures.
+        fsp.unlink(destPath).catch(() => {});
+        reject(err);
+      };
+
+      stream.on("data", (chunk: Buffer | string) => {
+        bytesReceived += Buffer.byteLength(chunk);
+        if (bytesReceived > MAX_UPLOAD_SIZE_BYTES) {
+          fail(new UploadTooLargeError());
+        }
+      });
+      stream.on("error", fail);
+      writeStream.on("error", fail);
+      writeStream.on("finish", () => {
+        if (!settled) {
+          settled = true;
+          resolve();
+        }
+      });
       stream.pipe(writeStream);
-      stream.on("error", reject);
-      writeStream.on("error", reject);
-      writeStream.on("finish", resolve);
     });
   }
 

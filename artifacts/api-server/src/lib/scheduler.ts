@@ -6,15 +6,39 @@ import { logger } from "./logger";
 
 const LONDON_TZ = "Europe/London";
 
-function getUKDateTime(): { dateStr: string; hhmm: string; isFriday: boolean } {
-  const now = new Date();
-
-  const dateStr = new Intl.DateTimeFormat("en-CA", {
+function formatUKDate(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
     timeZone: LONDON_TZ,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(now);
+  }).format(date);
+}
+
+/**
+ * Idempotency guard for adhan notifications, keyed on `${dateStr}:${prayerName}`
+ * where dateStr is the LOCAL Europe/London date (same basis the scheduler uses
+ * to look up prayer times). Prevents double-sends from repeated ticks within
+ * the same minute and from the repeated 01:00–02:00 hour on the DST fall-back
+ * night. In-memory by design: a process restart mid-minute is a rare edge we
+ * accept.
+ */
+const sentAdhanKeys = new Set<string>();
+
+function pruneSentAdhanKeys(todayStr: string): void {
+  const yesterdayStr = formatUKDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  for (const key of sentAdhanKeys) {
+    const datePart = key.slice(0, key.indexOf(":"));
+    if (datePart !== todayStr && datePart !== yesterdayStr) {
+      sentAdhanKeys.delete(key);
+    }
+  }
+}
+
+function getUKDateTime(): { dateStr: string; hhmm: string; isFriday: boolean } {
+  const now = new Date();
+
+  const dateStr = formatUKDate(now);
 
   const hhmm = new Intl.DateTimeFormat("en-GB", {
     timeZone: LONDON_TZ,
@@ -105,9 +129,18 @@ async function runPrayerTimeCheck(): Promise<void> {
       : []),
   ];
 
+  pruneSentAdhanKeys(dateStr);
+
   for (const check of checks) {
     if (!check.time) continue;
     if (check.time.slice(0, 5) === hhmm.slice(0, 5)) {
+      const sentKey = `${dateStr}:${check.name}`;
+      if (sentAdhanKeys.has(sentKey)) {
+        continue;
+      }
+      // Mark as sent BEFORE broadcasting so an overlapping tick in the same
+      // minute cannot fire a duplicate while the broadcast is in flight.
+      sentAdhanKeys.add(sentKey);
       logger.info(`[scheduler] Firing ${check.name} notification`);
       await broadcastPush(
         `${check.name} — Grays Park Masjid`,

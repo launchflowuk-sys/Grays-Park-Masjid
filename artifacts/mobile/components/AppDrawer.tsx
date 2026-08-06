@@ -20,9 +20,23 @@ interface AppDrawerProps {
   onClose: () => void;
 }
 
-const DRAWER_CONTENT_HEIGHT = 420;
+const DRAWER_CONTENT_HEIGHT = 580;
 
 const ITEMS = [
+  {
+    key: "announcements",
+    label: "Announcements",
+    sublabel: "Latest notices from the Masjid",
+    icon: "volume-2" as const,
+    href: "/announcements",
+  },
+  {
+    key: "donate",
+    label: "Donate",
+    sublabel: "Support the Masjid & its campaigns",
+    icon: "heart" as const,
+    href: "/donate",
+  },
   {
     key: "blog",
     label: "Blog",

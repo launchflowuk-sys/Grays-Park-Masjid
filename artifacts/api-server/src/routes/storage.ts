@@ -13,6 +13,8 @@ import {
 import {
   LocalObjectStorageService,
   LocalObjectNotFoundError,
+  UploadTooLargeError,
+  isAllowedUploadContentType,
   verifyUploadToken,
 } from "../lib/objectStorageLocal";
 import { requireAuth } from "../middlewares/auth";
@@ -42,6 +44,11 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
 
   try {
     const { name, size, contentType } = parsed.data;
+
+    if (!isAllowedUploadContentType(contentType)) {
+      res.status(415).json({ error: "Unsupported file type" });
+      return;
+    }
 
     if (IS_REPLIT_ENVIRONMENT) {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -89,10 +96,21 @@ router.put("/storage/local-uploads/:objectId", async (req: Request, res: Respons
     return;
   }
 
+  const contentType = req.headers["content-type"] ?? "";
+  if (!isAllowedUploadContentType(contentType)) {
+    res.status(415).json({ error: "Unsupported file type" });
+    return;
+  }
+
   try {
     await localObjectStorageService.writeUpload(objectId, req);
     res.status(200).json({ objectPath: `/objects/uploads/${objectId}` });
   } catch (error) {
+    if (error instanceof UploadTooLargeError) {
+      req.log.warn({ objectId }, "Rejected oversized local upload");
+      res.status(413).json({ error: "File exceeds the maximum upload size of 25 MB" });
+      return;
+    }
     req.log.error({ err: error }, "Error writing local upload");
     res.status(500).json({ error: "Failed to store uploaded file" });
   }
@@ -128,6 +146,10 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
 
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+      nodeStream.on("error", (err) => {
+        req.log.error({ err }, "Error streaming public object to response");
+        res.destroy();
+      });
       nodeStream.pipe(res);
     } else {
       res.end();
@@ -166,12 +188,27 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
         gif: "image/gif",
         svg: "image/svg+xml",
         pdf: "application/pdf",
+        mp3: "audio/mpeg",
+        mp4: "video/mp4",
       };
+      // Extensions that are safe to render inline. SVG is deliberately NOT
+      // here — legacy stored SVGs can carry scripts, so they (and anything
+      // unrecognised) are forced to download instead of executing same-origin.
+      const inlineSafeExtensions = new Set(["webp", "jpg", "jpeg", "png", "gif", "pdf", "mp3", "mp4"]);
       const contentType = contentTypeMap[ext] ?? "application/octet-stream";
       res.setHeader("Content-Type", contentType);
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      if (!inlineSafeExtensions.has(ext)) {
+        res.setHeader("Content-Disposition", "attachment");
+      }
       res.setHeader("Content-Length", String(stat.size));
       res.setHeader("Cache-Control", "private, max-age=3600");
-      createReadStream(filePath).pipe(res);
+      const readStream = createReadStream(filePath);
+      readStream.on("error", (err) => {
+        req.log.error({ err }, "Error streaming local object to response");
+        res.destroy();
+      });
+      readStream.pipe(res);
       return;
     }
 
@@ -183,6 +220,10 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
 
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+      nodeStream.on("error", (err) => {
+        req.log.error({ err }, "Error streaming object to response");
+        res.destroy();
+      });
       nodeStream.pipe(res);
     } else {
       res.end();

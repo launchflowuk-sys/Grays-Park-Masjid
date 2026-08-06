@@ -18,7 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.png";
+import gpmLogoWhite from "@/assets/GPM_Logo_white_1783358587808.webp";
 import { useGetSettingPublic } from "@workspace/api-client-react";
 
 const SERVICE_LINKS = [
@@ -92,6 +92,7 @@ export function SiteFooter() {
               src={gpmLogoWhite}
               alt="Grays Park Masjid - Thurrock Islamic Education &amp; Cultural Association"
               className="h-32 w-auto"
+              loading="lazy"
               data-testid="img-footer-logo"
             />
           </div>

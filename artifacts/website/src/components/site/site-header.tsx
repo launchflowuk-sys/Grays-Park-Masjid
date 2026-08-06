@@ -47,7 +47,7 @@ import { PrayerTimesWidget } from "@/components/prayer-times-widget";
 import { IslamicPattern, IslamicPatternBg, IslamicStar } from "@/components/site/islamic-pattern";
 import { useGetQuranSettingsPublic } from "@workspace/api-client-react";
 import gpmLogo from "@/assets/GPM_Logo_1783358587809.png";
-import quranBadge from "@/assets/Holy_Quran_1783481833583.png";
+import quranBadge from "@/assets/Holy_Quran_1783481833583.webp";
 
 const BASE_NAV_LINKS = [
   { href: "/prayer-times", label: "Prayer Times" },

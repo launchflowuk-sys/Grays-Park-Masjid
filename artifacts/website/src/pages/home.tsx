@@ -49,7 +49,7 @@ import {
   useListBlogPostsPublic,
 } from "@workspace/api-client-react";
 import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/blog-categories";
-import heroImage from "@/assets/Home_Hero_1783357048983.png";
+import heroImage from "@/assets/Home_Hero_1783357048983.webp";
 import masjidBuildingImage from "@/assets/generated_images/masjid_building.webp";
 import { format, parseISO } from "date-fns";
 
@@ -267,6 +267,7 @@ function MosqueProjectSection() {
           <img
             src={campaign.imageUrl || masjidBuildingImage}
             alt="Grays Park Masjid building"
+            loading="lazy"
             className="relative w-full object-cover aspect-[4/3]"
             style={{ borderRadius: "2.5rem 2.5rem 0.75rem 2.5rem" }}
             data-testid="img-mosque-project"
@@ -404,6 +405,7 @@ function ServicesSection() {
               <img
                 src={featureImage}
                 alt="Grays Park Masjid community"
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
@@ -546,6 +548,7 @@ function ThisWeekSection() {
                   <img
                     src={event.imageUrl || masjidBuildingImage}
                     alt={event.title}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
@@ -859,6 +862,7 @@ function LatestBlogSection() {
                   <img
                     src={post.featureImageUrl}
                     alt={post.title}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
@@ -945,6 +949,7 @@ function GallerySection() {
                       <img
                         src={album.coverImageUrl}
                         alt={album.title}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (

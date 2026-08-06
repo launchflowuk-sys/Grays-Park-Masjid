@@ -26,12 +26,14 @@ import { useColors } from "@/hooks/useColors";
 import { useAudio } from "@/context/AudioContext";
 import { requestAndRegisterPushToken } from "@/utils/notifications";
 import { IslamicPatternBg } from "@/components/IslamicPatternBg";
+import { formatHijriDate, isRamadan } from "@/utils/hijri";
 import {
   formatDisplayDate,
   formatTime12,
   getCountdownToTime,
   getPrayerEntries,
   getTodayDateString,
+  timeToMinutes,
   findNextPrayer,
   type PrayerEntry,
 } from "@/utils/prayerUtils";
@@ -64,6 +66,11 @@ const BASE_URL = API_BASE_URL;
 const NOTIF_ENABLED_KEY = "adhan-notifications-enabled";
 
 type ViewMode = "today" | "week";
+
+type RamadanPhase = {
+  phase: "suhoor" | "iftar" | "suhoor-tomorrow";
+  countdown: string;
+};
 
 async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
@@ -168,6 +175,38 @@ export default function PrayerTimesScreen() {
   }, [allPrayerTimes, today]);
 
   const isTodayFriday = new Date(today + "T12:00:00").getDay() === 5;
+
+  // ── Hijri date & Ramadan mode ────────────────────────────────────────────
+  const hijriLabel = formatHijriDate();
+  const ramadanActive = isRamadan();
+  const [ramadanInfo, setRamadanInfo] = useState<RamadanPhase | null>(null);
+
+  const ramadanFajr = todayPrayer?.fajrAdhan;
+  const ramadanMaghrib = todayPrayer?.maghribAdhan;
+
+  useEffect(() => {
+    if (!ramadanActive || !ramadanFajr || !ramadanMaghrib) {
+      setRamadanInfo(null);
+      return;
+    }
+    const tick = () => {
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+      if (nowMins < timeToMinutes(ramadanFajr)) {
+        setRamadanInfo({ phase: "suhoor", countdown: getCountdownToTime(ramadanFajr) });
+      } else if (nowMins < timeToMinutes(ramadanMaghrib)) {
+        setRamadanInfo({ phase: "iftar", countdown: getCountdownToTime(ramadanMaghrib) });
+      } else {
+        setRamadanInfo({
+          phase: "suhoor-tomorrow",
+          countdown: getCountdownToTime(ramadanFajr, true),
+        });
+      }
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [ramadanActive, ramadanFajr, ramadanMaghrib]);
 
   const jummahTimes = useMemo(() => {
     try {
@@ -707,6 +746,9 @@ export default function PrayerTimesScreen() {
             <Text style={[styles.headerDate, { color: colors.accent }]}>
               {todayPrayer ? formatDisplayDate(todayPrayer.date) : new Date().toDateString()}
             </Text>
+            <Text style={[styles.headerHijri, { color: colors.primaryForeground + "99" }]}>
+              {hijriLabel}
+            </Text>
           </View>
           <TouchableOpacity onPress={toggleNotifications} style={styles.bellButton} testID="notif-toggle">
             <Ionicons
@@ -809,6 +851,73 @@ export default function PrayerTimesScreen() {
           {audio.isLoading && <ActivityIndicator size="small" color={colors.accent} />}
         </Pressable>
       </View>
+
+      {/* ── Ramadan card — suhoor / iftar countdown ── */}
+      {viewMode === "today" && ramadanInfo && (
+        <View style={{ paddingHorizontal: 16, paddingTop: 14 }}>
+          <View
+            style={[
+              styles.ramadanCard,
+              {
+                backgroundColor: colors.secondary,
+                borderColor: colors.accent + "45",
+                shadowColor: colors.primary,
+              },
+            ]}
+          >
+            <IslamicPatternBg
+              animatePattern={false}
+              shimmer={false}
+              color={colors.accent}
+              patternOpacity={0.1}
+            />
+            <View style={[styles.accentStrip, { backgroundColor: colors.accent }]} />
+            <View style={styles.ramadanInner}>
+              <View style={styles.ramadanTitleRow}>
+                <Ionicons name="moon" size={16} color={colors.accent} />
+                <Text style={[styles.ramadanArabic, { color: colors.accent }]}>رمضان</Text>
+                <Text
+                  style={[
+                    styles.ramadanTitle,
+                    { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" },
+                  ]}
+                >
+                  Ramadan Mubarak
+                </Text>
+              </View>
+              <View style={styles.ramadanCountdownRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.ramadanPhaseLabel, { color: colors.primaryForeground + "99" }]}>
+                    {ramadanInfo.phase === "iftar"
+                      ? "Iftar in"
+                      : ramadanInfo.phase === "suhoor"
+                        ? "Suhoor ends in"
+                        : "Suhoor ends in (tomorrow)"}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.ramadanCountdown,
+                      { color: colors.accent, fontFamily: "PlayfairDisplay_700Bold" },
+                    ]}
+                  >
+                    {ramadanInfo.countdown}
+                  </Text>
+                </View>
+                <View style={[styles.ramadanTimePill, { backgroundColor: colors.primary, borderColor: colors.accent + "35" }]}>
+                  <Text style={[styles.ramadanTimeLabel, { color: colors.primaryForeground + "80" }]}>
+                    {ramadanInfo.phase === "iftar" ? "Maghrib" : "Fajr"}
+                  </Text>
+                  <Text style={[styles.ramadanTimeValue, { color: colors.primaryForeground }]}>
+                    {formatTime12(
+                      ramadanInfo.phase === "iftar" ? ramadanMaghrib ?? "" : ramadanFajr ?? ""
+                    )}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Adhan settings row (Fajr toggle) — shown below header */}
       {Platform.OS !== "web" && (
@@ -938,6 +1047,7 @@ const styles = StyleSheet.create({
   },
   masjidName: { fontSize: 22, fontWeight: "700", letterSpacing: 0.2 },
   headerDate: { fontSize: 13, marginTop: 3 },
+  headerHijri: { fontSize: 12, marginTop: 2 },
   bellButton: { padding: 8, marginTop: -4 },
   viewToggle: {
     flexDirection: "row",
@@ -1137,4 +1247,41 @@ const styles = StyleSheet.create({
   },
   jummahSlotOrdinal: { fontSize: 10, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8 },
   jummahSlotTime: { fontSize: 18, fontWeight: "700" },
+  // Ramadan card
+  ramadanCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: "hidden",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  ramadanInner: {
+    paddingLeft: 18,
+    paddingRight: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  ramadanTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  ramadanArabic: { fontSize: 16, fontWeight: "400" },
+  ramadanTitle: { fontSize: 16, fontWeight: "700", letterSpacing: 0.2 },
+  ramadanCountdownRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  ramadanPhaseLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  ramadanCountdown: { fontSize: 26, fontWeight: "700", marginTop: 2 },
+  ramadanTimePill: {
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    alignItems: "center",
+    gap: 2,
+  },
+  ramadanTimeLabel: { fontSize: 10, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
+  ramadanTimeValue: { fontSize: 15, fontWeight: "700" },
 });
