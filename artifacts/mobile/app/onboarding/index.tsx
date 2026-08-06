@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import React from "react";
 import {
   Dimensions,
-  ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,17 +9,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { IslamicPatternBg } from "@/components/IslamicPatternBg";
+
 const { height } = Dimensions.get("window");
 
 export default function OnboardingWelcome() {
   return (
     <View style={styles.root}>
-      <ImageBackground
-        source={require("@/assets/images/splash-logo.png")}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-      />
-      <View style={styles.overlay} />
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <IslamicPatternBg color="#ffffff" patternOpacity={0.06} animatePattern={false} shimmer={false} />
+      </View>
       <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         <View style={styles.content}>
           <View style={styles.badge}>
