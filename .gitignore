@@ -56,3 +56,5 @@ Thumbs.db
 # store credentials - never commit
 *.p8
 **/gpm-service-account.json
+credentials.json
+**/credentials/
