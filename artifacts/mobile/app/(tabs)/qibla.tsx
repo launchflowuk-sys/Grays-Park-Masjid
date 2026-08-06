@@ -19,8 +19,13 @@ import { useColors } from "@/hooks/useColors";
 import { useQiblaCompass, type QiblaReading } from "@/hooks/useQiblaCompass";
 import { bearingToCardinal, formatWhole, kmToMiles } from "@/utils/qibla";
 
-const MAX_COMPASS_SIZE = 300;
-const COMPASS_MARGIN = 56;
+/**
+ * The dial is tipped back in 3D, so it projects to roughly three-quarters of
+ * `size` in height. It is drawn a little larger than a flat dial would be to
+ * keep the same visual weight on screen.
+ */
+const MAX_COMPASS_SIZE = 340;
+const COMPASS_MARGIN = 48;
 
 type Tone = "gold" | "plain" | "muted";
 
@@ -307,7 +312,7 @@ const styles = StyleSheet.create({
   header: { alignItems: "center", gap: 4 },
   title: { fontSize: 28, fontWeight: "700" },
   subtitle: { fontSize: 13 },
-  compassWrap: { alignItems: "center", paddingVertical: 8 },
+  compassWrap: { alignItems: "center", paddingVertical: 2 },
   guidance: {
     flexDirection: "row",
     alignItems: "center",
