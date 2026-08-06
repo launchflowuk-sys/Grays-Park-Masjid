@@ -70,7 +70,10 @@ const ORDINALS = ["1st", "2nd", "3rd", "4th"];
 // control. Both default to the same recording; the masjid can still override
 // either one from Settings (adhan_audio_url / adhan_fajr_audio_url) without
 // an app release.
-const DEFAULT_ADHAN_URL = `${API_BASE_URL}/audio/adhan-makkah.mp3`;
+// Mishary Rashid Alafasy, 128 kbps. The originally supplied recording is kept
+// at /audio/adhan-makkah.mp3 and can be restored from Settings, but it is
+// 32 kbps and sounds muffled on a phone speaker.
+const DEFAULT_ADHAN_URL = `${API_BASE_URL}/audio/adhan-alafasy.mp3`;
 // Fajr has its own recitation — it carries "As-salatu khayrun min an-nawm",
 // which the other four prayers do not.
 const DEFAULT_FAJR_ADHAN_URL = `${API_BASE_URL}/audio/adhan-fajr-makkah.mp3`;
