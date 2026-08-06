@@ -106,4 +106,48 @@ router.get("/_diag/schema-drift", async (req, res) => {
   res.json({ tablesChecked: actual.size, drift, applied: apply });
 });
 
+// Creates the objects that ADD COLUMN cannot: the missing email_campaigns
+// table (with its enums) and the two jsonb columns whose defaults need to be
+// quoted SQL literals. Every statement is IF NOT EXISTS, so re-running is safe.
+router.get("/_diag/repair-remaining", async (req, res) => {
+  if (!process.env.JWT_SECRET || req.query.token !== process.env.JWT_SECRET) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  const statements: string[] = [
+    `alter table "donation_campaigns" add column if not exists "gallery_images" jsonb not null default '[]'::jsonb`,
+    `alter table "donation_campaigns" add column if not exists "preset_amounts" jsonb not null default '[10,25,50,100]'::jsonb`,
+    `do $$ begin create type email_campaign_status as enum ('draft','sent'); exception when duplicate_object then null; end $$`,
+    `do $$ begin create type email_campaign_recipient_type as enum ('all_members','specific'); exception when duplicate_object then null; end $$`,
+    `create table if not exists "email_campaigns" (
+       "id" uuid primary key default gen_random_uuid(),
+       "subject" text not null,
+       "banner_image_url" text,
+       "body_text" text not null,
+       "cta_label" text,
+       "cta_url" text,
+       "recipient_type" email_campaign_recipient_type not null default 'all_members',
+       "recipient_emails" text[] not null default '{}',
+       "status" email_campaign_status not null default 'draft',
+       "sent_at" timestamp with time zone,
+       "sent_count" integer not null default 0,
+       "created_at" timestamp with time zone not null default now(),
+       "updated_at" timestamp with time zone not null default now()
+     )`,
+  ];
+
+  const results: string[] = [];
+  for (const statement of statements) {
+    try {
+      await db.execute(sql.raw(statement));
+      results.push(`ok: ${statement.slice(0, 60)}...`);
+    } catch (err) {
+      results.push(`FAIL: ${statement.slice(0, 60)}... -> ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  res.json({ results });
+});
+
 export default router;
