@@ -862,6 +862,20 @@ export default function PrayerTimesScreen() {
               {hijriLabel}
             </Text>
           </View>
+          {/* Preview the adhan without waiting for a prayer time. Plays the
+              Fajr recitation when Fajr is next, otherwise the standard one. */}
+          <TouchableOpacity
+            onPress={() => (adhanPlaying ? stopAdhan() : playAdhan(nextInfo?.prayer.name ?? "Dhuhr"))}
+            style={styles.bellButton}
+            accessibilityLabel={adhanPlaying ? "Stop adhan" : "Play adhan"}
+            testID="adhan-preview"
+          >
+            <Ionicons
+              name={adhanPlaying ? "stop-circle" : "volume-medium-outline"}
+              size={24}
+              color={adhanPlaying ? colors.accent : colors.primaryForeground}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={toggleNotifications} style={styles.bellButton} testID="notif-toggle">
             <Ionicons
               name={notifEnabled ? "notifications" : "notifications-outline"}
