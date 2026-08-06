@@ -137,13 +137,22 @@ router.get("/_diag/repair-remaining", async (req, res) => {
      )`,
   ];
 
+  // The slug column was only just created, so existing campaigns have none —
+  // which breaks every campaign detail link on the site and in the app.
+  // Backfill a slug from the title for any campaign still missing one.
+  statements.push(
+    `update "donation_campaigns"
+       set "slug" = regexp_replace(regexp_replace(lower("title"), '[^a-z0-9]+', '-', 'g'), '(^-|-$)', '', 'g')
+     where "slug" is null or "slug" = ''`,
+  );
+
   const results: string[] = [];
   for (const statement of statements) {
     try {
       await db.execute(sql.raw(statement));
-      results.push(`ok: ${statement.slice(0, 60)}...`);
+      results.push(`ok: ${statement.trim().slice(0, 60)}...`);
     } catch (err) {
-      results.push(`FAIL: ${statement.slice(0, 60)}... -> ${err instanceof Error ? err.message : String(err)}`);
+      results.push(`FAIL: ${statement.trim().slice(0, 60)}... -> ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
