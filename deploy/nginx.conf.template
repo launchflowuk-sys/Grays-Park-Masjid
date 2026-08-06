@@ -7,7 +7,16 @@ server {
     # Uploaded files (gallery photos, prayer timetable PDFs) can be up to ~25MB.
     client_max_body_size 30m;
 
+    # Security headers. NOTE: nginx add_header is NOT inherited into any
+    # location block that declares its own add_header, so these are repeated
+    # in the caching locations below.
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self)" always;
+
     gzip on;
+    gzip_vary on;
     gzip_types text/plain text/css application/javascript application/json image/svg+xml;
 
     # The frontend calls same-origin relative "/api/..." paths. In Replit dev
@@ -30,13 +39,40 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # index.html must never be cached long-term: it references the current
+    # set of hashed asset filenames, so a stale copy breaks deploys.
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self)" always;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
 
+    # Vite-built assets carry a content hash in the filename, so they can be
+    # cached forever. "^~" makes this prefix win over the regex block below.
+    location ^~ /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self)" always;
+        try_files $uri =404;
+    }
+
+    # Non-hashed static files (favicon, opengraph image, etc.): short cache.
     location ~* \.(?:css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico)$ {
         expires 7d;
-        add_header Cache-Control "public, max-age=604800, immutable";
+        add_header Cache-Control "public, max-age=604800";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self)" always;
         try_files $uri =404;
     }
 }

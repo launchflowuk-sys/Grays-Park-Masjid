@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,11 @@ const CONTACT_INFO = [
 ];
 
 export default function ContactPage() {
+  usePageMeta({
+    title: "Contact Us",
+    description: "Get in touch with Grays Park Masjid — location, contact details and enquiry form.",
+    canonicalPath: "/contact",
+  });
   const { toast } = useToast();
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),

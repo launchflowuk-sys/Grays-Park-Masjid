@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { useListEventsPublic } from "@workspace/api-client-react";
 import { CalendarDays, MapPin } from "lucide-react";
@@ -15,6 +16,11 @@ function formatDateRange(startsAt: string, endsAt?: string | null) {
 }
 
 export default function EventsPage() {
+  usePageMeta({
+    title: "Events",
+    description: "Upcoming events and activities at Grays Park Masjid in Grays, Essex.",
+    canonicalPath: "/events",
+  });
   const { data, isLoading } = useListEventsPublic();
   const now = Date.now();
   const sorted = [...(data ?? [])].sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());

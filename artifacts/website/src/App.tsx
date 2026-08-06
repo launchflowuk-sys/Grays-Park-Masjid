@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { lazy, Suspense, useLayoutEffect } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,33 +33,8 @@ import SafeguardingPage from "@/pages/safeguarding";
 import PoliciesPage from "@/pages/policies";
 import FaqsPage from "@/pages/faqs";
 import { AuthProvider } from "@/lib/auth-context";
-import AdminLoginPage from "@/pages/admin/login";
-import AdminDashboardPage from "@/pages/admin/dashboard";
-import AdminPrayerTimesPage from "@/pages/admin/prayer-times";
-import AdminDonationsPage from "@/pages/admin/donations";
-import AdminServicesPage from "@/pages/admin/services";
-import AdminEnquiriesPage from "@/pages/admin/enquiries";
-import AdminSettingsPage from "@/pages/admin/settings";
-import AdminUsersPage from "@/pages/admin/users";
-import AdminNotificationsPage from "@/pages/admin/notifications";
-import AdminAnnouncementsPage from "@/pages/admin/announcements";
-import AdminEventsPage from "@/pages/admin/events";
-import AdminCoursesPage from "@/pages/admin/courses";
-import AdminVolunteersPage from "@/pages/admin/volunteers";
-import AdminMembersPage from "@/pages/admin/members";
-import AdminGalleryPage from "@/pages/admin/gallery";
-import AdminNewsPage from "@/pages/admin/news";
-import AdminStaffPage from "@/pages/admin/staff";
 import QuranPage from "@/pages/quran";
 import QuranSurahPage from "@/pages/quran-surah";
-import AdminQuranSettingsPage from "@/pages/admin/quran-settings";
-import AdminQuranFeaturedAyahPage from "@/pages/admin/quran-featured-ayah";
-import AdminQuranReflectionsPage from "@/pages/admin/quran-reflections";
-import AdminHelpPage from "@/pages/admin/help";
-import AdminPushNotificationsPage from "@/pages/admin/push-notifications";
-import AdminBlogPage from "@/pages/admin/blog";
-import AdminBlogEditorPage from "@/pages/admin/blog-editor";
-import AdminEmailCampaignsPage from "@/pages/admin/email-campaigns";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
 import ProphetPage from "@/pages/prophet";
@@ -67,6 +42,46 @@ import StoriesPage from "@/pages/stories";
 import UnsubscribePage from "@/pages/unsubscribe";
 import { QuranAudioProvider } from "@/lib/quran-audio-player";
 import { MiniAudioPlayer } from "@/components/quran/mini-audio-player";
+
+// Admin pages are lazy-loaded so the public site bundle doesn't carry the
+// entire admin dashboard. Each route becomes its own Vite chunk.
+const AdminLoginPage = lazy(() => import("@/pages/admin/login"));
+const AdminDashboardPage = lazy(() => import("@/pages/admin/dashboard"));
+const AdminPrayerTimesPage = lazy(() => import("@/pages/admin/prayer-times"));
+const AdminDonationsPage = lazy(() => import("@/pages/admin/donations"));
+const AdminServicesPage = lazy(() => import("@/pages/admin/services"));
+const AdminEnquiriesPage = lazy(() => import("@/pages/admin/enquiries"));
+const AdminSettingsPage = lazy(() => import("@/pages/admin/settings"));
+const AdminUsersPage = lazy(() => import("@/pages/admin/users"));
+const AdminNotificationsPage = lazy(() => import("@/pages/admin/notifications"));
+const AdminAnnouncementsPage = lazy(() => import("@/pages/admin/announcements"));
+const AdminEventsPage = lazy(() => import("@/pages/admin/events"));
+const AdminCoursesPage = lazy(() => import("@/pages/admin/courses"));
+const AdminVolunteersPage = lazy(() => import("@/pages/admin/volunteers"));
+const AdminMembersPage = lazy(() => import("@/pages/admin/members"));
+const AdminGalleryPage = lazy(() => import("@/pages/admin/gallery"));
+const AdminNewsPage = lazy(() => import("@/pages/admin/news"));
+const AdminStaffPage = lazy(() => import("@/pages/admin/staff"));
+const AdminQuranSettingsPage = lazy(() => import("@/pages/admin/quran-settings"));
+const AdminQuranFeaturedAyahPage = lazy(() => import("@/pages/admin/quran-featured-ayah"));
+const AdminQuranReflectionsPage = lazy(() => import("@/pages/admin/quran-reflections"));
+const AdminHelpPage = lazy(() => import("@/pages/admin/help"));
+const AdminPushNotificationsPage = lazy(() => import("@/pages/admin/push-notifications"));
+const AdminBlogPage = lazy(() => import("@/pages/admin/blog"));
+const AdminBlogEditorPage = lazy(() => import("@/pages/admin/blog-editor"));
+const AdminEmailCampaignsPage = lazy(() => import("@/pages/admin/email-campaigns"));
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        role="status"
+        aria-label="Loading"
+      />
+    </div>
+  );
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +103,7 @@ const queryClient = new QueryClient({
 
 function Router() {
   return (
+    <Suspense fallback={<RouteFallback />}>
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/prayer-times" component={PrayerTimesPage} />
@@ -152,6 +168,7 @@ function Router() {
       <Route path="/admin" component={AdminDashboardPage} />
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 

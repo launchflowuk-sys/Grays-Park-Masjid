@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,13 @@ function ShareButtons({ title }: { title: string }) {
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, isError } = useGetBlogPostBySlug(slug);
+
+  usePageMeta({
+    title: post?.title ?? "Blog",
+    description: post?.excerpt ?? "Articles, reflections and community news from Grays Park Masjid.",
+    canonicalPath: `/blog/${slug}`,
+    ogImage: post?.featureImageUrl ?? undefined,
+  });
 
   if (isLoading) {
     return (

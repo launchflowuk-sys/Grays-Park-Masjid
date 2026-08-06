@@ -1,19 +1,16 @@
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { useListServicesPublic } from "@workspace/api-client-react";
-import * as Icons from "lucide-react";
-import { HandHeart } from "lucide-react";
 import { ArchIconBadge, IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
-
-function toPascalCase(name: string): string {
-  return name.split(/[-_ ]+/).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join("");
-}
-function resolveServiceIcon(name?: string | null): Icons.LucideIcon {
-  const iconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
-  return (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
-}
+import { resolveServiceIcon } from "@/lib/service-icons";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 export default function ServicesPage() {
+  usePageMeta({
+    title: "Our Services",
+    description: "Religious, educational and community services at Grays Park Masjid, supporting our congregation and the wider community.",
+    canonicalPath: "/services",
+  });
   const { data, isLoading } = useListServicesPublic();
   const sorted = [...(data ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
 

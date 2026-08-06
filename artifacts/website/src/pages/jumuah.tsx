@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { useGetSettingPublic } from "@workspace/api-client-react";
@@ -31,6 +32,11 @@ const FEATURES = [
 ];
 
 export default function JumuahPage() {
+  usePageMeta({
+    title: "Jumu'ah (Friday Prayer)",
+    description: "Jumu'ah (Friday prayer) times, khutbah and information at Grays Park Masjid.",
+    canonicalPath: "/jumuah",
+  });
   const { data } = useGetSettingPublic("jumuah_content");
   const content = data?.value || DEFAULT_CONTENT;
 

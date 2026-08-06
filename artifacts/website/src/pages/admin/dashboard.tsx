@@ -34,6 +34,7 @@ import {
   LifeBuoy,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { todayIsoLocal } from "@/lib/date";
 import type { AdminRole } from "@workspace/api-client-react";
 import {
   AreaChart,
@@ -104,7 +105,7 @@ export default function AdminDashboardPage() {
   const canSeeDonations = !role || DONATION_ROLES.includes(role);
   const canSeeEducation = !role || EDUCATION_ROLES.includes(role);
 
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = todayIsoLocal();
 
   const nextPrayer = useMemo(() => {
     const todayEntry = (prayerTimes ?? []).find((p) => p.date === todayIso);

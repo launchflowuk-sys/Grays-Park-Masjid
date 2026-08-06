@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import * as Icons from "lucide-react";
 import {
   Clock,
   HandHeart,
@@ -26,6 +25,8 @@ import {
   Images,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
+import { resolveServiceIcon } from "@/lib/service-icons";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { HeroPrayerCard } from "@/components/hero-prayer-card";
 import { LocalPrayerTimesCard } from "@/components/local-prayer-times-card";
@@ -61,18 +62,6 @@ function formatCurrency(value: string | null | undefined) {
     currency: "GBP",
     maximumFractionDigits: 0,
   }).format(num);
-}
-
-function toPascalCase(name: string): string {
-  return name
-    .split(/[-_ ]+/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
-
-function resolveServiceIcon(name?: string | null): Icons.LucideIcon {
-  const iconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
-  return (name && (iconMap[name] || iconMap[toPascalCase(name)])) || HandHeart;
 }
 
 function ArchIconBadgeFor({ service }: { service: { icon?: string | null } }) {
@@ -119,6 +108,11 @@ function SmartPrayerCard() {
 }
 
 export default function Home() {
+  usePageMeta({
+    title: "Grays Park Masjid — Mosque in Grays, Essex",
+    description: "Grays Park Masjid is a welcoming centre for worship, education and community in Grays, Essex. Prayer times, events, Qur'an, donations and more.",
+    canonicalPath: "/",
+  });
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SiteHeader />

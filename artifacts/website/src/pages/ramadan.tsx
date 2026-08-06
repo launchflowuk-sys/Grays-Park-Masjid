@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { useGetSettingPublic } from "@workspace/api-client-react";
@@ -19,6 +20,11 @@ const FEATURES = [
 ];
 
 export default function RamadanPage() {
+  usePageMeta({
+    title: "Ramadan",
+    description: "Ramadan at Grays Park Masjid — taraweeh, iftar and prayer times for the blessed month.",
+    canonicalPath: "/ramadan",
+  });
   const { data } = useGetSettingPublic("ramadan_content");
   const content = data?.value || DEFAULT_CONTENT;
 

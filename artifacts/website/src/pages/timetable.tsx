@@ -10,6 +10,8 @@ import type { PrayerTime } from "@workspace/api-client-react";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 import { ChevronLeft, ChevronRight, Printer, Download, FileText } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { todayIsoLocal } from "@/lib/date";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 function formatTime12h(time: string | null | undefined): string {
   if (!time) return "--";
@@ -67,11 +69,16 @@ const PRAYER_COLS = [
 ] as const;
 
 export default function TimetablePage() {
+  usePageMeta({
+    title: "Monthly Prayer Timetable",
+    description: "Monthly prayer timetable with adhan and iqamah times at Grays Park Masjid in Grays, Essex.",
+    canonicalPath: "/timetable",
+  });
   const { data: prayerData, isLoading: prayerLoading } = useListPrayerTimesPublic();
   const { data: pdfData, isLoading: pdfLoading } = useListTimetablePdfsPublic();
 
-  const todayYm = new Date().toISOString().slice(0, 7);
-  const todayFull = new Date().toISOString().slice(0, 10);
+  const todayFull = todayIsoLocal();
+  const todayYm = todayFull.slice(0, 7);
 
   const sortedPdfs = [...(pdfData ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
 

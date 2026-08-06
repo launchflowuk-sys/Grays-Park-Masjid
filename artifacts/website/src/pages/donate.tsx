@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -110,6 +111,11 @@ function CampaignCard({
 }
 
 export default function DonatePage() {
+  usePageMeta({
+    title: "Donate",
+    description: "Support Grays Park Masjid with your donations — every contribution helps our masjid and community projects.",
+    canonicalPath: "/donate",
+  });
   const { data, isLoading } = useListDonationCampaignsPublic();
   const active = (data ?? []).filter((c) => c.active);
   const featured = active.filter((c) => c.featured);

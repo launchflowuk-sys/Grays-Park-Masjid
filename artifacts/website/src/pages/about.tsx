@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { BookOpen, HandHeart, Heart, MapPin, Users, CheckCircle } from "lucide-react";
@@ -44,6 +45,11 @@ const FACILITIES = [
 ];
 
 export default function AboutPage() {
+  usePageMeta({
+    title: "About Us",
+    description: "Learn about Grays Park Masjid — our history, mission and the community we serve in Grays, Essex.",
+    canonicalPath: "/about",
+  });
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SiteHeader />

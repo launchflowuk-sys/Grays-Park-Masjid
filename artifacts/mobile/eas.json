@@ -42,10 +42,14 @@
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID"
+        "ascAppId": "6788555900",
+        "ascApiKeyPath": "./AuthKey_Q47HFP8DP6.p8",
+        "ascApiKeyIssuerId": "252f4cf6-a5b5-4d27-bba5-1cdb31a4db1a",
+        "ascApiKeyId": "Q47HFP8DP6"
       },
       "android": {
-        "track": "production"
+        "serviceAccountKeyPath": "./gpm-service-account.json",
+        "track": "internal"
       }
     }
   }

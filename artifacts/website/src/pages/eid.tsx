@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import { useGetSettingPublic } from "@workspace/api-client-react";
@@ -19,6 +20,11 @@ const FEATURES = [
 ];
 
 export default function EidPage() {
+  usePageMeta({
+    title: "Eid",
+    description: "Eid prayer times and celebrations at Grays Park Masjid in Grays, Essex.",
+    canonicalPath: "/eid",
+  });
   const { data } = useGetSettingPublic("eid_content");
   const content = data?.value || DEFAULT_CONTENT;
 

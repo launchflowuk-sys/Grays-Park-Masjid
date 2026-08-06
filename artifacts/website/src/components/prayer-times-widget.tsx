@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useListPrayerTimesPublic, type PrayerTime } from "@workspace/api-client-react";
 import { Clock } from "lucide-react";
+import { todayIsoLocal } from "@/lib/date";
 
 export const PRAYER_ORDER = [
   { key: "fajr", label: "Fajr" },
@@ -14,7 +15,7 @@ export const PRAYER_ORDER = [
 export const IQAMAH_PRAYER_ORDER = PRAYER_ORDER.filter((p) => p.key !== "sunrise");
 
 export function todayIso() {
-  return new Date().toISOString().slice(0, 10);
+  return todayIsoLocal();
 }
 
 function timeToMinutes(time: string): number {

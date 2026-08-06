@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,6 +89,11 @@ function AlbumView({ album, onBack }: { album: GalleryAlbum; onBack: () => void 
 }
 
 export default function GalleryPage() {
+  usePageMeta({
+    title: "Gallery",
+    description: "Photo gallery of Grays Park Masjid — events, activities and community moments.",
+    canonicalPath: "/gallery",
+  });
   const [selectedAlbum, setSelectedAlbum] = useState<GalleryAlbum | null>(null);
 
   return (

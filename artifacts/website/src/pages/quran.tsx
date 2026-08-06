@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { IslamicPatternBg } from "@/components/site/islamic-pattern";
 import { Input } from "@/components/ui/input";
@@ -220,6 +221,11 @@ function SurahSkeleton() {
 }
 
 export default function QuranPage() {
+  usePageMeta({
+    title: "The Holy Qur'an",
+    description: "Read and listen to the Holy Qur'an — all 114 surahs with translation and audio, from Grays Park Masjid.",
+    canonicalPath: "/quran",
+  });
   const { data: settings } = useGetQuranSettingsPublic();
   const { data: chapters, isLoading: chaptersLoading } = useListQuranChapters();
   const [search, setSearch] = useState("");

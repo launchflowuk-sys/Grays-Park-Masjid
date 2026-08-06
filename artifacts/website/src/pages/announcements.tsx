@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { useListAnnouncementsPublic, useListNewsPublic } from "@workspace/api-client-react";
@@ -10,6 +11,11 @@ function formatDate(dateStr: string) {
 }
 
 export default function AnnouncementsPage() {
+  usePageMeta({
+    title: "Announcements",
+    description: "Latest announcements and news from Grays Park Masjid.",
+    canonicalPath: "/announcements",
+  });
   const { data, isLoading } = useListAnnouncementsPublic();
   const { data: newsData, isLoading: newsLoading } = useListNewsPublic();
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { SiteHeader } from "@/components/site/site-header";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,6 +75,11 @@ function PrayerCell({
 }
 
 export default function PrayerTimesPage() {
+  usePageMeta({
+    title: "Prayer Times",
+    description: "Daily prayer and iqamah times at Grays Park Masjid in Grays, Essex.",
+    canonicalPath: "/prayer-times",
+  });
   const { data, isLoading, today, todayRow, tomorrowRow } = usePrayerTimesToday();
   const now = useNow(1000);
   const current = todayRow ? computeCurrentNext(todayRow, tomorrowRow, now) : null;
