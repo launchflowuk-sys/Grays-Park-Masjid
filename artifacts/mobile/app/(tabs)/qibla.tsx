@@ -1,11 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import * as Location from "expo-location";
-import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import {
-  ActivityIndicator,
-  Alert,
+  Linking,
   Platform,
   ScrollView,
   StatusBar,
@@ -13,382 +9,291 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useColors } from "@/hooks/useColors";
 import { IslamicPatternBg } from "@/components/IslamicPatternBg";
+import { QiblaCompass } from "@/components/QiblaCompass";
+import { useColors } from "@/hooks/useColors";
+import { useQiblaCompass, type QiblaReading } from "@/hooks/useQiblaCompass";
+import { bearingToCardinal, formatWhole, kmToMiles } from "@/utils/qibla";
 
-const KAABA_LAT = 21.4225;
-const KAABA_LNG = 39.8262;
+const MAX_COMPASS_SIZE = 300;
+const COMPASS_MARGIN = 56;
 
-function calculateQibla(lat: number, lng: number): number {
-  const dLng = (KAABA_LNG - lng) * (Math.PI / 180);
-  const lat1 = lat * (Math.PI / 180);
-  const lat2 = KAABA_LAT * (Math.PI / 180);
-  const y = Math.sin(dLng) * Math.cos(lat2);
-  const x =
-    Math.cos(lat1) * Math.sin(lat2) -
-    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
-  return (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
+type Tone = "gold" | "plain" | "muted";
+
+interface Guidance {
+  text: string;
+  tone: Tone;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
 }
 
-function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371;
-  const toRad = (v: number) => (v * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
-
-type QiblaStatus =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "denied" }
-  | { status: "ready"; qibla: number; distance: number; city?: string }
-  | { status: "error"; message: string };
-
-const COMPASS_SIZE = 240;
-
-/** Cap heading-driven work at ~5 updates/sec; the needle animation bridges the gap. */
-const HEADING_UPDATE_INTERVAL_MS = 200;
-/** Matches HEADING_UPDATE_INTERVAL_MS so the needle glides rather than steps. */
-const NEEDLE_ANIMATION_MS = 200;
 /**
- * expo-location grades compass calibration 3 = high, 2 = medium, 1 = low,
- * 0 = unreliable. Anything below medium is worth a figure-8 prompt.
+ * The single line under the dial that tells the user what to do next.
+ *
+ * Honesty first: while the compass is starting, calibrating or missing we say
+ * so rather than implying the dial is trustworthy.
  */
-const MIN_USABLE_HEADING_ACCURACY = 2;
-
-/**
- * True north where the OS can provide it (tilt-compensated and corrected for
- * magnetic declination), magnetic north otherwise. `trueHeading` is -1 when
- * location services can't supply a declination for the current position.
- */
-function resolveHeading(reading: Location.LocationHeadingObject): number | null {
-  const heading = reading.trueHeading >= 0 ? reading.trueHeading : reading.magHeading;
-  if (!Number.isFinite(heading) || heading < 0) return null;
-  return heading % 360;
+function describeReading(reading: QiblaReading, hasBearing: boolean): Guidance | null {
+  if (!hasBearing) return null;
+  if (reading.status === "unavailable") {
+    return {
+      text: "No compass on this device — bearing only",
+      tone: "muted",
+      icon: "compass-off-outline",
+    };
+  }
+  if (reading.status === "starting") {
+    return { text: "Finding north…", tone: "muted", icon: "compass-outline" };
+  }
+  if (reading.status === "calibrating") {
+    return { text: "Calibrating…", tone: "muted", icon: "sync" };
+  }
+  if (reading.aligned) {
+    return { text: "Facing the Qibla", tone: "gold", icon: "check-circle" };
+  }
+  if (reading.offset === null) {
+    return { text: "Finding north…", tone: "muted", icon: "compass-outline" };
+  }
+  const clockwise = reading.offset > 0;
+  return {
+    text: `Turn ${Math.abs(reading.offset)}° ${clockwise ? "right" : "left"}`,
+    tone: "plain",
+    icon: clockwise ? "rotate-right" : "rotate-left",
+  };
 }
 
 export default function QiblaScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
-  const [state, setState] = useState<QiblaStatus>({ status: "idle" });
-  const [showCalibration, setShowCalibration] = useState(false);
-  const headingSub = useRef<Location.LocationSubscription | null>(null);
-  const lastHeadingAt = useRef(0);
-  const compassRot = useSharedValue(0);
-  const currentAngle = useRef(0);
+  const { width } = useWindowDimensions();
+  const { headingAnim, location, reading, retry } = useQiblaCompass();
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const compassSize = Math.min(width - COMPASS_MARGIN, MAX_COMPASS_SIZE);
 
-  const compassStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${compassRot.value}deg` }],
-  }));
+  const bearing = location.bearing ?? null;
+  const confident = reading.status === "live";
+  const guidance: Guidance | null =
+    bearing === null && location.phase === "locating"
+      ? { text: "Finding your location…", tone: "muted", icon: "crosshairs-gps" }
+      : describeReading(reading, bearing !== null);
 
-  useEffect(() => {
-    return () => {
-      headingSub.current?.remove();
-      headingSub.current = null;
-    };
-  }, []);
+  const surface = colors.primaryForeground + "0F";
+  const hairline = colors.primaryForeground + "24";
+  const softText = colors.primaryForeground + "AA";
 
-  function updateNeedle(qibla: number, deviceHeading: number) {
-    const target = ((qibla - deviceHeading) + 360) % 360;
-    let delta = target - currentAngle.current;
-    if (delta > 180) delta -= 360;
-    if (delta < -180) delta += 360;
-    const next = currentAngle.current + delta;
-    currentAngle.current = next;
-    compassRot.value = withTiming(next, { duration: NEEDLE_ANIMATION_MS });
-  }
-
-  async function startQibla() {
-    setState({ status: "loading" });
-    try {
-      let lat = 0, lng = 0;
-      if (Platform.OS === "web") {
-        await new Promise<void>((resolve, reject) => {
-          if (!navigator.geolocation) {
-            reject(new Error("Geolocation not available"));
-            return;
-          }
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              lat = pos.coords.latitude;
-              lng = pos.coords.longitude;
-              resolve();
-            },
-            (err) => reject(err)
-          );
-        });
-      } else {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setState({ status: "denied" });
-          return;
-        }
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-        lat = loc.coords.latitude;
-        lng = loc.coords.longitude;
-      }
-
-      const qibla = calculateQibla(lat, lng);
-      const distance = haversineDistance(lat, lng, KAABA_LAT, KAABA_LNG);
-      let city: string | undefined;
-
-      if (Platform.OS !== "web") {
-        try {
-          const [place] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
-          city = place?.city ?? place?.district ?? undefined;
-        } catch {}
-      }
-
-      setState({
-        status: "ready",
-        qibla,
-        distance,
-        city,
-      });
-
-      if (Platform.OS !== "web") {
-        // The OS compass is already tilt-compensated and declination-corrected,
-        // so no raw magnetometer maths is needed here.
-        try {
-          headingSub.current?.remove();
-          lastHeadingAt.current = 0;
-          headingSub.current = await Location.watchHeadingAsync((reading) => {
-            const now = Date.now();
-            if (now - lastHeadingAt.current < HEADING_UPDATE_INTERVAL_MS) return;
-            lastHeadingAt.current = now;
-
-            const heading = resolveHeading(reading);
-            if (heading === null) return;
-            updateNeedle(qibla, heading);
-            // Same boolean re-set is a no-op re-render in React, so this only
-            // costs a render when the calibration state actually flips.
-            setShowCalibration(reading.accuracy < MIN_USABLE_HEADING_ACCURACY);
-          });
-        } catch {
-          updateNeedle(qibla, 0);
-        }
-      } else {
-        updateNeedle(qibla, 0);
-      }
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Location error";
-      setState({ status: "error", message: msg });
-    }
-  }
-
-  function resetQibla() {
-    headingSub.current?.remove();
-    headingSub.current = null;
-    lastHeadingAt.current = 0;
-    setShowCalibration(false);
-    setState({ status: "idle" });
-    compassRot.value = 0;
-    currentAngle.current = 0;
-  }
-
-  const s = state;
+  const guidanceColor =
+    guidance?.tone === "gold"
+      ? colors.accent
+      : guidance?.tone === "muted"
+        ? softText
+        : colors.primaryForeground;
 
   return (
-    <View style={[styles.flex, { backgroundColor: colors.background }]}>
+    <View style={[styles.flex, { backgroundColor: colors.primary }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-
-      {/* ── Green patterned header ── */}
-      <View
-        style={[
-          styles.qiblaHeader,
-          { paddingTop: topPad + 16, backgroundColor: colors.primary },
-        ]}
-      >
-        <IslamicPatternBg color="#ffffff" patternOpacity={0.07} shimmer={false} animatePattern={false} />
-        <Text
-          style={[
-            styles.title,
-            { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" },
-          ]}
-        >
-          Qibla Direction
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.accent }]}>
-          اتجاه القبلة · Direction of the Ka'bah
-        </Text>
-      </View>
+      <IslamicPatternBg
+        color={colors.primaryForeground}
+        patternOpacity={0.05}
+        shimmer={false}
+        animatePattern={false}
+      />
 
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: 16, paddingBottom: insets.bottom + 90 },
+          { paddingTop: topPad + 12, paddingBottom: insets.bottom + 96 },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Compass */}
-        <View style={[styles.compassCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {(s.status === "idle" || s.status === "error" || s.status === "denied") && (
-            <View style={styles.compassPlaceholder}>
-              <MaterialCommunityIcons
-                name="compass-outline"
-                size={80}
-                color={s.status === "error" || s.status === "denied" ? colors.mutedForeground : colors.primary + "50"}
-              />
-              {s.status === "idle" && (
-                <Text style={[styles.placeholderText, { color: colors.mutedForeground }]}>
-                  Tap below to find your Qibla
-                </Text>
-              )}
-              {s.status === "denied" && (
-                <Text style={[styles.placeholderText, { color: colors.mutedForeground }]}>
-                  Location access is required
-                </Text>
-              )}
-              {s.status === "error" && (
-                <Text style={[styles.placeholderText, { color: colors.mutedForeground }]}>
-                  {s.message}
-                </Text>
-              )}
-            </View>
-          )}
-
-          {s.status === "loading" && (
-            <View style={styles.compassPlaceholder}>
-              <ActivityIndicator color={colors.primary} size="large" />
-              <Text style={[styles.placeholderText, { color: colors.mutedForeground }]}>
-                Getting your location…
-              </Text>
-            </View>
-          )}
-
-          {s.status === "ready" && (
-            <View style={styles.compassReady}>
-              {/* Compass ring */}
-              <View style={[styles.compassRing, { borderColor: colors.border }]}>
-                <View style={[styles.compassRingInner, { borderColor: colors.primary + "30" }]} />
-                {["N", "E", "S", "W"].map((label, i) => {
-                  const angle = i * 90;
-                  const rad = ((angle - 90) * Math.PI) / 180;
-                  const d = COMPASS_SIZE / 2 - 20;
-                  const lx = COMPASS_SIZE / 2 + Math.cos(rad) * d;
-                  const ly = COMPASS_SIZE / 2 + Math.sin(rad) * d;
-                  return (
-                    <Text
-                      key={label}
-                      style={[
-                        styles.cardinalLabel,
-                        {
-                          color: label === "N" ? colors.destructive : colors.mutedForeground,
-                          left: lx - 8,
-                          top: ly - 10,
-                        },
-                      ]}
-                    >
-                      {label}
-                    </Text>
-                  );
-                })}
-
-                {/* Needle */}
-                <Animated.View
-                  style={[
-                    styles.needleContainer,
-                    { width: COMPASS_SIZE, height: COMPASS_SIZE },
-                    compassStyle,
-                  ]}
-                >
-                  <View style={styles.needleTip} />
-                  <View style={[styles.needleBody, { backgroundColor: colors.accent }]} />
-                  <View style={styles.needleTail} />
-                  <View style={[styles.needleCenter, { backgroundColor: colors.primary, borderColor: colors.accent }]} />
-                </Animated.View>
-
-                {/* Kaaba icon at needle tip direction */}
-                <View style={[styles.kaabaIcon, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.kaabaEmoji}>🕋</Text>
-                </View>
-              </View>
-
-              <View style={styles.angleRow}>
-                <View style={[styles.angleBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={[styles.angleDeg, { color: colors.accent }]}>
-                    {Math.round(s.qibla)}°
-                  </Text>
-                  <Text style={[styles.angleLabel, { color: colors.primaryForeground + "AA" }]}>
-                    from North
-                  </Text>
-                </View>
-                <View style={[styles.distBadge, { backgroundColor: colors.muted }]}>
-                  <Text style={[styles.distValue, { color: colors.foreground }]}>
-                    {s.distance.toLocaleString()}
-                  </Text>
-                  <Text style={[styles.distLabel, { color: colors.mutedForeground }]}>
-                    km to Makkah
-                  </Text>
-                </View>
-              </View>
-
-              {s.city && (
-                <Text style={[styles.cityText, { color: colors.mutedForeground }]}>
-                  Calculated from {s.city}
-                </Text>
-              )}
-
-              {showCalibration && (
-                <View style={[styles.calibrationBar, { backgroundColor: colors.accent + "20", borderColor: colors.accent + "40" }]}>
-                  <MaterialCommunityIcons name="gesture" size={18} color={colors.accent} />
-                  <Text style={[styles.calibrationText, { color: colors.accent }]}>
-                    Move your phone in a figure-8 to calibrate the compass
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
+        {/* ── Title ── */}
+        <View style={styles.header}>
+          <Text
+            style={[
+              styles.title,
+              { color: colors.primaryForeground, fontFamily: "PlayfairDisplay_700Bold" },
+            ]}
+          >
+            Qibla Direction
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.accent }]}>
+            اتجاه القبلة · Direction of the Ka'bah
+          </Text>
         </View>
 
-        {/* Action buttons */}
-        <View style={styles.actions}>
-          {(s.status === "idle" || s.status === "error" || s.status === "denied") && (
-            <TouchableOpacity
-              onPress={startQibla}
-              style={[styles.primaryBtn, { backgroundColor: colors.primary }]}
-              testID="qibla-find-btn"
-            >
-              <MaterialCommunityIcons name="compass" size={20} color={colors.accent} />
-              <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                {s.status === "idle" ? "Find My Qibla" : "Try Again"}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {s.status === "ready" && (
-            <TouchableOpacity
-              onPress={resetQibla}
-              style={[styles.secondaryBtn, { borderColor: colors.border }]}
-            >
-              <Text style={[styles.secondaryBtnText, { color: colors.mutedForeground }]}>
-                Reset
-              </Text>
-            </TouchableOpacity>
-          )}
+        {/* ── Compass ── */}
+        <View style={styles.compassWrap}>
+          <QiblaCompass
+            size={compassSize}
+            headingAnim={headingAnim}
+            bearing={bearing}
+            aligned={reading.aligned}
+            confident={confident}
+          />
         </View>
 
-        {/* Info card */}
-        <View style={[styles.infoCard, { backgroundColor: colors.primary + "10", borderColor: colors.primary + "25" }]}>
-          <Text style={[styles.infoTitle, { color: colors.primary, fontFamily: "PlayfairDisplay_700Bold" }]}>
+        {/* ── What to do next ── */}
+        {guidance && (
+          <View
+            style={[
+              styles.guidance,
+              {
+                backgroundColor:
+                  guidance.tone === "gold" ? colors.accent + "22" : surface,
+                borderColor: guidance.tone === "gold" ? colors.accent + "66" : hairline,
+              },
+            ]}
+          >
+            <MaterialCommunityIcons name={guidance.icon} size={18} color={guidanceColor} />
+            <Text style={[styles.guidanceText, { color: guidanceColor }]}>
+              {guidance.text}
+            </Text>
+          </View>
+        )}
+
+        {/* ── Numbers ── */}
+        {bearing !== null && (
+          <View style={styles.statRow}>
+            <View style={[styles.stat, { backgroundColor: surface, borderColor: hairline }]}>
+              <Text style={[styles.statValue, { color: colors.accent }]}>
+                {Math.round(bearing)}° {bearingToCardinal(bearing)}
+              </Text>
+              <Text style={[styles.statLabel, { color: softText }]}>
+                from {reading.trueNorth ? "true" : "magnetic"} north
+              </Text>
+            </View>
+            {location.distanceKm != null && (
+              <View style={[styles.stat, { backgroundColor: surface, borderColor: hairline }]}>
+                <Text style={[styles.statValue, { color: colors.primaryForeground }]}>
+                  {formatWhole(location.distanceKm)} km
+                </Text>
+                <Text style={[styles.statLabel, { color: softText }]}>
+                  {formatWhole(kmToMiles(location.distanceKm))} miles to Makkah
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* ── Where the bearing came from ── */}
+        {bearing !== null && (
+          <View style={styles.metaRow}>
+            <MaterialCommunityIcons name="map-marker-outline" size={14} color={softText} />
+            <Text style={[styles.metaText, { color: softText }]}>
+              {location.place ?? "Your current location"}
+              {location.quality === "cached" && " · last known position"}
+              {location.quality === "coarse" && " · refining"}
+            </Text>
+            <TouchableOpacity onPress={retry} hitSlop={8}>
+              <Text style={[styles.metaAction, { color: colors.accent }]}>Update</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ── Calibration hint ── */}
+        {reading.status === "calibrating" && (
+          <View
+            style={[
+              styles.note,
+              { backgroundColor: colors.accent + "18", borderColor: colors.accent + "3A" },
+            ]}
+          >
+            <MaterialCommunityIcons name="gesture" size={18} color={colors.accent} />
+            <Text style={[styles.noteText, { color: colors.accent }]}>
+              Move your phone in a figure-8 a few times to calibrate the compass. Keep it
+              away from magnets and metal.
+            </Text>
+          </View>
+        )}
+
+        {/* ── Magnetic north disclosure ── */}
+        {confident && !reading.trueNorth && (
+          <View style={[styles.note, { backgroundColor: surface, borderColor: hairline }]}>
+            <MaterialCommunityIcons name="magnet" size={18} color={softText} />
+            <Text style={[styles.noteText, { color: softText }]}>
+              Using magnetic north — your device couldn't correct for magnetic declination
+              here, so the reading may be a few degrees out.
+            </Text>
+          </View>
+        )}
+
+        {/* ── No compass hardware ── */}
+        {reading.status === "unavailable" && bearing !== null && (
+          <View style={[styles.note, { backgroundColor: surface, borderColor: hairline }]}>
+            <MaterialCommunityIcons name="information-outline" size={18} color={softText} />
+            <Text style={[styles.noteText, { color: softText }]}>
+              This device has no usable compass. The bearing above is still correct — line it
+              up with a separate compass or a map.
+            </Text>
+          </View>
+        )}
+
+        {/* ── Permission needed ── */}
+        {location.phase === "denied" && (
+          <View style={[styles.card, { backgroundColor: surface, borderColor: hairline }]}>
+            <MaterialCommunityIcons
+              name="map-marker-off-outline"
+              size={28}
+              color={colors.accent}
+            />
+            <Text style={[styles.cardTitle, { color: colors.primaryForeground }]}>
+              Location access is off
+            </Text>
+            <Text style={[styles.cardBody, { color: softText }]}>
+              We need your location to work out the direction of the Ka'bah from where you
+              are. It is only used on this device.
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openSettings().catch(() => {});
+              }}
+              style={[styles.primaryBtn, { backgroundColor: colors.accent }]}
+              accessibilityRole="button"
+            >
+              <Text style={[styles.primaryBtnText, { color: colors.accentForeground }]}>
+                Enable location
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ── Couldn't get a fix ── */}
+        {location.phase === "unavailable" && (
+          <View style={[styles.card, { backgroundColor: surface, borderColor: hairline }]}>
+            <MaterialCommunityIcons name="crosshairs-off" size={28} color={colors.accent} />
+            <Text style={[styles.cardTitle, { color: colors.primaryForeground }]}>
+              Couldn't find your location
+            </Text>
+            <Text style={[styles.cardBody, { color: softText }]}>{location.message}</Text>
+            <TouchableOpacity
+              onPress={retry}
+              style={[styles.primaryBtn, { backgroundColor: colors.accent }]}
+              accessibilityRole="button"
+            >
+              <Text style={[styles.primaryBtnText, { color: colors.accentForeground }]}>
+                Try again
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ── About ── */}
+        <View style={[styles.card, { backgroundColor: surface, borderColor: hairline }]}>
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: colors.accent, fontFamily: "PlayfairDisplay_700Bold" },
+            ]}
+          >
             About the Qibla
           </Text>
-          <Text style={[styles.infoText, { color: colors.foreground }]}>
-            The Qibla (قبلة) is the direction of the Masjid al-Haram in Makkah, Saudi Arabia. Muslims face the Qibla when performing Salah (prayer).
+          <Text style={[styles.cardBody, { color: softText }]}>
+            The Qibla (قبلة) is the direction of the Masjid al-Haram in Makkah, which Muslims
+            face during Salah. The dial shows the great-circle bearing — the shortest path
+            across the surface of the Earth — from your position to the Ka'bah.
           </Text>
         </View>
       </ScrollView>
@@ -398,160 +303,67 @@ export default function QiblaScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scroll: { gap: 16 },
-  qiblaHeader: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    overflow: "hidden",
-  },
+  scroll: { gap: 14, paddingHorizontal: 16 },
+  header: { alignItems: "center", gap: 4 },
   title: { fontSize: 28, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 4 },
-  compassCard: {
-    marginHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    overflow: "hidden",
-    minHeight: 300,
-  },
-  compassPlaceholder: {
-    height: 300,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    padding: 20,
-  },
-  placeholderText: { fontSize: 14, textAlign: "center" },
-  compassReady: { alignItems: "center", padding: 24, gap: 16 },
-  compassRing: {
-    width: COMPASS_SIZE,
-    height: COMPASS_SIZE,
-    borderRadius: COMPASS_SIZE / 2,
-    borderWidth: 2,
-    position: "relative",
-  },
-  compassRingInner: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    right: 10,
-    bottom: 10,
-    borderRadius: COMPASS_SIZE / 2,
-    borderWidth: 1,
-  },
-  cardinalLabel: {
-    position: "absolute",
-    fontSize: 12,
-    fontWeight: "700",
-    width: 16,
-    textAlign: "center",
-  },
-  needleContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  needleTip: {
-    position: "absolute",
-    top: COMPASS_SIZE * 0.1,
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderBottomWidth: COMPASS_SIZE * 0.38,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "#C9A84C",
-  },
-  needleBody: {
-    position: "absolute",
-    top: COMPASS_SIZE * 0.5 - 2,
-    width: 4,
-    height: COMPASS_SIZE * 0.38,
-  },
-  needleTail: {
-    position: "absolute",
-    bottom: COMPASS_SIZE * 0.1,
-    width: 0,
-    height: 0,
-    borderLeftWidth: 7,
-    borderRightWidth: 7,
-    borderTopWidth: COMPASS_SIZE * 0.3,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderTopColor: "#7AA893",
-  },
-  needleCenter: {
-    position: "absolute",
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 2,
-  },
-  kaabaIcon: {
-    position: "absolute",
-    top: -18,
-    left: COMPASS_SIZE / 2 - 15,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  kaabaEmoji: { fontSize: 16 },
-  angleRow: { flexDirection: "row", gap: 12 },
-  angleBadge: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  angleDeg: { fontSize: 22, fontWeight: "700" },
-  angleLabel: { fontSize: 11, marginTop: 2 },
-  distBadge: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  distValue: { fontSize: 22, fontWeight: "700" },
-  distLabel: { fontSize: 11, marginTop: 2 },
-  cityText: { fontSize: 13 },
-  calibrationBar: {
+  subtitle: { fontSize: 13 },
+  compassWrap: { alignItems: "center", paddingVertical: 8 },
+  guidance: {
     flexDirection: "row",
     alignItems: "center",
+    alignSelf: "center",
     gap: 8,
-    padding: 10,
-    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 999,
     borderWidth: 1,
-    alignSelf: "stretch",
   },
-  calibrationText: { flex: 1, fontSize: 12, lineHeight: 16 },
-  actions: { paddingHorizontal: 16, gap: 8 },
-  primaryBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 14,
-  },
-  primaryBtnText: { fontSize: 17, fontWeight: "600" },
-  secondaryBtn: {
-    paddingVertical: 12,
+  guidanceText: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  statRow: { flexDirection: "row", gap: 12 },
+  stat: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderRadius: 14,
     borderWidth: 1,
     alignItems: "center",
+    gap: 3,
   },
-  secondaryBtnText: { fontSize: 15 },
-  infoCard: {
-    marginHorizontal: 16,
+  statValue: { fontSize: 20, fontFamily: "Inter_700Bold" },
+  statLabel: { fontSize: 11, textAlign: "center" },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  metaText: { fontSize: 12 },
+  metaAction: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+  note: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  noteText: { flex: 1, fontSize: 12, lineHeight: 17 },
+  card: {
     padding: 16,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     gap: 8,
+    alignItems: "flex-start",
   },
-  infoTitle: { fontSize: 16, fontWeight: "700" },
-  infoText: { fontSize: 14, lineHeight: 20 },
+  cardTitle: { fontSize: 16, fontFamily: "Inter_700Bold" },
+  cardBody: { fontSize: 13, lineHeight: 19 },
+  primaryBtn: {
+    marginTop: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignSelf: "stretch",
+    alignItems: "center",
+  },
+  primaryBtnText: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
 });
