@@ -25,6 +25,7 @@ import { API_BASE_URL } from "@/utils/apiBase";
 import { useColors } from "@/hooks/useColors";
 import { useAudio } from "@/context/AudioContext";
 import { requestAndRegisterPushToken } from "@/utils/notifications";
+import { syncWidgetData } from "@/utils/widgetData";
 import { IslamicPatternBg } from "@/components/IslamicPatternBg";
 import { formatHijriDate, isRamadan } from "@/utils/hijri";
 import {
@@ -325,6 +326,15 @@ export default function PrayerTimesScreen() {
     if (Platform.OS === "web") return;
     void requestAndRegisterPushToken(BASE_URL);
   }, []);
+
+  // Publish prayer times to the Android home-screen widget whenever the data
+  // loads or refreshes. No-ops on iOS/web and skips writes when unchanged.
+  // (The iOS widget fetches the public API itself — see targets/widget.)
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+    if (!allPrayerTimes?.length) return;
+    void syncWidgetData(allPrayerTimes);
+  }, [allPrayerTimes]);
 
   // Restore persisted bell toggle on mount
   useEffect(() => {

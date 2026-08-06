@@ -15,6 +15,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.grayspark.app",
+      "appleTeamId": "64GY32R9Y2",
       "icon": "./assets/images/ios-icon.png",
       "buildNumber": "1",
       "deploymentTarget": "16.0",
@@ -62,7 +63,28 @@
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "@bacons/apple-targets",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "PrayerTimes",
+              "label": "Prayer Times",
+              "description": "Today's prayer times for Grays Park Masjid",
+              "minWidth": "140dp",
+              "minHeight": "140dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "320dp",
+              "maxResizeHeight": "320dp",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

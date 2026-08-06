@@ -51,6 +51,8 @@ const packagesToTransform = [
   "react-native-safe-area-context",
   "react-native-gesture-handler",
   "react-native-render-html",
+  // ships untranspiled TS/TSX via its "react-native" main field
+  "react-native-android-widget",
   "@shopify",
   "@gorhom",
   "@stardazed",
