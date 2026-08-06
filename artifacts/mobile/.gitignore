@@ -9,9 +9,11 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
-ios/
-android/
+# Native — prebuild output only. These MUST stay anchored to the project root:
+# an unanchored `ios/` also swallows local module sources such as
+# modules/live-activity/ios/.
+/ios/
+/android/
 *.orig.*
 *.jks
 *.p8

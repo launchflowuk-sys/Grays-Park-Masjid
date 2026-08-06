@@ -58,3 +58,7 @@ Thumbs.db
 **/gpm-service-account.json
 credentials.json
 **/credentials/
+
+# Expo prebuild output (generated) - but NOT modules/*/ios native source
+artifacts/mobile/ios/
+artifacts/mobile/android/

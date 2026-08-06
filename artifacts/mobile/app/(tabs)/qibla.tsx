@@ -53,17 +53,39 @@ type QiblaStatus =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "denied" }
-  | { status: "ready"; qibla: number; deviceHeading: number; distance: number; city?: string }
+  | { status: "ready"; qibla: number; distance: number; city?: string }
   | { status: "error"; message: string };
 
 const COMPASS_SIZE = 240;
+
+/** Cap heading-driven work at ~5 updates/sec; the needle animation bridges the gap. */
+const HEADING_UPDATE_INTERVAL_MS = 200;
+/** Matches HEADING_UPDATE_INTERVAL_MS so the needle glides rather than steps. */
+const NEEDLE_ANIMATION_MS = 200;
+/**
+ * expo-location grades compass calibration 3 = high, 2 = medium, 1 = low,
+ * 0 = unreliable. Anything below medium is worth a figure-8 prompt.
+ */
+const MIN_USABLE_HEADING_ACCURACY = 2;
+
+/**
+ * True north where the OS can provide it (tilt-compensated and corrected for
+ * magnetic declination), magnetic north otherwise. `trueHeading` is -1 when
+ * location services can't supply a declination for the current position.
+ */
+function resolveHeading(reading: Location.LocationHeadingObject): number | null {
+  const heading = reading.trueHeading >= 0 ? reading.trueHeading : reading.magHeading;
+  if (!Number.isFinite(heading) || heading < 0) return null;
+  return heading % 360;
+}
 
 export default function QiblaScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
   const [state, setState] = useState<QiblaStatus>({ status: "idle" });
   const [showCalibration, setShowCalibration] = useState(false);
-  const sensorSub = useRef<{ remove: () => void } | null>(null);
+  const headingSub = useRef<Location.LocationSubscription | null>(null);
+  const lastHeadingAt = useRef(0);
   const compassRot = useSharedValue(0);
   const currentAngle = useRef(0);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -74,7 +96,8 @@ export default function QiblaScreen() {
 
   useEffect(() => {
     return () => {
-      sensorSub.current?.remove();
+      headingSub.current?.remove();
+      headingSub.current = null;
     };
   }, []);
 
@@ -85,7 +108,7 @@ export default function QiblaScreen() {
     if (delta < -180) delta += 360;
     const next = currentAngle.current + delta;
     currentAngle.current = next;
-    compassRot.value = withTiming(next, { duration: 150 });
+    compassRot.value = withTiming(next, { duration: NEEDLE_ANIMATION_MS });
   }
 
   async function startQibla() {
@@ -132,30 +155,28 @@ export default function QiblaScreen() {
       setState({
         status: "ready",
         qibla,
-        deviceHeading: 0,
         distance,
         city,
       });
 
       if (Platform.OS !== "web") {
+        // The OS compass is already tilt-compensated and declination-corrected,
+        // so no raw magnetometer maths is needed here.
         try {
-          const { Magnetometer } = await import("expo-sensors");
-          const isAvailable = await Magnetometer.isAvailableAsync();
-          if (isAvailable) {
-            Magnetometer.setUpdateInterval(100);
-            sensorSub.current = Magnetometer.addListener((data) => {
-              const heading = (-(Math.atan2(data.y, data.x) * (180 / Math.PI)) + 360) % 360;
-              setState((prev) => {
-                if (prev.status !== "ready") return prev;
-                return { ...prev, deviceHeading: heading };
-              });
-              updateNeedle(qibla, heading);
-            });
-            setShowCalibration(true);
-            setTimeout(() => setShowCalibration(false), 4000);
-          } else {
-            updateNeedle(qibla, 0);
-          }
+          headingSub.current?.remove();
+          lastHeadingAt.current = 0;
+          headingSub.current = await Location.watchHeadingAsync((reading) => {
+            const now = Date.now();
+            if (now - lastHeadingAt.current < HEADING_UPDATE_INTERVAL_MS) return;
+            lastHeadingAt.current = now;
+
+            const heading = resolveHeading(reading);
+            if (heading === null) return;
+            updateNeedle(qibla, heading);
+            // Same boolean re-set is a no-op re-render in React, so this only
+            // costs a render when the calibration state actually flips.
+            setShowCalibration(reading.accuracy < MIN_USABLE_HEADING_ACCURACY);
+          });
         } catch {
           updateNeedle(qibla, 0);
         }
@@ -171,8 +192,10 @@ export default function QiblaScreen() {
   }
 
   function resetQibla() {
-    sensorSub.current?.remove();
-    sensorSub.current = null;
+    headingSub.current?.remove();
+    headingSub.current = null;
+    lastHeadingAt.current = 0;
+    setShowCalibration(false);
     setState({ status: "idle" });
     compassRot.value = 0;
     currentAngle.current = 0;

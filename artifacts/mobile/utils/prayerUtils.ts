@@ -59,11 +59,18 @@ export function findNextPrayer(
   return { prayer: fajr, index: 0, isTomorrow: true };
 }
 
-export function getCountdownToTime(timeStr: string, tomorrow = false): string {
+/** Absolute local instant of an "HH:mm" time, today or tomorrow. */
+export function getTargetDateForTime(timeStr: string, tomorrow = false): Date {
   const now = new Date();
   const [h, m] = timeStr.split(":").map(Number);
   const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
   if (tomorrow) target.setDate(target.getDate() + 1);
+  return target;
+}
+
+export function getCountdownToTime(timeStr: string, tomorrow = false): string {
+  const now = new Date();
+  const target = getTargetDateForTime(timeStr, tomorrow);
   const diffMs = target.getTime() - now.getTime();
   if (diffMs <= 0) return "—";
   const totalSecs = Math.floor(diffMs / 1000);

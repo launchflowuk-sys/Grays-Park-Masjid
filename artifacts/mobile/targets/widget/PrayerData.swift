@@ -69,31 +69,93 @@ struct PrayerDay {
 
 // MARK: - Hijri (computed natively in Swift)
 
+/// Tabular Hijri (Islamic civil) calendar — a line-for-line port of
+/// `utils/hijri.ts` so the app and the widget can never disagree by a day.
+///
+/// Deliberately NOT `Calendar(identifier: .islamicUmmAlQura)`: Umm al-Qura is
+/// an observation-corrected calendar and drifts ±1 day from the arithmetic
+/// 30-year cycle the JS side uses. Pure integer arithmetic only — no Foundation
+/// calendar is involved.
 enum HijriCalendar {
-    /// Matches the month names used by `utils/hijri.ts` in the app so the
-    /// widget and the app read identically.
+    /// Mirrors `HIJRI_DAY_OFFSET` in `utils/hijri.ts`. Keep the two in sync.
+    static let dayOffset = 0
+
+    /// Mirrors `HIJRI_MONTHS` in `utils/hijri.ts`.
     static let months = [
         "Muharram", "Safar", "Rabi' al-Awwal", "Rabi' al-Thani",
         "Jumada al-Awwal", "Jumada al-Thani", "Rajab", "Sha'ban",
         "Ramadan", "Shawwal", "Dhul-Qa'dah", "Dhul-Hijjah",
     ]
 
-    private static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .islamicUmmAlQura)
-        calendar.timeZone = .current
-        return calendar
-    }()
+    /// Julian Day Number of 1 Muharram 1 AH (civil epoch, 16 July 622 CE).
+    private static let islamicEpochJDN = 1948440
+    private static let daysPer30YearCycle = 10631
 
-    /// e.g. "22 Safar 1448 AH"
+    /// Julian Day Number of 1970-01-01, the Unix epoch.
+    ///
+    /// `gregorianToJdn(1970, 1, 1)` in `utils/hijri.ts` evaluates to exactly
+    /// this, so `unixEpochJDN + <whole local days since 1970>` is identical to
+    /// running that function on `getFullYear()/getMonth()+1/getDate()` — and it
+    /// avoids needing a Gregorian calendar to split the date apart.
+    private static let unixEpochJDN = 2440588
+
+    private static let secondsPerDay = 86400.0
+
+    /// `Math.floor(a / b)` — floors toward negative infinity, unlike Swift's
+    /// `/` which truncates toward zero. The JS algorithm relies on floor
+    /// semantics, so every division below goes through here.
+    private static func floorDiv(_ a: Int, _ b: Int) -> Int {
+        let quotient = a / b
+        if (a % b != 0) && ((a < 0) != (b < 0)) {
+            return quotient - 1
+        }
+        return quotient
+    }
+
+    struct HijriDate {
+        let day: Int
+        /// 1-based month (1 = Muharram … 9 = Ramadan … 12 = Dhul-Hijjah)
+        let month: Int
+        let monthName: String
+        let year: Int
+    }
+
+    /// The device-local civil day of `date`, expressed as a Julian Day Number.
+    private static func localJDN(for date: Date) -> Int {
+        let offset = Double(TimeZone.current.secondsFromGMT(for: date))
+        let localSeconds = date.timeIntervalSince1970 + offset
+        let days = Int(floor(localSeconds / secondsPerDay))
+        return days + unixEpochJDN
+    }
+
+    /// Convert a local Gregorian date to its tabular Hijri equivalent.
+    static func hijriDate(for date: Date) -> HijriDate {
+        let jdn = localJDN(for: date) + dayOffset
+
+        var l = jdn - islamicEpochJDN + 10632
+        let n = floorDiv(l - 1, daysPer30YearCycle)
+        l = l - daysPer30YearCycle * n + 354
+        let j =
+            floorDiv(10985 - l, 5316) * floorDiv(50 * l, 17719)
+            + floorDiv(l, 5670) * floorDiv(43 * l, 15238)
+        l =
+            l
+            - floorDiv(30 - j, 15) * floorDiv(17719 * j, 50)
+            - floorDiv(j, 16) * floorDiv(15238 * j, 43)
+            + 29
+        let month = floorDiv(24 * l, 709)
+        let day = l - floorDiv(709 * month, 24)
+        let year = 30 * n + j - 30
+
+        let name = (1...12).contains(month) ? months[month - 1] : ""
+        return HijriDate(day: day, month: month, monthName: name, year: year)
+    }
+
+    /// e.g. "22 Safar 1448 AH" — byte-identical to `formatHijriDate()` in JS.
     static func string(for date: Date) -> String {
-        let parts = calendar.dateComponents([.day, .month, .year], from: date)
-        guard
-            let day = parts.day,
-            let month = parts.month,
-            let year = parts.year,
-            (1...12).contains(month)
-        else { return "" }
-        return "\(day) \(months[month - 1]) \(year) AH"
+        let hijri = hijriDate(for: date)
+        guard !hijri.monthName.isEmpty else { return "" }
+        return "\(hijri.day) \(hijri.monthName) \(hijri.year) AH"
     }
 }
 

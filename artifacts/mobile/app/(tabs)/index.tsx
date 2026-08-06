@@ -34,11 +34,17 @@ import {
   formatTime12,
   getCountdownToTime,
   getPrayerEntries,
+  getTargetDateForTime,
   getTodayDateString,
   timeToMinutes,
   findNextPrayer,
   type PrayerEntry,
 } from "@/utils/prayerUtils";
+import {
+  areActivitiesEnabled,
+  endPrayerActivity,
+  startPrayerActivity,
+} from "@/modules/live-activity";
 
 type PrayerTime = {
   id: string;
@@ -139,6 +145,7 @@ export default function PrayerTimesScreen() {
   const [useFajrForAll, setUseFajrForAll] = useState(false);
   const adhanSoundRef = useRef<unknown>(null);
   const rescheduledRef = useRef(false);
+  const liveActivityKeyRef = useRef<string | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Site-setting adhan URL overrides (fallback gracefully if setting doesn't exist)
@@ -398,6 +405,52 @@ export default function PrayerTimesScreen() {
     rescheduledRef.current = true;
     void scheduleWeekNotifications(displayTimes);
   }, [notifEnabled, displayTimes]);
+
+  // ── Live Activity (iOS 16.2+) ────────────────────────────────────────────
+  // Tied to the adhan bell: on while reminders are on, replaced when the next
+  // prayer rolls over, dismissed when the bell is switched off. iOS animates
+  // the countdown itself, so nothing here ticks. Every failure is swallowed —
+  // the Live Activity is a bonus and must never break the prayer times screen.
+  const nextPrayerName = nextInfo?.prayer.name;
+  const nextPrayerAdhan = nextInfo?.prayer.adhan;
+  const nextPrayerIqamah = nextInfo?.prayer.iqamah;
+  const nextIsTomorrow = nextInfo?.isTomorrow ?? false;
+
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+
+    const shouldRun = notifEnabled && !!nextPrayerName && !!nextPrayerAdhan;
+    if (!shouldRun) {
+      if (liveActivityKeyRef.current) {
+        liveActivityKeyRef.current = null;
+        void endPrayerActivity();
+      }
+      return;
+    }
+
+    const key = `${nextPrayerName}|${nextPrayerAdhan}|${nextIsTomorrow}`;
+    if (liveActivityKeyRef.current === key) return;
+    liveActivityKeyRef.current = key;
+
+    void (async () => {
+      if (!areActivitiesEnabled()) return;
+      await startPrayerActivity({
+        prayer: nextPrayerName,
+        adhan: formatTime12(nextPrayerAdhan),
+        iqamah: nextPrayerIqamah ? formatTime12(nextPrayerIqamah) : null,
+        endsAt: getTargetDateForTime(nextPrayerAdhan, nextIsTomorrow).getTime(),
+      });
+    })();
+  }, [notifEnabled, nextPrayerName, nextPrayerAdhan, nextPrayerIqamah, nextIsTomorrow]);
+
+  useEffect(() => {
+    return () => {
+      if (Platform.OS !== "ios") return;
+      if (!liveActivityKeyRef.current) return;
+      liveActivityKeyRef.current = null;
+      void endPrayerActivity();
+    };
+  }, []);
   // ────────────────────────────────────────────────────────────────────────────
 
   const toggleNotifications = async () => {
