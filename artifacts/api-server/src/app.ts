@@ -14,6 +14,12 @@ const app: Express = express();
 // here — it lets clients spoof X-Forwarded-For past the rate limiter.
 app.set("trust proxy", 2);
 
+// No ETags. They cause clients that revalidate (notably iOS/NSURLSession,
+// which caches heuristically when no Cache-Control is present) to receive a
+// bodyless 304; React Native's fetch then yields an empty response and the
+// app renders an error instead of data. This API is small and always fresh.
+app.set("etag", false);
+
 app.use(
   pinoHttp({
     logger,
