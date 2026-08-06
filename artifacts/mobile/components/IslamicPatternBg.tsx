@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   DimensionValue,
@@ -57,6 +57,9 @@ export function IslamicPatternBg({
   // if screenWidth hasn't resolved yet from useWindowDimensions.
   const shimmerX = useRef(new Animated.Value(-1000)).current;
   const shimmerTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The band is only mounted once a sweep is actually running, so it can never
+  // be seen sitting at a parked frame.
+  const [shimmerReady, setShimmerReady] = useState(false);
 
   // Each SVG instance needs a unique pattern ID so they don't clash on web DOM.
   const patternId = useRef(`isp${Math.floor(Math.random() * 999999)}`).current;
@@ -87,7 +90,12 @@ export function IslamicPatternBg({
 
   // ── Shimmer: light streak sweeps left → right, ~9 s total cycle ──────────────
   useEffect(() => {
-    if (!shimmer) return;
+    // Wait for a real width. Running with screenWidth === 0 animates from 0 to
+    // 0, which parks the band at the left edge as a visible white streak — and
+    // because `run` closes over screenWidth, it would loop there forever.
+    if (!shimmer || screenWidth <= 0) return;
+
+    setShimmerReady(true);
 
     const run = () => {
       shimmerX.setValue(-(screenWidth * 0.6));
@@ -106,6 +114,8 @@ export function IslamicPatternBg({
     return () => {
       shimmerX.stopAnimation();
       if (shimmerTimeout.current) clearTimeout(shimmerTimeout.current);
+      // Park it off-screen so a re-run can never reveal a frozen frame.
+      shimmerX.setValue(-(screenWidth * 0.6 || 1000));
     };
   }, [shimmer, screenWidth, nativeDriver]);
 
@@ -167,7 +177,7 @@ export function IslamicPatternBg({
       </Animated.View>
 
       {/* ── Shimmer sweep (prayer header only) ── */}
-      {shimmer && (
+      {shimmer && shimmerReady && screenWidth > 0 && (
         <Animated.View
           style={[
             styles.shimmerBand,
