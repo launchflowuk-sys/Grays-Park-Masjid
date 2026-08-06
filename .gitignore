@@ -47,3 +47,12 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# local env files (secrets - never commit)
+.env
+.env.*
+!.env.example
+
+# store credentials - never commit
+*.p8
+**/gpm-service-account.json

@@ -12,7 +12,11 @@ if (!process.env.DATABASE_URL) {
 }
 
 const email = process.env.SEED_ADMIN_EMAIL ?? "admin@graysparkmasjid.org.uk";
-const password = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
+const password = process.env.SEED_ADMIN_PASSWORD;
+if (!password) {
+  console.error("RESET-ADMIN: SEED_ADMIN_PASSWORD must be set — refusing to use a default password");
+  process.exit(1);
+}
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
@@ -43,7 +47,7 @@ try {
     console.log(`RESET-ADMIN: created new admin ${email}`);
   }
 
-  console.log(`RESET-ADMIN: login with ${email} / ${password}`);
+  console.log(`RESET-ADMIN: login with ${email} (password from SEED_ADMIN_PASSWORD)`);
   await pool.end();
   process.exit(0);
 } catch (err) {

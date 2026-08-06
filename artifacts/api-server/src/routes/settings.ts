@@ -69,13 +69,21 @@ router.get("/settings/:key", async (req: Request, res: Response) => {
   res.json(serializeSetting(row));
 });
 
+// Settings whose values are credentials. Only super admins ever receive
+// them; every other role gets the row list without these entries at all.
+const SECRET_SETTING_PATTERN = /(token|secret|password|api_key)/i;
+
 router.get(
   "/admin/settings",
   requireAuth,
   requireRole(...ALL_ROLES),
-  async (_req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const rows = await db.select().from(siteSettingsTable);
-    res.json(rows.map(serializeSetting));
+    const isSuperAdmin = req.admin?.role === "super_admin";
+    const visible = isSuperAdmin
+      ? rows
+      : rows.filter((row) => !SECRET_SETTING_PATTERN.test(row.key));
+    res.json(visible.map(serializeSetting));
   },
 );
 

@@ -39,7 +39,7 @@ export const donationTransactionsTable = pgTable("donation_transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
   campaignId: uuid("campaign_id")
     .notNull()
-    .references(() => donationCampaignsTable.id, { onDelete: "cascade" }),
+    .references(() => donationCampaignsTable.id, { onDelete: "restrict" }),
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   donorName: text("donor_name"),
   donorEmail: text("donor_email"),

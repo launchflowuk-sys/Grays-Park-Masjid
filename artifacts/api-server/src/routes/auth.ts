@@ -16,6 +16,12 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+// Reset tokens are stored hashed so a database leak cannot be used to take
+// over admin accounts; the raw token only ever exists in the emailed link.
+function hashResetToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 function toPublicAdminUser(admin: typeof adminUsersTable.$inferSelect) {
   return {
     id: admin.id,
@@ -109,7 +115,7 @@ router.post("/auth/forgot-password", async (req, res) => {
 
     await db.insert(passwordResetTokensTable).values({
       adminUserId: admin.id,
-      token,
+      token: hashResetToken(token),
       expiresAt,
     });
 
@@ -140,7 +146,7 @@ router.post("/auth/reset-password", async (req, res) => {
   const [resetToken] = await db
     .select()
     .from(passwordResetTokensTable)
-    .where(eq(passwordResetTokensTable.token, token))
+    .where(eq(passwordResetTokensTable.token, hashResetToken(token)))
     .limit(1);
 
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {

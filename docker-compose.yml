@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile.api-server
     restart: unless-stopped
     depends_on:
-      - db-push
+      db-push:
+        condition: service_completed_successfully
     networks:
       - default
       - coolify
@@ -27,7 +28,7 @@ services:
     expose:
       - "8080"
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/api/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/api/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -47,7 +48,9 @@ services:
     command:
       - sh
       - -c
-      - "pnpm --filter @workspace/db run check-db && pnpm --filter @workspace/db run push-force"
+      # Plain `push` (no --force): safe DDL applies automatically; destructive
+      # statements abort the deploy instead of silently dropping production data.
+      - "pnpm --filter @workspace/db run check-db && pnpm --filter @workspace/db run push"
 
   website:
     build:
@@ -63,8 +66,39 @@ services:
     expose:
       - "80"
 
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to your Postgres connection string}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - backups-data:/backups
+      - uploads-data:/uploads:ro
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          ts=$$(date +%F-%H%M)
+          echo "backup: starting $$ts"
+          if pg_dump "$$DATABASE_URL" | gzip > "/backups/db-$$ts.sql.gz"; then
+            echo "backup: db-$$ts.sql.gz written"
+          else
+            echo "backup: PG DUMP FAILED for $$ts" >&2
+            rm -f "/backups/db-$$ts.sql.gz"
+          fi
+          tar -czf "/backups/uploads-$$ts.tar.gz" -C /uploads . 2>/dev/null || echo "backup: uploads tar failed" >&2
+          find /backups -name '*.gz' -mtime +$$BACKUP_RETENTION_DAYS -delete
+          sleep 86400
+        done
+
 volumes:
   uploads-data:
+  backups-data:
 
 networks:
   coolify:

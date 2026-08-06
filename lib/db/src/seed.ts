@@ -32,7 +32,12 @@ function isoAt(daysFromNow: number, hour: number, minute = 0): Date {
 
 async function seedAdmin(db: ReturnType<typeof drizzle>) {
   const email = process.env.SEED_ADMIN_EMAIL ?? "admin@graysparkmasjid.org.uk";
-  const password = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (!password) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD must be set — refusing to seed an admin user with a default password",
+    );
+  }
 
   const [existing] = await db
     .select()
@@ -55,7 +60,7 @@ async function seedAdmin(db: ReturnType<typeof drizzle>) {
     active: true,
   });
 
-  console.log(`Seeded super admin user: ${email} / ${password}`);
+  console.log(`Seeded super admin user: ${email}`);
 }
 
 async function seedPrayerTimes(db: ReturnType<typeof drizzle>) {
