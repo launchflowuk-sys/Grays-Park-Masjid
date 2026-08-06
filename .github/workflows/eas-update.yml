@@ -1,0 +1,35 @@
+name: EAS OTA Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Update message shown in EAS"
+        required: true
+        default: "OTA update"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish OTA update
+        working-directory: artifacts/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_DOMAIN: graysparkmasjid.org.uk
+          EXPO_PUBLIC_PROJECT_ID: 5d3b6a65-dbb5-43ba-99bf-9932eb98e602
+        run: pnpm exec eas update --channel production --message "${{ github.event.inputs.message }}" --non-interactive
