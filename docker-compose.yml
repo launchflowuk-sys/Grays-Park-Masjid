@@ -48,9 +48,24 @@ services:
     command:
       - sh
       - -c
-      # Plain `push` (no --force): safe DDL applies automatically; destructive
-      # statements abort the deploy instead of silently dropping production data.
-      - "pnpm --filter @workspace/db run check-db && pnpm --filter @workspace/db run push"
+      # `push` without --force aborts the WHOLE sync as soon as any statement
+      # needs confirmation, and it did so silently: production ended up missing
+      # six donation_campaigns columns, the members.email_opt_out column and the
+      # entire email_campaigns table, which surfaced only as opaque 500s.
+      #
+      # --force auto-confirms, so the sync actually applies. `set -e` plus the
+      # markers below make a failure visible in the deploy log instead of
+      # leaving the schema quietly behind the code.
+      #
+      # TODO: replace schema push with versioned migrations (drizzle-kit
+      # generate + migrate) so changes are reviewable and reversible.
+      - |
+        set -e
+        echo "=== db-push: checking database ==="
+        pnpm --filter @workspace/db run check-db
+        echo "=== db-push: applying schema ==="
+        pnpm --filter @workspace/db run push-force
+        echo "=== db-push: schema sync complete ==="
 
   website:
     build:
