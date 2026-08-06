@@ -28,6 +28,7 @@ import { requestAndRegisterPushToken } from "@/utils/notifications";
 import { syncWidgetData } from "@/utils/widgetData";
 import { IslamicPatternBg } from "@/components/IslamicPatternBg";
 import { formatHijriDate, isRamadan } from "@/utils/hijri";
+import { getCachedPrayerTimes, setCachedPrayerTimes } from "@/utils/prayerTimesCache";
 import {
   formatDisplayDate,
   formatTime12,
@@ -156,24 +157,67 @@ export default function PrayerTimesScreen() {
   const { data: allTimes, isLoading, isError, refetch } = useListPrayerTimesPublic();
   const allPrayerTimes = allTimes as PrayerTime[] | undefined;
 
+  // ── Offline cache ────────────────────────────────────────────────────────────
+  // Prayer times are the core of the app and must never dead-end on an error
+  // screen. Hydrate from AsyncStorage on mount so times render instantly, and
+  // keep showing them (with a calm notice) whenever the network fails.
+  const [cachedTimes, setCachedTimes] = useState<PrayerTime[] | null>(null);
+  const [cacheChecked, setCacheChecked] = useState(false);
+
+  useEffect(() => {
+    getCachedPrayerTimes<PrayerTime[]>()
+      .then((env) => {
+        if (env?.data?.length) setCachedTimes(env.data);
+      })
+      .finally(() => setCacheChecked(true));
+  }, []);
+
+  useEffect(() => {
+    if (allPrayerTimes?.length) void setCachedPrayerTimes(allPrayerTimes);
+  }, [allPrayerTimes]);
+
+  // Live data wins; the cache covers cold starts and failed fetches.
+  const displayTimes: PrayerTime[] | null = allPrayerTimes?.length
+    ? allPrayerTimes
+    : (cachedTimes ?? allPrayerTimes ?? null);
+  const isShowingCached = !!cachedTimes && displayTimes === cachedTimes;
+  // Stay quiet while retries are still in flight — only speak up once the
+  // fetch has genuinely given up.
+  const showCachedNotice = isShowingCached && isError;
+
   const today = getTodayDateString();
-  const todayPrayer =
-    allPrayerTimes?.find((pt) => pt.date === today) ?? allPrayerTimes?.[0] ?? null;
+
+  // Prefer today; otherwise the nearest FUTURE date. Never silently present
+  // another day's times as today's — that would be religiously misleading.
+  const todayPrayer = useMemo(() => {
+    if (!displayTimes?.length) return null;
+    const exact = displayTimes.find((pt) => pt.date === today);
+    if (exact) return exact;
+    // Dates are ISO (YYYY-MM-DD), so lexical comparison is chronological.
+    return (
+      displayTimes
+        .filter((pt) => pt.date > today)
+        .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
+    );
+  }, [displayTimes, today]);
+
+  const isShowingOtherDay = !!todayPrayer && todayPrayer.date !== today;
   const prayers = todayPrayer ? getPrayerEntries(todayPrayer) : [];
-  const nextInfo = prayers.length ? findNextPrayer(prayers) : null;
+  // A countdown only makes sense against today's timetable.
+  const nextInfo = prayers.length && !isShowingOtherDay ? findNextPrayer(prayers) : null;
 
   // Next 7 days for week view
   const weekDays = useMemo(() => {
-    if (!allPrayerTimes) return [];
+    if (!displayTimes) return [];
     const todayTs = new Date(today + "T00:00:00").getTime();
     const sevenDaysTs = todayTs + 7 * 24 * 60 * 60 * 1000;
-    return allPrayerTimes
+    return displayTimes
       .filter((pt) => {
         const d = new Date(pt.date + "T12:00:00").getTime();
         return d >= todayTs && d <= sevenDaysTs;
       })
       .slice(0, 7);
-  }, [allPrayerTimes, today]);
+  }, [displayTimes, today]);
 
   const isTodayFriday = new Date(today + "T12:00:00").getDay() === 5;
 
@@ -186,7 +230,8 @@ export default function PrayerTimesScreen() {
   const ramadanMaghrib = todayPrayer?.maghribAdhan;
 
   useEffect(() => {
-    if (!ramadanActive || !ramadanFajr || !ramadanMaghrib) {
+    // Suhoor/iftar countdowns must never be driven by another day's times.
+    if (!ramadanActive || isShowingOtherDay || !ramadanFajr || !ramadanMaghrib) {
       setRamadanInfo(null);
       return;
     }
@@ -207,7 +252,7 @@ export default function PrayerTimesScreen() {
     tick();
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [ramadanActive, ramadanFajr, ramadanMaghrib]);
+  }, [ramadanActive, isShowingOtherDay, ramadanFajr, ramadanMaghrib]);
 
   const jummahTimes = useMemo(() => {
     try {
@@ -332,9 +377,9 @@ export default function PrayerTimesScreen() {
   // (The iOS widget fetches the public API itself — see targets/widget.)
   useEffect(() => {
     if (Platform.OS !== "android") return;
-    if (!allPrayerTimes?.length) return;
-    void syncWidgetData(allPrayerTimes);
-  }, [allPrayerTimes]);
+    if (!displayTimes?.length) return;
+    void syncWidgetData(displayTimes);
+  }, [displayTimes]);
 
   // Restore persisted bell toggle on mount
   useEffect(() => {
@@ -349,10 +394,10 @@ export default function PrayerTimesScreen() {
   // Refresh the 7-day notification window once per launch when enabled and data is loaded
   useEffect(() => {
     if (Platform.OS === "web") return;
-    if (!notifEnabled || rescheduledRef.current || !allPrayerTimes?.length) return;
+    if (!notifEnabled || rescheduledRef.current || !displayTimes?.length) return;
     rescheduledRef.current = true;
-    void scheduleWeekNotifications(allPrayerTimes);
-  }, [notifEnabled, allPrayerTimes]);
+    void scheduleWeekNotifications(displayTimes);
+  }, [notifEnabled, displayTimes]);
   // ────────────────────────────────────────────────────────────────────────────
 
   const toggleNotifications = async () => {
@@ -364,9 +409,9 @@ export default function PrayerTimesScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
       const granted = await requestNotificationPermission();
-      if (granted && allPrayerTimes?.length) {
+      if (granted && displayTimes?.length) {
         rescheduledRef.current = true;
-        await scheduleWeekNotifications(allPrayerTimes);
+        await scheduleWeekNotifications(displayTimes);
         setNotifEnabled(true);
         await AsyncStorage.setItem(NOTIF_ENABLED_KEY, "true").catch(() => {});
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -862,6 +907,29 @@ export default function PrayerTimesScreen() {
         </Pressable>
       </View>
 
+      {/* ── Inline notices — saved times / non-today timetable ── */}
+      {(showCachedNotice || isShowingOtherDay) && (
+        <View style={styles.noticeWrap}>
+          {showCachedNotice && (
+            <View style={[styles.noticePill, { backgroundColor: colors.muted, borderColor: colors.border }]}>
+              <Ionicons name="cloud-offline-outline" size={14} color={colors.mutedForeground} />
+              <Text style={[styles.noticeText, { color: colors.mutedForeground }]}>
+                Showing saved times — couldn't reach the masjid server
+              </Text>
+            </View>
+          )}
+          {isShowingOtherDay && todayPrayer && (
+            <View style={[styles.noticePill, { backgroundColor: colors.muted, borderColor: colors.accent + "55" }]}>
+              <Ionicons name="calendar-outline" size={14} color={colors.mutedForeground} />
+              <Text style={[styles.noticeText, { color: colors.mutedForeground }]}>
+                Today's times aren't in the timetable — showing{" "}
+                {formatDisplayDate(todayPrayer.date)}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+
       {/* ── Ramadan card — suhoor / iftar countdown ── */}
       {viewMode === "today" && ramadanInfo && (
         <View style={{ paddingHorizontal: 16, paddingTop: 14 }}>
@@ -960,7 +1028,9 @@ export default function PrayerTimesScreen() {
     </View>
   );
 
-  if (isLoading) {
+  // Wait for the cache read before deciding anything — otherwise an instant
+  // offline failure would flash the error screen before saved times appear.
+  if (!cacheChecked || (isLoading && !displayTimes)) {
     return (
       <View style={[styles.centerFlex, { backgroundColor: colors.primary, paddingTop: topPad }]}>
         <ActivityIndicator color={colors.accent} size="large" />
@@ -969,7 +1039,8 @@ export default function PrayerTimesScreen() {
     );
   }
 
-  if (isError || !allTimes) {
+  // Only a total absence of data — live and cached — is a dead end.
+  if (!displayTimes) {
     return (
       <View style={[styles.centerFlex, { backgroundColor: colors.background, paddingTop: topPad }]}>
         <Ionicons name="alert-circle-outline" size={48} color={colors.mutedForeground} />
@@ -1104,6 +1175,17 @@ const styles = StyleSheet.create({
   },
   audioTitle: { fontSize: 14, fontWeight: "600" },
   audioSub: { fontSize: 11, marginTop: 2 },
+  noticeWrap: { paddingHorizontal: 16, paddingTop: 12, gap: 8 },
+  noticePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+  noticeText: { flex: 1, fontSize: 12, lineHeight: 17 },
   adhanSettingsRow: {
     flexDirection: "row",
     alignItems: "center",

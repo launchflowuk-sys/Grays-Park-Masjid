@@ -44,13 +44,17 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 60 * 1000,
       // Never retry on 4xx — these are definitive answers (e.g. setting not configured).
+      // Network drops and 5xx get three retries: a flaky mobile signal must not
+      // turn core content (prayer times) into an error screen.
       retry: (failureCount, error) => {
         const status =
           (error as { status?: number })?.status ??
           (error as { response?: { status?: number } })?.response?.status;
         if (typeof status === "number" && status >= 400 && status < 500) return false;
-        return failureCount < 1;
+        return failureCount < 3;
       },
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+      refetchOnReconnect: true,
     },
   },
 });
