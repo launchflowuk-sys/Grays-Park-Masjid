@@ -66,10 +66,12 @@ type PrayerTime = {
 
 const ORDINALS = ["1st", "2nd", "3rd", "4th"];
 
-const DEFAULT_ADHAN_URL =
-  "https://cdn.prayertimes.net/audio/adhan-masjid-al-haram.mp3";
-const DEFAULT_FAJR_ADHAN_URL =
-  "https://cdn.prayertimes.net/audio/adhan-fajr-masjid-al-haram.mp3";
+// Self-hosted so the adhan never depends on a third-party CDN we don't
+// control. Both default to the same recording; the masjid can still override
+// either one from Settings (adhan_audio_url / adhan_fajr_audio_url) without
+// an app release.
+const DEFAULT_ADHAN_URL = `${API_BASE_URL}/audio/adhan-makkah.mp3`;
+const DEFAULT_FAJR_ADHAN_URL = DEFAULT_ADHAN_URL;
 const BASE_URL = API_BASE_URL;
 const NOTIF_ENABLED_KEY = "adhan-notifications-enabled";
 
