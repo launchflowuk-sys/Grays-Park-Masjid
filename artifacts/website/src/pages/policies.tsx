@@ -51,10 +51,19 @@ const PRIVACY_SECTIONS: { heading: string; body: string[] }[] = [
     ],
   },
   {
-    heading: "Your rights, and deleting your data",
+    heading: "Deleting your data",
     body: [
-      `Under UK data protection law you may ask us for a copy of your data, ask us to correct it, or ask us to delete it. Email ${PRIVACY_CONTACT} and we will respond within one month, free of charge.`,
-      "To have your membership record and any associated data erased, email us from the address you signed up with, or include your name and the phone number you gave. To stop notifications immediately without contacting us, turn them off in the app's settings or uninstall the app — this deletes the notification token held for your device.",
+      "This applies to the Grays Masjid app, published by Grays Park Masjid, and to this website.",
+      `To request deletion: email ${PRIVACY_CONTACT} with the subject "Delete my data", sending it from the email address you gave us, or including your full name and the phone number you gave. We will confirm within one month, free of charge. You do not need an account — the app does not have one.`,
+      "What we delete: your membership record, including your name, email address, phone number and membership type; any enquiry you have sent us; and the notification token and device identifier stored for your device.",
+      "What we must keep, and for how long: if you have donated, UK charity and tax law requires us to retain the donation record — the amount, date and appeal — for six years from the end of the financial year it falls in. Where you gave a name or email with a donation, we retain those alongside it for the same period, and we delete them at the end of it. We keep nothing else.",
+      "To stop notifications immediately without contacting anyone, turn them off in the app's settings or uninstall the app. That deletes the notification token held for your device straight away.",
+    ],
+  },
+  {
+    heading: "Your other rights",
+    body: [
+      `Under UK data protection law you may also ask us for a copy of the data we hold about you, ask us to correct it, or object to how we use it. Email ${PRIVACY_CONTACT} and we will respond within one month.`,
       "If you are unhappy with how we have handled your information, you may complain to the Information Commissioner's Office at ico.org.uk.",
     ],
   },
@@ -96,9 +105,26 @@ export default function PoliciesPage() {
             <h2 className="font-serif text-3xl">Privacy Policy</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed text-base">
-            This policy covers both this website and the Grays Park Masjid mobile app. We ask for as
-            little as possible, and we never sell it.
+            This policy covers both this website and the Grays Masjid app, published by Grays Park
+            Masjid. We ask for as little as possible, and we never sell it.
           </p>
+
+          {/* Google Play requires the delete-data link to put the deletion steps prominently on the
+              landing page, so they are stated here as well as in full below. */}
+          <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 px-6 py-5">
+            <h3 className="font-serif text-xl mb-2">Deleting your data</h3>
+            <p className="text-muted-foreground leading-relaxed text-base">
+              Email{" "}
+              <a href={`mailto:${PRIVACY_CONTACT}?subject=Delete%20my%20data`} className="text-primary underline underline-offset-4">
+                {PRIVACY_CONTACT}
+              </a>{" "}
+              with the subject &ldquo;Delete my data&rdquo;, from the address you gave us or
+              including your name and phone number. We delete your membership record, any enquiry,
+              and your notification token, and confirm within one month. Donation records are kept
+              for six years where charity and tax law requires it. To stop notifications straight
+              away, turn them off in the app or uninstall it. Full detail below.
+            </p>
+          </div>
           {PRIVACY_SECTIONS.map((section) => (
             <div key={section.heading} className="mt-8">
               <h3 className="font-serif text-xl mb-3">{section.heading}</h3>
