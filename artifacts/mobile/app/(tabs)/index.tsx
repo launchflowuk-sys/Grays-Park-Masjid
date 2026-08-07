@@ -67,16 +67,19 @@ type PrayerTime = {
 const ORDINALS = ["1st", "2nd", "3rd", "4th"];
 
 // Self-hosted so the adhan never depends on a third-party CDN we don't
-// control. Both default to the same recording; the masjid can still override
-// either one from Settings (adhan_audio_url / adhan_fajr_audio_url) without
-// an app release.
-// Mishary Rashid Alafasy, 128 kbps. The originally supplied recording is kept
-// at /audio/adhan-makkah.mp3 and can be restored from Settings, but it is
-// 32 kbps and sounds muffled on a phone speaker.
-const DEFAULT_ADHAN_URL = `${API_BASE_URL}/audio/adhan-alafasy.mp3`;
-// Fajr has its own recitation — it carries "As-salatu khayrun min an-nawm",
-// which the other four prayers do not.
-const DEFAULT_FAJR_ADHAN_URL = `${API_BASE_URL}/audio/adhan-fajr-makkah.mp3`;
+// control. The masjid can override either one from Settings
+// (adhan_audio_url / adhan_fajr_audio_url) without an app release.
+//
+// Only recordings with a documented licence belong here — see
+// artifacts/website/public/audio/LICENCES.md. The earlier recordings had no
+// licence we could evidence (one was tagged as a Muslim Pro asset), so they
+// were replaced. Do not add audio without recording its source and licence.
+const DEFAULT_ADHAN_URL = `${API_BASE_URL}/audio/adhan-icr-cc0.mp3`;
+// Fajr should carry "As-salatu khayrun min an-nawm", which the other four
+// prayers do not. No freely-licensed Fajr recording has been sourced yet, so
+// Fajr falls back to the standard adhan for now — TODO: source a licensed
+// Fajr recitation and point this at it.
+const DEFAULT_FAJR_ADHAN_URL = `${API_BASE_URL}/audio/adhan-icr-cc0.mp3`;
 const BASE_URL = API_BASE_URL;
 const NOTIF_ENABLED_KEY = "adhan-notifications-enabled";
 
