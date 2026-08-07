@@ -44,6 +44,9 @@
         "RECEIVE_BOOT_COMPLETED",
         "MODIFY_AUDIO_SETTINGS",
         "SCHEDULE_EXACT_ALARM"
+      ],
+      "blockedPermissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
       ]
     },
     "web": {
