@@ -16,6 +16,50 @@ const FEATURES = [
   { icon: FileText, title: "Complaints Procedure", description: "Request full policy documents from the masjid office at any time." },
 ];
 
+const PRIVACY_CONTACT = "info@graysparkmasjid.org.uk";
+
+// This is the privacy policy URL registered with the App Store and Google Play,
+// so it must describe what the website and the mobile app actually collect.
+// If you change what is collected in code, change this too.
+const PRIVACY_SECTIONS: { heading: string; body: string[] }[] = [
+  {
+    heading: "What we collect",
+    body: [
+      "Membership and enquiry forms, on this website and in our app, ask for your name, email address, an optional phone number, and the type of membership you are applying for. Providing them is entirely optional — the app can be used in full without signing up.",
+      "Donations are processed by Square on their own secure checkout pages. Your card details never pass through our systems and we never see them. We record the amount, the appeal you gave to, and any name or email you chose to give.",
+      "If you turn on prayer notifications in the app, we store a notification token and a randomly generated device identifier so we can send the adhan reminder to your device. These are not linked to you unless you have also signed up for membership.",
+      "The Qibla compass uses your device's location and compass sensors. This happens entirely on your phone — your location is never transmitted to us or to anyone else.",
+    ],
+  },
+  {
+    heading: "How we use it",
+    body: [
+      "To process membership applications, to send prayer time and masjid notifications you have asked for, to acknowledge donations, and to reply to enquiries.",
+      "We do not sell your personal data, and we do not share it with third parties for marketing. We use no advertising or analytics trackers in our website or app.",
+    ],
+  },
+  {
+    heading: "Who else handles it",
+    body: [
+      "Square processes donation payments. Apple and Google deliver push notifications to your device. Our email provider delivers messages we send you. Each acts only on our instructions and for the purposes above.",
+    ],
+  },
+  {
+    heading: "How long we keep it",
+    body: [
+      "Membership records are kept for as long as the membership is active and for six years afterwards, as required for charity accounting. Donation records are kept for six years. Notification tokens are deleted when you turn notifications off or uninstall the app. Enquiries are kept for two years.",
+    ],
+  },
+  {
+    heading: "Your rights, and deleting your data",
+    body: [
+      `Under UK data protection law you may ask us for a copy of your data, ask us to correct it, or ask us to delete it. Email ${PRIVACY_CONTACT} and we will respond within one month, free of charge.`,
+      "To have your membership record and any associated data erased, email us from the address you signed up with, or include your name and the phone number you gave. To stop notifications immediately without contacting us, turn them off in the app's settings or uninstall the app — this deletes the notification token held for your device.",
+      "If you are unhappy with how we have handled your information, you may complain to the Information Commissioner's Office at ico.org.uk.",
+    ],
+  },
+];
+
 export default function PoliciesPage() {
   const { data } = useGetSettingPublic("policies_content");
   const content = data?.value || DEFAULT_CONTENT;
@@ -43,6 +87,34 @@ export default function PoliciesPage() {
           </div>
           <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-base" data-testid="text-policies-content">
             {content}
+          </p>
+        </section>
+
+        <section id="privacy" className="mx-auto max-w-4xl px-6 pb-14 md:pb-16 scroll-mt-24">
+          <div className="flex items-center gap-3 mb-8">
+            <IslamicStar className="h-5 w-5 text-secondary shrink-0" />
+            <h2 className="font-serif text-3xl">Privacy Policy</h2>
+          </div>
+          <p className="text-muted-foreground leading-relaxed text-base">
+            This policy covers both this website and the Grays Park Masjid mobile app. We ask for as
+            little as possible, and we never sell it.
+          </p>
+          {PRIVACY_SECTIONS.map((section) => (
+            <div key={section.heading} className="mt-8">
+              <h3 className="font-serif text-xl mb-3">{section.heading}</h3>
+              {section.body.map((para) => (
+                <p key={para} className="text-muted-foreground leading-relaxed text-base mb-3">
+                  {para}
+                </p>
+              ))}
+            </div>
+          ))}
+          <p className="text-muted-foreground leading-relaxed text-base mt-8">
+            Questions about this policy, or about your data, go to{" "}
+            <a href={`mailto:${PRIVACY_CONTACT}`} className="text-primary underline underline-offset-4">
+              {PRIVACY_CONTACT}
+            </a>
+            .
           </p>
         </section>
 
