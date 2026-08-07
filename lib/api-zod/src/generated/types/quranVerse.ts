@@ -5,23 +5,19 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-
-export interface QuranVerseTranslation {
-  text: string;
-  resource_id: number;
-  resource_name: string;
-}
-
-export interface QuranVerseAudio {
-  url: string;
-}
+import type { QuranVerseAudio } from './quranVerseAudio';
+import type { QuranVerseTranslation } from './quranVerseTranslation';
 
 export interface QuranVerse {
+  /** Surah:ayah key, e.g. "2:255". */
   id: string;
+  /** Same value as id, kept for callers that expect this name. */
   verse_key: string;
+  /** Ayah number within its surah. */
   verse_number: number;
+  /** Arabic text. */
   text_uthmani: string;
   translations: QuranVerseTranslation[];
   /** @nullable */
-  audio: QuranVerseAudio | null;
+  audio: QuranVerseAudio;
 }

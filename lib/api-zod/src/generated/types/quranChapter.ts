@@ -5,12 +5,16 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { QuranChapterRevelationPlace } from './quranChapterRevelationPlace';
+import type { QuranChapterTranslatedName } from './quranChapterTranslatedName';
 
 export interface QuranChapter {
-  number: number;
-  name: string;
-  englishName: string;
-  englishNameTranslation: string;
-  numberOfAyahs: number;
-  revelationType: string;
+  /** Surah number, 1-114. */
+  id: number;
+  /** Transliterated English name, e.g. "Al-Fatihah". */
+  name_simple: string;
+  name_arabic: string;
+  verses_count: number;
+  translated_name: QuranChapterTranslatedName;
+  revelation_place: QuranChapterRevelationPlace;
 }

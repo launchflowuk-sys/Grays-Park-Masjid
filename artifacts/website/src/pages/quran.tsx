@@ -151,18 +151,21 @@ function SurahCard({ chapter }: { chapter: { id: number; name_simple: string; tr
           <div className="shrink-0 relative flex flex-col items-center">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center font-serif font-bold text-base shadow-sm ring-2 ring-offset-1 transition-transform group-hover:scale-105"
+              // `ringColor` is not a CSS property and was silently doing
+              // nothing, so the ring rendered in Tailwind's default colour.
+              // Tailwind reads the ring colour from --tw-ring-color.
               style={
-                isMeccan
+                (isMeccan
                   ? {
                       background: "#1B3D2F",
                       color: "#FAF8F3",
-                      ringColor: "#1B3D2F20",
+                      "--tw-ring-color": "#1B3D2F20",
                     }
                   : {
                       background: "#C9A84C",
                       color: "#1B3D2F",
-                      ringColor: "#C9A84C30",
-                    }
+                      "--tw-ring-color": "#C9A84C30",
+                    }) as React.CSSProperties & { "--tw-ring-color": string }
               }
             >
               {chapter.id}

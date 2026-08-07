@@ -77,7 +77,11 @@ export function ShareQRButton({ path, label, variant = "outline", className }: S
     ctx.fillRect(0, 0, W, 5);
 
     // === Corner marks (futuristic bracket corners) ===
-    function cornerBracket(x: number, y: number, flip: [number, number]) {
+    // Arrow const rather than a function declaration: the `if (!ctx) return`
+    // above narrows ctx to non-null, and TypeScript keeps that narrowing for a
+    // closure created after the guard. A hoisted function declaration could in
+    // principle run before the guard, so the narrowing is discarded there.
+    const cornerBracket = (x: number, y: number, flip: [number, number]) => {
       const S = 28;
       const T = 3;
       ctx.fillStyle = GOLD;
@@ -87,7 +91,7 @@ export function ShareQRButton({ path, label, variant = "outline", className }: S
       // vertical arm
       ctx.fillRect(flip[0] > 0 ? x : x - T, y, T, flip[1] * S);
       ctx.globalAlpha = 1;
-    }
+    };
     const M = 22;
     cornerBracket(M, TOP_BAND + DECO_TOP, [1, 1]);
     cornerBracket(W - M, TOP_BAND + DECO_TOP, [-1, 1]);
@@ -150,7 +154,7 @@ export function ShareQRButton({ path, label, variant = "outline", className }: S
     ctx.shadowOffsetY = 0;
 
     // Gold corner accents on QR box
-    function qrCorner(cx: number, cy: number, dx: number, dy: number) {
+    const qrCorner = (cx: number, cy: number, dx: number, dy: number) => {
       const CS = 16;
       const CT = 3;
       ctx.fillStyle = GOLD;
@@ -158,7 +162,7 @@ export function ShareQRButton({ path, label, variant = "outline", className }: S
       ctx.fillRect(cx, cy, dx * CS, CT);
       ctx.fillRect(dx > 0 ? cx : cx - CT, cy, CT, dy * CS);
       ctx.globalAlpha = 1;
-    }
+    };
     const bL = boxX + 8, bR = boxX + QR_BOX - 8;
     const bT = QR_BOX_Y + 8, bB = QR_BOX_Y + QR_BOX - 8;
     qrCorner(bL, bT, 1, 1);

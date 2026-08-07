@@ -2607,12 +2607,14 @@ export const ListQuranTranslationsResponse = zod.array(ListQuranTranslationsResp
  * @summary List all 114 chapters (surahs)
  */
 export const ListQuranChaptersResponseItem = zod.object({
-  "number": zod.number(),
-  "name": zod.string(),
-  "englishName": zod.string(),
-  "englishNameTranslation": zod.string(),
-  "numberOfAyahs": zod.number(),
-  "revelationType": zod.string()
+  "id": zod.number().describe('Surah number, 1-114.'),
+  "name_simple": zod.string().describe('Transliterated English name, e.g. \"Al-Fatihah\".'),
+  "name_arabic": zod.string(),
+  "verses_count": zod.number(),
+  "translated_name": zod.object({
+  "name": zod.string()
+}),
+  "revelation_place": zod.enum(['makkah', 'madinah'])
 })
 export const ListQuranChaptersResponse = zod.array(ListQuranChaptersResponseItem)
 
@@ -2625,12 +2627,14 @@ export const GetQuranChapterParams = zod.object({
 })
 
 export const GetQuranChapterResponse = zod.object({
-  "number": zod.number(),
-  "name": zod.string(),
-  "englishName": zod.string(),
-  "englishNameTranslation": zod.string(),
-  "numberOfAyahs": zod.number(),
-  "revelationType": zod.string()
+  "id": zod.number().describe('Surah number, 1-114.'),
+  "name_simple": zod.string().describe('Transliterated English name, e.g. \"Al-Fatihah\".'),
+  "name_arabic": zod.string(),
+  "verses_count": zod.number(),
+  "translated_name": zod.object({
+  "name": zod.string()
+}),
+  "revelation_place": zod.enum(['makkah', 'madinah'])
 })
 
 
@@ -2647,16 +2651,18 @@ export const GetQuranChapterVersesQueryParams = zod.object({
 })
 
 export const GetQuranChapterVersesResponseItem = zod.object({
-  "id": zod.string(),
-  "verse_key": zod.string(),
-  "verse_number": zod.number(),
-  "text_uthmani": zod.string(),
+  "id": zod.string().describe('Surah:ayah key, e.g. \"2:255\".'),
+  "verse_key": zod.string().describe('Same value as id, kept for callers that expect this name.'),
+  "verse_number": zod.number().describe('Ayah number within its surah.'),
+  "text_uthmani": zod.string().describe('Arabic text.'),
   "translations": zod.array(zod.object({
-    "text": zod.string(),
-    "resource_id": zod.number(),
-    "resource_name": zod.string()
-  })),
-  "audio": zod.object({ "url": zod.string() }).nullable()
+  "text": zod.string(),
+  "resource_id": zod.number().describe('Always 0 - the provider does not expose a translation id.'),
+  "resource_name": zod.string().describe('Name of the translation, e.g. \"Sahih International\".')
+})),
+  "audio": zod.object({
+  "url": zod.string()
+}).nullable()
 })
 export const GetQuranChapterVersesResponse = zod.array(GetQuranChapterVersesResponseItem)
 
@@ -2675,16 +2681,18 @@ export const GetQuranAyahQueryParams = zod.object({
 })
 
 export const GetQuranAyahResponse = zod.object({
-  "id": zod.string(),
-  "verse_key": zod.string(),
-  "verse_number": zod.number(),
-  "text_uthmani": zod.string(),
+  "id": zod.string().describe('Surah:ayah key, e.g. \"2:255\".'),
+  "verse_key": zod.string().describe('Same value as id, kept for callers that expect this name.'),
+  "verse_number": zod.number().describe('Ayah number within its surah.'),
+  "text_uthmani": zod.string().describe('Arabic text.'),
   "translations": zod.array(zod.object({
-    "text": zod.string(),
-    "resource_id": zod.number(),
-    "resource_name": zod.string()
-  })),
-  "audio": zod.object({ "url": zod.string() }).nullable()
+  "text": zod.string(),
+  "resource_id": zod.number().describe('Always 0 - the provider does not expose a translation id.'),
+  "resource_name": zod.string().describe('Name of the translation, e.g. \"Sahih International\".')
+})),
+  "audio": zod.object({
+  "url": zod.string()
+}).nullable()
 })
 
 

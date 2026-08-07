@@ -1059,33 +1059,56 @@ export interface QuranTranslation {
   language: string;
 }
 
-export interface QuranChapter {
-  number: number;
+export type QuranChapterTranslatedName = {
   name: string;
-  englishName: string;
-  englishNameTranslation: string;
-  numberOfAyahs: number;
-  revelationType: string;
+};
+
+export type QuranChapterRevelationPlace = typeof QuranChapterRevelationPlace[keyof typeof QuranChapterRevelationPlace];
+
+
+export const QuranChapterRevelationPlace = {
+  makkah: 'makkah',
+  madinah: 'madinah',
+} as const;
+
+export interface QuranChapter {
+  /** Surah number, 1-114. */
+  id: number;
+  /** Transliterated English name, e.g. "Al-Fatihah". */
+  name_simple: string;
+  name_arabic: string;
+  verses_count: number;
+  translated_name: QuranChapterTranslatedName;
+  revelation_place: QuranChapterRevelationPlace;
 }
 
 export interface QuranVerseTranslation {
   text: string;
+  /** Always 0 - the provider does not expose a translation id. */
   resource_id: number;
+  /** Name of the translation, e.g. "Sahih International". */
   resource_name: string;
 }
 
-export interface QuranVerseAudio {
+/**
+ * @nullable
+ */
+export type QuranVerseAudio = {
   url: string;
-}
+} | null;
 
 export interface QuranVerse {
+  /** Surah:ayah key, e.g. "2:255". */
   id: string;
+  /** Same value as id, kept for callers that expect this name. */
   verse_key: string;
+  /** Ayah number within its surah. */
   verse_number: number;
+  /** Arabic text. */
   text_uthmani: string;
   translations: QuranVerseTranslation[];
   /** @nullable */
-  audio: QuranVerseAudio | null;
+  audio: QuranVerseAudio;
 }
 
 export interface QuranSearchResult {

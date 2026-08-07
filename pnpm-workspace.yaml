@@ -75,6 +75,11 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
+  # NOTE: do not add an @types/react override here. Two copies exist on purpose
+  # - artifacts/mobile pins ~19.1.x for Expo SDK 54, the website uses catalog
+  # ^19.2.x. Forcing them together breaks Expo's types. The knock-on is that
+  # React types from the two trees do not unify, which is why
+  # components/ui/calendar.tsx casts at the react-day-picker boundary.
   # replit uses linux-x64 only, we can exclude all other platforms
   "esbuild>@esbuild/darwin-arm64": "-"
   "esbuild>@esbuild/darwin-x64": "-"

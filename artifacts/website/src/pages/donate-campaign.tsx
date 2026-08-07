@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { useGetDonationCampaignBySlug } from "@workspace/api-client-react";
+import { useGetDonationCampaignBySlug, getGetDonationCampaignBySlugQueryKey } from "@workspace/api-client-react";
 import { DonationWidget } from "@/components/donations/donation-widget";
 import { IslamicPattern, IslamicStar } from "@/components/site/islamic-pattern";
 import { ArrowLeft, HandHeart } from "lucide-react";
@@ -56,7 +56,7 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
 export default function DonateCampaignPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: campaign, isLoading, error } = useGetDonationCampaignBySlug(slug ?? "", {
-    query: { enabled: !!slug },
+    query: { enabled: !!slug, queryKey: getGetDonationCampaignBySlugQueryKey(slug ?? "") },
   });
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 

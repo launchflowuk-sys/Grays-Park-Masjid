@@ -10085,9 +10085,8 @@ export const getSearchQuranUrl = (params?: SearchQuranParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
-    }
+
+
   });
 
   const stringifiedParams = normalizedParams.toString();

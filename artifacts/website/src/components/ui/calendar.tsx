@@ -125,13 +125,18 @@ function Calendar({
         ...classNames,
       }}
       components={{
+        // react-day-picker's types resolve against @types/react 19.1.x (pinned
+        // by artifacts/mobile for Expo SDK 54) while the website builds against
+        // 19.2.x. The two Ref types are structurally identical but come from
+        // different paths, so TypeScript will not unify them. The cast is at
+        // the library boundary only - see the note in pnpm-workspace.yaml.
         Root: ({ className, rootRef, ...props }) => {
           return (
             <div
               data-slot="calendar"
-              ref={rootRef}
+              ref={rootRef as React.Ref<HTMLDivElement>}
               className={cn(className)}
-              {...props}
+              {...(props as React.HTMLAttributes<HTMLDivElement>)}
             />
           )
         },
@@ -156,9 +161,11 @@ function Calendar({
           )
         },
         DayButton: CalendarDayButton,
-        WeekNumber: ({ children, ...props }) => {
+        // `week` is react-day-picker's CalendarWeek object, not a DOM
+        // attribute - spreading it onto <td> also triggers a React warning.
+        WeekNumber: ({ children, week: _week, ...props }) => {
           return (
-            <td {...props}>
+            <td {...(props as React.TdHTMLAttributes<HTMLTableCellElement>)}>
               <div className="flex size-[--cell-size] items-center justify-center text-center">
                 {children}
               </div>
@@ -205,7 +212,7 @@ function CalendarDayButton({
         defaultClassNames.day,
         className
       )}
-      {...props}
+      {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
     />
   )
 }
