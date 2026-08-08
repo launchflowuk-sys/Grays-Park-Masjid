@@ -29,12 +29,17 @@ const BEAM_HALF_ANGLE = 5.5;
 /**
  * How far the dial is tipped away from the viewer.
  *
- * 50° is enough to read unmistakably as a solid object sitting on a surface
- * while still leaving the tick ring and the beam easy to judge by eye. Anything
- * past ~60° starts costing legibility, which on a religious tool is not a trade
- * worth making.
+ * 0° — the dial is presented face-on, the way you would look down at a compass
+ * in your palm. Depth comes entirely from the shading: the raking light on the
+ * raised bezel, the machined lip, the inset face, the inner rim shadow and the
+ * ambient halo. None of that depends on the tilt, so the dial still reads as a
+ * solid object; it simply is not foreshortened any more.
+ *
+ * The whole stage is still parameterised off this one constant, so a tilt can be
+ * dialled back in by changing it alone. Past ~60° it starts costing legibility,
+ * which on a religious tool is not a trade worth making.
  */
-const TILT_DEG = 50;
+const TILT_DEG = 0;
 const TILT_RAD = (TILT_DEG * Math.PI) / 180;
 const SIN_TILT = Math.sin(TILT_RAD);
 const COS_TILT = Math.cos(TILT_RAD);
@@ -55,14 +60,28 @@ const UPRIGHT_PERSPECTIVE_RATIO = 30;
 /**
  * Rim radius as a fraction of the half-box.
  *
- * The near edge of a tilted disc projects *wider* than the disc itself, so the
- * drawn dial has to be inset or it would spill out of its own layout box.
+ * Face-on there is no projection spill to allow for, but the ambient halo is
+ * drawn at `rimOuter + 0.046 · size` and has to stay inside the square SVG, so
+ * this cannot exceed ~0.90 without clipping the halo.
  */
 const RIM_RATIO = 0.88;
-/** Rendered height as a fraction of `size` — a tilted circle needs far less. */
-const BOX_RATIO = 0.78;
+/**
+ * Rendered height as a fraction of `size`. Face-on the dial is a true circle, so
+ * the box has to be as tall as it is wide — a tilted dial could get away with
+ * less, because foreshortening ate the height.
+ */
+const BOX_RATIO = 1;
 
-/** How far the Ka'bah floats above the dial face, as a fraction of `size`. */
+/**
+ * How far the Ka'bah floats above the dial face, as a fraction of `size`.
+ *
+ * Applied to the screen as `lift · sin(tilt)`, which is what a vertical offset
+ * above the dial plane actually projects to. Face-on that is zero: looking
+ * straight down at a raised object does not shift it sideways, and shifting it
+ * anyway would drag the mark off the bearing it is pinned to — on a Qibla tool
+ * that would mean the mark meeting the index before the user is actually facing
+ * the Ka'bah.
+ */
 const KAABA_LIFT_RATIO = 0.05;
 /** Ditto the centre cap. */
 const HUB_LIFT_RATIO = 0.022;
@@ -95,13 +114,14 @@ function polar(centre: number, radius: number, degrees: number) {
 }
 
 /**
- * The compass rose, staged as a physical dial seen at an angle.
+ * The compass rose, staged as a physical dial seen face-on.
  *
- * Three flat layers stack inside one tilted container: a static base (bezel,
- * inset face, rim shadow), the rotating rose (ticks, beam, cast shadows) and
- * the raised furniture (Ka'bah, centre cap, index). Depth is entirely static —
- * SVG gradients and fixed offsets — so tipping the dial costs nothing per
- * frame.
+ * Three flat layers stack inside one container: a static base (bezel, inset
+ * face, rim shadow), the rotating rose (ticks, beam, cast shadows) and the
+ * raised furniture (Ka'bah, centre cap, index). Depth is entirely static — SVG
+ * gradients and fixed offsets — so it costs nothing per frame, and it does not
+ * depend on the stage tilt, which is why setting TILT_DEG to 0 removes the
+ * foreshortening without flattening the object.
  *
  * The whole rose rotates by -heading, so north always points at true north and
  * the Ka'bah marker — pinned to the rose at the Qibla bearing — slides under
@@ -161,8 +181,9 @@ function QiblaCompassView({
       /** Top of the projected dial, in layout-box coordinates. */
       dialTop: stageTop + centre - up,
       kaabaSize: Math.round(Math.min(42, Math.max(28, size * 0.115))),
-      kaabaLift: size * KAABA_LIFT_RATIO,
-      hubLift: size * HUB_LIFT_RATIO,
+      // Screen projection of a vertical lift above the dial plane. Zero face-on.
+      kaabaLift: size * KAABA_LIFT_RATIO * SIN_TILT,
+      hubLift: size * HUB_LIFT_RATIO * SIN_TILT,
       cardinalBox: Math.round(size * 0.085),
       cardinalFont: Math.round(Math.min(17, Math.max(11, size * 0.047))),
       indexHeight: Math.round(size * 0.05),
